@@ -5,27 +5,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { UniversitySearch } from "@/components/auth/university-search";
+import { GenderPicker } from "@/components/account/gender-picker";
 import { signUpAction } from "@/app/register/actions";
-
-const GENDER_OPTIONS = [
-  { value: "female", label: "Female-only" },
-  { value: "male", label: "Male-only" },
-  { value: "mixed", label: "Mixed" },
-  { value: "", label: "Skip" },
-] as const;
 
 export function RegisterForm() {
   const router = useRouter();
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [gender, setGender] = useState<string>("");
   const [pending, startTransition] = useTransition();
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
-    fd.set("gender_preference", gender);
     startTransition(async () => {
       const result = await signUpAction(fd);
       if (result?.error) {
@@ -104,20 +96,7 @@ export function RegisterForm() {
 
         <div className="field">
           <label className="label">Roommate preference</label>
-          <div className="gender-pills" role="radiogroup" aria-label="Gender preference">
-            {GENDER_OPTIONS.map((opt) => (
-              <button
-                key={opt.value || "skip"}
-                type="button"
-                role="radio"
-                aria-checked={gender === opt.value}
-                className={`gender-pill ${gender === opt.value ? "active" : ""}`}
-                onClick={() => setGender(opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+          <GenderPicker name="gender_preference" ariaLabel="Roommate preference" />
           <div className="help">
             We&apos;ll prefer listings matching this. Change anytime in your profile.
           </div>

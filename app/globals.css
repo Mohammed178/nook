@@ -1421,6 +1421,178 @@ html[dir="rtl"] body { font-family: var(--font-inter), 'Inter', 'Noto Naskh Arab
 .account-menu-item-danger:hover { background: var(--danger-50); color: var(--danger-700); }
 .account-menu-divider { height: 1px; background: var(--ink-150); margin: 4px 0; }
 
+/* ============================================================
+   Account shell (Phase 3a · Checkpoint C)
+   ============================================================ */
+.account-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  padding: var(--s-16) 0 var(--s-16);
+  align-items: start;
+  min-height: calc(100vh - 80px);
+}
+
+.account-sidebar {
+  position: sticky;
+  top: 88px;
+  background: var(--surface);
+  border: 1px solid var(--ink-150);
+  border-radius: var(--r-lg);
+  padding: 8px;
+}
+.account-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.account-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-700);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.account-nav-item:hover { background: var(--ink-50); color: var(--ink-900); }
+.account-nav-item.active {
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font-weight: 600;
+}
+.account-nav-item.disabled {
+  color: var(--ink-400);
+  cursor: not-allowed;
+}
+.account-nav-item.disabled:hover { background: transparent; color: var(--ink-400); }
+.account-nav-soon {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+  background: var(--ink-100);
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+}
+.account-nav-item-danger { color: var(--danger); }
+.account-nav-item-danger:hover { background: var(--danger-50); color: var(--danger-700); }
+.account-nav-divider {
+  height: 1px;
+  background: var(--ink-150);
+  margin: 6px 4px;
+  list-style: none;
+}
+
+.account-content { min-width: 0; }
+.account-page-head {
+  margin-top: 10px;
+  margin-bottom: var(--s-6);
+}
+.account-page-head h1 {
+  font-size: var(--t-2xl);
+  margin-bottom: var(--s-2);
+}
+.account-page-sub { color: var(--ink-500); }
+
+.account-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.account-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--ink-150);
+  border-radius: var(--r-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms, transform 120ms, box-shadow 120ms;
+}
+.account-tile:hover:not(.disabled) {
+  border-color: var(--brand-300);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+.account-tile.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.account-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--brand-50);
+  color: var(--brand-700);
+  border-radius: var(--r-md);
+  flex-shrink: 0;
+}
+.account-tile.disabled .account-tile-icon {
+  background: var(--ink-100);
+  color: var(--ink-500);
+}
+.account-tile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.account-tile-title {
+  font-weight: 600;
+  color: var(--ink-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-tile-blurb {
+  font-size: var(--t-sm);
+  color: var(--ink-500);
+}
+.account-tile-soon {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+  background: var(--ink-100);
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+}
+
+.profile-form { max-width: 520px; }
+.profile-form .field { margin-bottom: var(--s-5); }
+.profile-form-actions {
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--ink-150);
+}
+.profile-success {
+  background: var(--brand-50);
+  color: var(--brand-700);
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  margin-bottom: var(--s-4);
+  font-size: var(--t-sm);
+}
+
 @media (max-width: 768px) {
   .auth-shell-login,
   .auth-shell-register { grid-template-columns: 1fr; }
@@ -1430,5 +1602,28 @@ html[dir="rtl"] body { font-family: var(--font-inter), 'Inter', 'Noto Naskh Arab
   .auth-shell-register .auth-form { padding: 24px 20px 48px; }
   .auth-topbar { padding: 16px 20px; }
   .account-name { display: none; }
+
+  .account-shell {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: var(--s-6) 0 var(--s-12);
+  }
+  .account-sidebar {
+    position: static;
+    padding: 4px;
+  }
+  .account-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .account-nav > li { flex-shrink: 0; }
+  .account-nav-item {
+    padding: 8px 10px;
+    white-space: nowrap;
+  }
+  .account-nav-divider { display: none; }
+  .account-nav-soon { display: none; }
+  .account-tiles { grid-template-columns: 1fr; }
 }
 
