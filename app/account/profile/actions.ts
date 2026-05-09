@@ -1,0 +1,53 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createActionClient } from "@/lib/supabase/server";
+import { UNIVERSITIES } from "@/lib/seed/universities";
+
+const VALID_GENDERS = new Set(["female", "male", "mixed"]);
+const VALID_UNIVERSITY_IDS = new Set(UNIVERSITIES.map((u) => u.id));
+
+export async function updateProfileAction(
+  formData: FormData,
+): Promise<{ error?: string; ok?: true }> {
+  const displayName = String(formData.get("display_name") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const country = String(formData.get("country") ?? "").trim();
+  const universityIdRaw = String(formData.get("university_id") ?? "").trim();
+  const genderRaw = String(formData.get("gender_preference") ?? "").trim();
+
+  if (!displayName) {
+    return { error: "Display name is required." };
+  }
+  if (universityIdRaw && !VALID_UNIVERSITY_IDS.has(universityIdRaw)) {
+    return { error: "Pick a university from the list." };
+  }
+
+  const supabase = await createActionClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Not signed in." };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      display_name: displayName,
+      phone: phone || null,
+      country: country || null,
+      university_id: universityIdRaw || null,
+      gender_preference: VALID_GENDERS.has(genderRaw) ? genderRaw : null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/account/profile");
+  revalidatePath("/account");
+  return { ok: true };
+}
