@@ -4,9 +4,12 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
+import { HeartButton } from "@/components/nook/heart-button";
 import { Gallery } from "@/components/listings/gallery";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
 import { LISTINGS } from "@/lib/seed/listings";
+import { getFavouriteIds } from "@/lib/favourites";
+import { getCurrentUser } from "@/lib/auth";
 import { AGENT_BY_ID } from "@/lib/seed/agents";
 import { AREA_BY_ID } from "@/lib/seed/areas";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
@@ -108,6 +111,10 @@ export default async function ListingDetailPage({
   const parsed = parseListingSearchParams(sp);
   const currentQuery = preserveQueryString(sp);
 
+  const [savedIds, user] = await Promise.all([getFavouriteIds(), getCurrentUser()]);
+  const signedIn = user !== null;
+  const initialSaved = savedIds.includes(listing.id);
+
   const agent = AGENT_BY_ID[listing.agentId];
   const area = AREA_BY_ID[listing.areaId];
   const primaryUni = pickPrimaryUni(listing);
@@ -164,9 +171,12 @@ export default async function ListingDetailPage({
               </div>
             </div>
             <div className="title-actions">
-              <button type="button" className="btn btn-icon" aria-label="Save">
-                <Icon name="heart" size={16} />
-              </button>
+              <HeartButton
+                listingId={listing.id}
+                initialSaved={initialSaved}
+                signedIn={signedIn}
+                variant="icon"
+              />
               <button type="button" className="btn btn-icon" aria-label="Share">
                 <Icon name="share" size={16} />
               </button>

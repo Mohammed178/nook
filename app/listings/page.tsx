@@ -6,6 +6,8 @@ import { FilterBar } from "@/components/listings/filter-bar";
 import { ListingsBody } from "@/components/listings/listings-body";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { AREA_BY_ID } from "@/lib/seed/areas";
+import { getFavouriteIds } from "@/lib/favourites";
+import { getCurrentUser } from "@/lib/auth";
 import {
   parseListingSearchParams,
   preserveQueryString,
@@ -70,6 +72,9 @@ export default async function ListingsPage({
   const sort = defaultSort(params);
   const currentQuery = preserveQueryString(sp);
 
+  const [savedIds, user] = await Promise.all([getFavouriteIds(), getCurrentUser()]);
+  const signedIn = user !== null;
+
   let mapCenter: [number, number] = KLANG_VALLEY_CENTER;
   let mapZoom = 11;
   if (params.university && UNIVERSITY_BY_ID[params.university]) {
@@ -131,6 +136,8 @@ export default async function ListingsPage({
         mapCenter={mapCenter}
         mapZoom={mapZoom}
         sortLabel={sortLabelFor(sort, label.universityShort)}
+        savedIds={savedIds}
+        signedIn={signedIn}
       />
     </>
   );

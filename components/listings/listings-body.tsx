@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
 import { buildListingsHref } from "@/lib/listings-search";
@@ -34,6 +34,8 @@ interface ListingsBodyProps {
   mapCenter: [number, number];
   mapZoom: number;
   sortLabel: string;
+  savedIds: string[];
+  signedIn: boolean;
 }
 
 export function ListingsBody({
@@ -42,9 +44,12 @@ export function ListingsBody({
   mapCenter,
   mapZoom,
   sortLabel,
+  savedIds,
+  signedIn,
 }: ListingsBodyProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
+  const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
   if (listings.length === 0) {
     return (
@@ -102,6 +107,8 @@ export function ListingsBody({
                   variant="horizontal"
                   currentQuery={currentQuery}
                   isActive={activeId === l.id}
+                  initialSaved={savedSet.has(l.id)}
+                  signedIn={signedIn}
                 />
               </div>
             ))}

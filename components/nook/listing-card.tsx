@@ -19,6 +19,8 @@ interface ListingCardProps {
   href?: string;
   currentQuery?: string;
   isActive?: boolean;
+  initialSaved?: boolean;
+  signedIn?: boolean;
 }
 
 function initials(name: string) {
@@ -36,6 +38,8 @@ export function ListingCard({
   href,
   currentQuery,
   isActive,
+  initialSaved = false,
+  signedIn = false,
 }: ListingCardProps) {
   const agent = AGENT_BY_ID[listing.agentId];
   const area = AREA_BY_ID[listing.areaId];
@@ -170,7 +174,12 @@ export function ListingCard({
           )}
         </div>
         <div className="badges-tr">
-          <HeartButton />
+          <HeartButton
+            listingId={listing.id}
+            initialSaved={initialSaved}
+            signedIn={signedIn}
+            variant="pill"
+          />
         </div>
       </div>
       <div className="card-body">

@@ -189,6 +189,7 @@ export function SearchForm({
                   className={`sp-suggest-item${i === safeHighlight ? " is-active" : ""}`}
                   onMouseDown={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     pickUniversity(u);
                   }}
                   onMouseEnter={() => setHighlightIdx(i)}
