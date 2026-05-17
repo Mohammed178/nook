@@ -8,6 +8,8 @@ import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { AREA_BY_ID } from "@/lib/seed/areas";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import type { Gender } from "@/lib/types";
 import {
   parseListingSearchParams,
   preserveQueryString,
@@ -32,11 +34,11 @@ function pageHeading(label: ReturnType<typeof resolveLocationLabel>): string {
 }
 
 function pageMeta(count: number, label: ReturnType<typeof resolveLocationLabel>): string {
-  if (count === 0) return "No matching rooms · adjust filters to see more";
-  const suffix = label.universityShort
-    ? `· within walking distance to ${label.universityShort}`
-    : "";
-  return `${count} listing${count === 1 ? "" : "s"} ${suffix}`.trim();
+  if (count === 0) return "No matching rooms. Adjust filters to see more.";
+  if (label.universityShort) {
+    return `Within walking distance to ${label.universityShort}.`;
+  }
+  return "";
 }
 
 function locationPillLabel(label: ReturnType<typeof resolveLocationLabel>): string {
@@ -67,13 +69,28 @@ export default async function ListingsPage({
 }) {
   const sp = await searchParams;
   const params = parseListingSearchParams(sp);
-  const listings = getFilteredListings(params);
   const label = resolveLocationLabel(params);
   const sort = defaultSort(params);
   const currentQuery = preserveQueryString(sp);
 
   const [savedIds, user] = await Promise.all([getFavouriteIds(), getCurrentUser()]);
   const signedIn = user !== null;
+
+  let viewerGender: Gender | undefined;
+  if (user) {
+    const supabase = await createClient();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("gender_preference")
+      .eq("id", user.id)
+      .maybeSingle();
+    const raw = profile?.gender_preference;
+    if (raw === "female" || raw === "male" || raw === "mixed") {
+      viewerGender = raw;
+    }
+  }
+
+  const listings = getFilteredListings(params, viewerGender);
 
   let mapCenter: [number, number] = KLANG_VALLEY_CENTER;
   let mapZoom = 11;
@@ -95,6 +112,8 @@ export default async function ListingsPage({
         resultCount={listings.length}
         locationLabel={locationPillLabel(label)}
         effectiveSort={sort}
+        signedIn={signedIn}
+        viewerGender={viewerGender}
       />
 
       <div className="breadcrumb">
@@ -118,12 +137,11 @@ export default async function ListingsPage({
       <div className="listings-h1">
         <div>
           <h1>{pageHeading(label)}</h1>
-          <div className="meta">{pageMeta(listings.length, label)}</div>
+          {pageMeta(listings.length, label) ? (
+            <div className="meta">{pageMeta(listings.length, label)}</div>
+          ) : null}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button type="button" className="btn btn-secondary btn-sm">
-            <Icon name="heart" size={14} /> Save search
-          </button>
           <button type="button" className="btn btn-secondary btn-sm">
             <Icon name="share" size={14} /> Share
           </button>

@@ -13,6 +13,7 @@ interface HeartButtonProps {
   signedIn: boolean;
   variant?: HeartVariant;
   ariaLabel?: string;
+  onToggled?: (saved: boolean) => void;
 }
 
 const TOOLTIP_AUTOHIDE_MS = 2500;
@@ -32,6 +33,7 @@ export function HeartButton({
   signedIn,
   variant = "pill",
   ariaLabel = "Save listing",
+  onToggled,
 }: HeartButtonProps) {
   const [saved, setSaved] = useState<boolean>(initialSaved);
   const [optimisticSaved, applyOptimistic] = useOptimistic<boolean, boolean>(
@@ -47,6 +49,9 @@ export function HeartButton({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // SSR portal gate: server + first client render both return null so
+    // hydration matches; portal renders only after this effect flips mounted.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -138,6 +143,7 @@ export function HeartButton({
     const next = !saved;
     startTransition(async () => {
       applyOptimistic(next);
+      onToggled?.(next);
       const result = await toggleFavouriteAction(listingId);
       if ("error" in result) {
         if (typeof console !== "undefined") {

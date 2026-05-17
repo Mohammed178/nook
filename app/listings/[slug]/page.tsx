@@ -7,6 +7,7 @@ import { ListingCard } from "@/components/nook/listing-card";
 import { HeartButton } from "@/components/nook/heart-button";
 import { Gallery } from "@/components/listings/gallery";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
+import { ViewTracker } from "@/components/listings/view-tracker";
 import { LISTINGS } from "@/lib/seed/listings";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
@@ -136,6 +137,7 @@ export default async function ListingDetailPage({
   return (
     <>
       <Navbar active="listings" />
+      <ViewTracker listingId={listing.id} />
 
       <div className="breadcrumb">
         <Link href="/">Nook</Link>

@@ -45,6 +45,7 @@ import {
   Trees,
   Maximize2,
   Share2,
+  BookmarkPlus,
   List as ListIcon,
   type LucideProps,
 } from "lucide-react";
@@ -101,6 +102,7 @@ export const ICON_NAMES = [
   "heart-fill",
   "check-circle",
   "list",
+  "bookmark",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
@@ -154,6 +156,7 @@ const MAP: Record<Exclude<IconName, "whatsapp" | "heart-fill">, React.ComponentT
   share: Share2,
   "check-circle": CheckCircle2,
   list: ListIcon,
+  bookmark: BookmarkPlus,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {

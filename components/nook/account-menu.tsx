@@ -60,28 +60,30 @@ export function AccountMenu({ displayName }: AccountMenuProps) {
           >
             <Icon name="user" size={14} /> Account
           </Link>
-          <button
-            type="button"
-            className="account-menu-item disabled"
+          <Link
+            href="/account/saved"
+            className="account-menu-item"
             role="menuitem"
-            disabled
-            aria-disabled="true"
-            title="Coming soon — Phase 3a · Checkpoint E"
+            onClick={() => setOpen(false)}
           >
             <Icon name="heart" size={14} /> Saved
-            <span className="account-menu-soon">Soon</span>
-          </button>
-          <button
-            type="button"
-            className="account-menu-item disabled"
+          </Link>
+          <Link
+            href="/account/recent"
+            className="account-menu-item"
             role="menuitem"
-            disabled
-            aria-disabled="true"
-            title="Coming soon — Phase 3a · Checkpoint F"
+            onClick={() => setOpen(false)}
           >
             <Icon name="calendar" size={14} /> Recent
-            <span className="account-menu-soon">Soon</span>
-          </button>
+          </Link>
+          <Link
+            href="/account/searches"
+            className="account-menu-item"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+          >
+            <Icon name="search" size={14} /> Saved searches
+          </Link>
           <div className="account-menu-divider" />
           <form action={signOutAction}>
             <button

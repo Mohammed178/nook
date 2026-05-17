@@ -15,34 +15,38 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { href: "/account/profile", label: "Profile", icon: "user", ready: true },
-  {
-    href: "/account/saved",
-    label: "Saved listings",
-    icon: "heart",
-    ready: false,
-    comingIn: "Phase 3a · Checkpoint E",
-  },
-  {
-    href: "/account/recent",
-    label: "Recent",
-    icon: "calendar",
-    ready: false,
-    comingIn: "Phase 3a · Checkpoint F",
-  },
-  {
-    href: "/account/searches",
-    label: "Saved searches",
-    icon: "search",
-    ready: false,
-    comingIn: "Phase 3a · Checkpoint G",
-  },
+  { href: "/account/saved", label: "Saved listings", icon: "heart", ready: true },
+  { href: "/account/recent", label: "Recent", icon: "calendar", ready: true },
+  { href: "/account/searches", label: "Saved searches", icon: "search", ready: true },
 ];
 
-export function AccountSidebar() {
+interface AccountSidebarProps {
+  displayName: string;
+  email: string;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean).slice(0, 2);
+  if (parts.length === 0) return "?";
+  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("");
+}
+
+export function AccountSidebar({ displayName, email }: AccountSidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside className="account-sidebar" aria-label="Account navigation">
+      <header className="account-sidebar-head">
+        <span className="account-sidebar-avatar" aria-hidden="true">
+          {initials(displayName)}
+        </span>
+        <div className="account-sidebar-id">
+          <div className="account-sidebar-name">{displayName}</div>
+          <div className="account-sidebar-email" title={email}>
+            {email}
+          </div>
+        </div>
+      </header>
       <ul className="account-nav">
         {NAV.map((item) => {
           const active =

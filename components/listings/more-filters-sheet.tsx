@@ -62,7 +62,6 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
   const [types, setTypes] = useState<Set<ListingType>>(new Set(initial.type ?? []));
   const [beds, setBeds] = useState<number | undefined>(initial.beds);
   const [furnished, setFurnished] = useState(initial.furnished ?? false);
-  const [female, setFemale] = useState(initial.female ?? false);
   const [amenities, setAmenities] = useState<Set<string>>(
     new Set(initial.amenities ?? []),
   );
@@ -126,7 +125,6 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
       type: types.size > 0 ? Array.from(types) : undefined,
       beds: bedsDisabled ? undefined : beds,
       furnished: furnished || undefined,
-      female: female || undefined,
       amenities: amenities.size > 0 ? Array.from(amenities) : undefined,
     });
     onClose();
@@ -138,7 +136,6 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
     setTypes(new Set());
     setBeds(undefined);
     setFurnished(false);
-    setFemale(false);
     setAmenities(new Set());
   }
 
@@ -271,14 +268,6 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
                   onChange={(e) => setFurnished(e.target.checked)}
                 />
                 Furnished only
-              </label>
-              <label className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={female}
-                  onChange={(e) => setFemale(e.target.checked)}
-                />
-                Female-only listings
               </label>
             </div>
           </div>

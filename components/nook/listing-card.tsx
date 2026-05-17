@@ -21,6 +21,7 @@ interface ListingCardProps {
   isActive?: boolean;
   initialSaved?: boolean;
   signedIn?: boolean;
+  onHeartToggled?: (saved: boolean) => void;
 }
 
 function initials(name: string) {
@@ -40,6 +41,7 @@ export function ListingCard({
   isActive,
   initialSaved = false,
   signedIn = false,
+  onHeartToggled,
 }: ListingCardProps) {
   const agent = AGENT_BY_ID[listing.agentId];
   const area = AREA_BY_ID[listing.areaId];
@@ -179,6 +181,7 @@ export function ListingCard({
             initialSaved={initialSaved}
             signedIn={signedIn}
             variant="pill"
+            onToggled={onHeartToggled}
           />
         </div>
       </div>

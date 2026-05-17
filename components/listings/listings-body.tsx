@@ -69,8 +69,8 @@ export function ListingsBody({
                 marginBottom: 12,
               }}
             >
-              Try widening the price range, removing the female-only filter, or
-              picking a different area.
+              Try widening the price range, picking a different area, or
+              clearing your filters.
             </p>
             <Link href={buildListingsHref({})} className="btn btn-secondary btn-sm">
               Clear all filters

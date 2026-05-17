@@ -1,9 +1,10 @@
-import type { Listing, ListingType } from "@/lib/types";
+import type { Gender, Listing, ListingType } from "@/lib/types";
 import { LISTINGS } from "@/lib/seed/listings";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { AREA_BY_ID } from "@/lib/seed/areas";
 
 export type SortKey = "priceAsc" | "priceDesc" | "distance" | "newest";
+export type GenderOverride = "off";
 
 export interface ListingSearchParams {
   priceMin?: number;
@@ -13,12 +14,18 @@ export interface ListingSearchParams {
   type?: ListingType[];
   beds?: number;
   furnished?: boolean;
-  female?: boolean;
   amenities?: string[];
   moveInBy?: string;
   q?: string;
   sort?: SortKey;
   from?: string;
+  /**
+   * Per-session opt-out for the auto-applied gender filter (driven by
+   * profile.gender_preference). Only "off" is meaningful. Absence = filter
+   * applies when profile gender is set. Never represents a gender value
+   * itself; gender is profile-only, never URL-borne.
+   */
+  genderOverride?: GenderOverride;
 }
 
 export interface RawSearchParams {
@@ -59,7 +66,6 @@ export function parseListingSearchParams(sp: RawSearchParams): ListingSearchPara
 
   const beds = num(sp.beds);
   const furnished = str(sp.furnished) === "1" || str(sp.furnished) === "true";
-  const female = str(sp.female) === "1" || str(sp.female) === "true";
   const amenities = strList(sp.amenities);
   const moveInBy = str(sp.moveInBy);
   const q = str(sp.q);
@@ -74,6 +80,9 @@ export function parseListingSearchParams(sp: RawSearchParams): ListingSearchPara
       ? sortRaw
       : undefined;
 
+  const genderOverride: GenderOverride | undefined =
+    str(sp.genderOverride) === "off" ? "off" : undefined;
+
   return {
     priceMin,
     priceMax,
@@ -82,12 +91,12 @@ export function parseListingSearchParams(sp: RawSearchParams): ListingSearchPara
     type: type && type.length > 0 ? type : undefined,
     beds,
     furnished: furnished || undefined,
-    female: female || undefined,
     amenities,
     moveInBy,
     q,
     sort,
     from,
+    genderOverride,
   };
 }
 
@@ -106,12 +115,12 @@ export function serializeListingSearchParams(p: ListingSearchParams): string {
   if (p.type && p.type.length > 0) usp.set("type", p.type.join(","));
   if (p.beds != null) usp.set("beds", String(p.beds));
   if (p.furnished) usp.set("furnished", "1");
-  if (p.female) usp.set("female", "1");
   if (p.amenities && p.amenities.length > 0) usp.set("amenities", p.amenities.join(","));
   if (p.moveInBy) usp.set("moveInBy", p.moveInBy);
   if (p.q) usp.set("q", p.q);
   if (p.sort) usp.set("sort", p.sort);
   if (p.from) usp.set("from", p.from);
+  if (p.genderOverride === "off") usp.set("genderOverride", "off");
   return usp.toString();
 }
 
@@ -164,7 +173,10 @@ export function listingDistanceKm(l: Listing, universityId?: string): number {
 export function applyFilters(
   listings: Listing[],
   p: ListingSearchParams,
+  viewerGender?: Gender,
 ): Listing[] {
+  const genderApplies =
+    viewerGender !== undefined && p.genderOverride !== "off";
   return listings.filter((l) => {
     if (p.priceMin != null && l.priceMonthly < p.priceMin) return false;
     if (p.priceMax != null && l.priceMonthly > p.priceMax) return false;
@@ -173,7 +185,7 @@ export function applyFilters(
     if (p.type && p.type.length > 0 && !p.type.includes(l.type)) return false;
     if (p.beds != null && l.bedrooms < p.beds) return false;
     if (p.furnished && l.furnishing !== "full") return false;
-    if (p.female && l.genderPreference !== "female") return false;
+    if (genderApplies && l.genderPreference !== viewerGender) return false;
     if (p.amenities && p.amenities.length > 0) {
       for (const a of p.amenities) {
         if (!l.amenities.includes(a)) return false;
@@ -216,8 +228,11 @@ export function applySort(
   return arr;
 }
 
-export function getFilteredListings(p: ListingSearchParams): Listing[] {
-  const filtered = applyFilters(LISTINGS, p);
+export function getFilteredListings(
+  p: ListingSearchParams,
+  viewerGender?: Gender,
+): Listing[] {
+  const filtered = applyFilters(LISTINGS, p, viewerGender);
   return applySort(filtered, defaultSort(p), p.university);
 }
 
