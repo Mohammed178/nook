@@ -8,7 +8,7 @@
 //      detail (populates favourites + saved_searches + recent_views)
 //   4. User B = a fresh second account, nothing saved
 //
-// Run: node --env-file=.env.test.local scripts/rls-test.mjs
+// Run: node --env-file=.env.local scripts/rls-test.mjs
 // Exit 0 = pass. Exit 1 = leak (with FAIL: reason).
 
 import { createClient } from "@supabase/supabase-js";

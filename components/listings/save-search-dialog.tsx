@@ -3,7 +3,10 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/nook/icon";
-import { suggestSearchName } from "@/lib/saved-search-summary";
+import {
+  suggestSearchName,
+  type AreaLookup,
+} from "@/lib/saved-search-summary";
 import { addSavedSearchAction } from "@/app/listings/actions";
 import type { ListingSearchParams } from "@/lib/listings-search";
 
@@ -11,6 +14,7 @@ interface SaveSearchDialogProps {
   open: boolean;
   anchor: DOMRect | null;
   query: ListingSearchParams;
+  areaLookup: AreaLookup;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -22,10 +26,13 @@ export function SaveSearchDialog({
   open,
   anchor,
   query,
+  areaLookup,
   onClose,
   onSaved,
 }: SaveSearchDialogProps) {
-  const [name, setName] = useState<string>(() => suggestSearchName(query));
+  const [name, setName] = useState<string>(() =>
+    suggestSearchName(query, areaLookup),
+  );
   const [error, setError] = useState<string | null>(null);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -40,14 +47,14 @@ export function SaveSearchDialog({
 
   useEffect(() => {
     if (!open) return;
-    setName(suggestSearchName(query));
+    setName(suggestSearchName(query, areaLookup));
     setError(null);
     setDuplicateWarning(null);
     requestAnimationFrame(() => {
       inputRef.current?.focus();
       inputRef.current?.select();
     });
-  }, [open, query]);
+  }, [open, query, areaLookup]);
 
   useEffect(() => {
     if (!open) return;

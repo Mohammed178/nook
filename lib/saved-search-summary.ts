@@ -1,7 +1,18 @@
 import type { ListingSearchParams } from "@/lib/listings-search";
+import type { Area } from "@/lib/types";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
-import { AREA_BY_ID } from "@/lib/seed/areas";
 import { formatPrice } from "@/lib/utils";
+
+/**
+ * Slug-keyed area lookup. Server resolves `getAllAreas()` once per request
+ * and passes `Object.fromEntries(areas.map(a => [a.slug, a]))` to client
+ * components (plain object so the prop is serializable across the
+ * server→client boundary).
+ *
+ * Universities still flow through the seed lookup; they are migrated in a
+ * later phase.
+ */
+export type AreaLookup = Record<string, Area>;
 
 const TYPE_LABELS: Record<string, string> = {
   room: "Room",
@@ -39,19 +50,25 @@ function typeForName(p: ListingSearchParams): string {
   return "Listings";
 }
 
-function locationForName(p: ListingSearchParams): string | null {
+export function locationForName(
+  p: ListingSearchParams,
+  areas: AreaLookup,
+): string | null {
   if (p.university) {
     const u = UNIVERSITY_BY_ID[p.university];
     if (u) return `near ${u.shortName}`;
   }
   if (p.area) {
-    const a = AREA_BY_ID[p.area];
+    const a = areas[p.area];
     if (a) return `in ${a.name}`;
   }
   return null;
 }
 
-export function summarizeChips(p: ListingSearchParams): string[] {
+export function summarizeChips(
+  p: ListingSearchParams,
+  areas: AreaLookup,
+): string[] {
   const chips: string[] = [];
 
   if (p.university) {
@@ -59,7 +76,7 @@ export function summarizeChips(p: ListingSearchParams): string[] {
     if (u) chips.push(u.shortName);
   }
   if (p.area) {
-    const a = AREA_BY_ID[p.area];
+    const a = areas[p.area];
     if (a) chips.push(a.name);
   }
 
@@ -86,9 +103,12 @@ export function summarizeChips(p: ListingSearchParams): string[] {
   return chips;
 }
 
-export function suggestSearchName(p: ListingSearchParams): string {
+export function suggestSearchName(
+  p: ListingSearchParams,
+  areas: AreaLookup,
+): string {
   const noun = typeForName(p);
-  const loc = locationForName(p);
+  const loc = locationForName(p, areas);
   const price = priceForName(p);
   const beds = p.beds != null ? `${p.beds}+ bed ` : "";
 
@@ -100,9 +120,15 @@ export function suggestSearchName(p: ListingSearchParams): string {
   return out.length > 0 ? out : "All listings";
 }
 
-export function summarizeSearch(p: ListingSearchParams): {
+export function summarizeSearch(
+  p: ListingSearchParams,
+  areas: AreaLookup,
+): {
   chips: string[];
   suggestedName: string;
 } {
-  return { chips: summarizeChips(p), suggestedName: suggestSearchName(p) };
+  return {
+    chips: summarizeChips(p, areas),
+    suggestedName: suggestSearchName(p, areas),
+  };
 }

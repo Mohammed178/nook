@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
 import { buildListingsHref } from "@/lib/listings-search";
-import type { Listing } from "@/lib/types";
+import type { ListingWithRelations } from "@/lib/types";
 
 const ListingsMap = dynamic(
   () => import("./listings-map").then((m) => m.ListingsMap),
@@ -29,7 +29,7 @@ const ListingsMap = dynamic(
 );
 
 interface ListingsBodyProps {
-  listings: Listing[];
+  items: ListingWithRelations[];
   currentQuery: string;
   mapCenter: [number, number];
   mapZoom: number;
@@ -39,7 +39,7 @@ interface ListingsBodyProps {
 }
 
 export function ListingsBody({
-  listings,
+  items,
   currentQuery,
   mapCenter,
   mapZoom,
@@ -51,7 +51,7 @@ export function ListingsBody({
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
-  if (listings.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="body-split">
         <div className="list-pane">
@@ -87,27 +87,29 @@ export function ListingsBody({
         <div className="list-pane">
           <div className="list-meta">
             <div className="list-meta-l">
-              Showing <strong>{listings.length}</strong>{" "}
-              {listings.length === 1 ? "room" : "rooms"}
+              Showing <strong>{items.length}</strong>{" "}
+              {items.length === 1 ? "room" : "rooms"}
               {sortLabel ? ` · ${sortLabel}` : ""}
             </div>
           </div>
 
           <div className="list-stack">
-            {listings.map((l) => (
+            {items.map(({ listing, agent, area }) => (
               <div
-                key={l.id}
-                onMouseEnter={() => setActiveId(l.id)}
+                key={listing.id}
+                onMouseEnter={() => setActiveId(listing.id)}
                 onMouseLeave={() => setActiveId(null)}
-                onFocus={() => setActiveId(l.id)}
+                onFocus={() => setActiveId(listing.id)}
                 onBlur={() => setActiveId(null)}
               >
                 <ListingCard
-                  listing={l}
+                  listing={listing}
+                  agent={agent}
+                  area={area}
                   variant="horizontal"
                   currentQuery={currentQuery}
-                  isActive={activeId === l.id}
-                  initialSaved={savedSet.has(l.id)}
+                  isActive={activeId === listing.id}
+                  initialSaved={savedSet.has(listing.id)}
                   signedIn={signedIn}
                 />
               </div>
@@ -117,7 +119,7 @@ export function ListingsBody({
 
         <div className="map-pane">
           <ListingsMap
-            listings={listings}
+            items={items}
             center={mapCenter}
             zoom={mapZoom}
             activeId={activeId}

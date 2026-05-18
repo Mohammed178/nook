@@ -1,8 +1,13 @@
 import type { Agent } from "@/lib/types";
 
+// Seed slugs are hardcoded to match what scripts/seed-3ba.mjs derives via
+// slugify(name) — agents already in scripts/.id-map-3ba.json. If you rename
+// an agent here you MUST re-run seed-3ba and re-derive the id-map; the
+// rls-test asserts these two stay in sync.
 export const AGENTS: Agent[] = [
   {
     id: "agent-aisha",
+    slug: "aisha-rahman",
     name: "Aisha Rahman",
     agency: "Nook Verified",
     rating: 4.8,
@@ -20,6 +25,7 @@ export const AGENTS: Agent[] = [
   },
   {
     id: "agent-faiz",
+    slug: "faiz-othman",
     name: "Faiz Othman",
     agency: "Bangi Properties",
     rating: 4.6,
@@ -37,6 +43,7 @@ export const AGENTS: Agent[] = [
   },
   {
     id: "agent-mei",
+    slug: "mei-lin-chong",
     name: "Mei Lin Chong",
     agency: "Sunway Homes",
     rating: 4.9,
@@ -54,6 +61,7 @@ export const AGENTS: Agent[] = [
   },
   {
     id: "agent-arif",
+    slug: "arif-hakim",
     name: "Arif Hakim",
     rating: 4.4,
     reviewCount: 54,
@@ -68,6 +76,7 @@ export const AGENTS: Agent[] = [
   },
   {
     id: "agent-priya",
+    slug: "priya-devi",
     name: "Priya Devi",
     agency: "Cyber City Realty",
     rating: 4.7,
@@ -85,6 +94,7 @@ export const AGENTS: Agent[] = [
   },
   {
     id: "agent-ben",
+    slug: "ben-tan",
     name: "Ben Tan",
     agency: "KL Student Living",
     rating: 4.5,

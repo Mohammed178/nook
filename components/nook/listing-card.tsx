@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { Icon } from "./icon";
 import { HeartButton } from "./heart-button";
-import type { Listing } from "@/lib/types";
-import { AGENT_BY_ID } from "@/lib/seed/agents";
-import { AREA_BY_ID } from "@/lib/seed/areas";
+import type { Agent, Area, Listing } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 
 export type ListingCardVariant =
@@ -15,6 +13,8 @@ export type ListingCardVariant =
 
 interface ListingCardProps {
   listing: Listing;
+  agent: Agent | null;
+  area: Area | null;
   variant?: ListingCardVariant;
   href?: string;
   currentQuery?: string;
@@ -35,6 +35,8 @@ function initials(name: string) {
 
 export function ListingCard({
   listing,
+  agent,
+  area,
   variant = "vertical",
   href,
   currentQuery,
@@ -43,8 +45,6 @@ export function ListingCard({
   signedIn = false,
   onHeartToggled,
 }: ListingCardProps) {
-  const agent = AGENT_BY_ID[listing.agentId];
-  const area = AREA_BY_ID[listing.areaId];
   const baseHref = href ?? `/listings/${listing.slug}`;
   const linkHref = currentQuery ? `${baseHref}?${currentQuery}` : baseHref;
   const photo = listing.photos[0];

@@ -1,8 +1,12 @@
 import type { Area } from "@/lib/types";
 
+// Seed slugs equal seed ids by design (preserved verbatim by scripts/seed-3ba.mjs).
+// The 3b-A seed script writes the same `slug` value into the DB row; if you
+// rename a seed id here, you MUST re-run the seed and re-derive .id-map-3ba.json.
 export const AREAS: Area[] = [
   {
     id: "bangsar",
+    slug: "bangsar",
     name: "Bangsar",
     city: "Kuala Lumpur",
     state: "WP Kuala Lumpur",
@@ -13,6 +17,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "pantai-dalam",
+    slug: "pantai-dalam",
     name: "Pantai Dalam",
     city: "Kuala Lumpur",
     state: "WP Kuala Lumpur",
@@ -23,6 +28,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "pj",
+    slug: "pj",
     name: "Petaling Jaya",
     city: "Petaling Jaya",
     state: "Selangor",
@@ -33,6 +39,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "bangi",
+    slug: "bangi",
     name: "Bangi",
     city: "Bangi",
     state: "Selangor",
@@ -43,6 +50,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "serdang",
+    slug: "serdang",
     name: "Seri Kembangan / Serdang",
     city: "Seri Kembangan",
     state: "Selangor",
@@ -53,6 +61,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "cyberjaya",
+    slug: "cyberjaya",
     name: "Cyberjaya",
     city: "Cyberjaya",
     state: "Selangor",
@@ -63,6 +72,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "shah-alam",
+    slug: "shah-alam",
     name: "Shah Alam Section 7",
     city: "Shah Alam",
     state: "Selangor",
@@ -73,6 +83,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "subang-jaya",
+    slug: "subang-jaya",
     name: "Subang Jaya / SS15",
     city: "Subang Jaya",
     state: "Selangor",
@@ -83,6 +94,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "bandar-sunway",
+    slug: "bandar-sunway",
     name: "Bandar Sunway",
     city: "Subang Jaya",
     state: "Selangor",
@@ -93,6 +105,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "cheras",
+    slug: "cheras",
     name: "Cheras",
     city: "Kuala Lumpur",
     state: "WP Kuala Lumpur",
@@ -103,6 +116,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "gombak",
+    slug: "gombak",
     name: "Gombak",
     city: "Gombak",
     state: "Selangor",
@@ -113,6 +127,7 @@ export const AREAS: Area[] = [
   },
   {
     id: "setapak",
+    slug: "setapak",
     name: "Setapak",
     city: "Kuala Lumpur",
     state: "WP Kuala Lumpur",

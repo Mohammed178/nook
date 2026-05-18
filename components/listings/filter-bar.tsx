@@ -13,6 +13,7 @@ import { MoreFiltersSheet } from "./more-filters-sheet";
 import { SaveSearchButton } from "./save-search-button";
 import { formatPrice } from "@/lib/utils";
 import type { Gender } from "@/lib/types";
+import type { AreaLookup } from "@/lib/saved-search-summary";
 
 interface FilterBarProps {
   params: ListingSearchParams;
@@ -21,6 +22,7 @@ interface FilterBarProps {
   effectiveSort: SortKey;
   signedIn: boolean;
   viewerGender?: Gender;
+  areaLookup: AreaLookup;
 }
 
 const GENDER_CHIP_LABEL: Record<Gender, string> = {
@@ -152,6 +154,7 @@ export function FilterBar({
   effectiveSort,
   signedIn,
   viewerGender,
+  areaLookup,
 }: FilterBarProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -227,7 +230,7 @@ export function FilterBar({
             ))}
           </select>
 
-          <SaveSearchButton query={params} signedIn={signedIn} />
+          <SaveSearchButton query={params} signedIn={signedIn} areaLookup={areaLookup} />
 
           <div className="view-toggle">
             <button type="button" className="active" aria-label="List view">

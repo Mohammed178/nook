@@ -4,8 +4,17 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { SearchForm } from "@/components/home/search-form";
+import type { Area, University } from "@/lib/types";
 
-export function NavSearchTrigger() {
+interface NavSearchTriggerProps {
+  areas: Area[];
+  universities: University[];
+}
+
+export function NavSearchTrigger({
+  areas,
+  universities,
+}: NavSearchTriggerProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -66,7 +75,12 @@ export function NavSearchTrigger() {
 
       {open && !isMobile && (
         <div className="popover nav-search-popover" role="dialog" aria-label="Search">
-          <SearchForm variant="popover" onSubmitNavigate={close} />
+          <SearchForm
+              variant="popover"
+              onSubmitNavigate={close}
+              areas={areas}
+              universities={universities}
+            />
         </div>
       )}
 
@@ -90,7 +104,12 @@ export function NavSearchTrigger() {
               </button>
             </div>
             <div className="sheet-body">
-              <SearchForm variant="popover" onSubmitNavigate={close} />
+              <SearchForm
+              variant="popover"
+              onSubmitNavigate={close}
+              areas={areas}
+              universities={universities}
+            />
             </div>
           </div>
         </div>

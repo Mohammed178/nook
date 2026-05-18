@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
-import { getFeaturedAgents } from "@/lib/queries";
+import { getFeaturedAgents } from "@/lib/data/featured";
 
 function initials(name: string) {
   return name
@@ -11,8 +11,8 @@ function initials(name: string) {
     .join("");
 }
 
-export function FeaturedAgents() {
-  const agents = getFeaturedAgents();
+export async function FeaturedAgents() {
+  const agents = await getFeaturedAgents();
   if (agents.length === 0) return null;
 
   return (
@@ -26,7 +26,7 @@ export function FeaturedAgents() {
       </div>
       <div className="agent-grid">
         {agents.map(({ agent, activeListings, areasServed }) => (
-          <Link key={agent.id} href={`/agents/${agent.id}`} className="agent-card">
+          <Link key={agent.id} href={`/agents/${agent.slug}`} className="agent-card">
             {agent.avatarUrl ? (
               <div
                 className="av"

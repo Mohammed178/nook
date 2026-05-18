@@ -11,8 +11,13 @@ import { ViewTracker } from "@/components/listings/view-tracker";
 import { LISTINGS } from "@/lib/seed/listings";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
-import { AGENT_BY_ID } from "@/lib/seed/agents";
-import { AREA_BY_ID } from "@/lib/seed/areas";
+import { getAgentBySlug } from "@/lib/data/agents";
+import { getAreaBySlug } from "@/lib/data/areas";
+import {
+  agentSlugForLegacyId,
+  areaSlugForLegacyId,
+} from "@/lib/data/legacy-id-bridge";
+import { attachListingRelations } from "@/lib/data/listings-relations";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { REVIEWS_BY_AGENT } from "@/lib/seed/reviews";
 import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
@@ -116,13 +121,18 @@ export default async function ListingDetailPage({
   const signedIn = user !== null;
   const initialSaved = savedIds.includes(listing.id);
 
-  const agent = AGENT_BY_ID[listing.agentId];
-  const area = AREA_BY_ID[listing.areaId];
+  const agentSlug = agentSlugForLegacyId(listing.agentId);
+  const areaSlug = areaSlugForLegacyId(listing.areaId);
+  const [agent, area] = await Promise.all([
+    agentSlug ? getAgentBySlug(agentSlug) : Promise.resolve(null),
+    areaSlug ? getAreaBySlug(areaSlug) : Promise.resolve(null),
+  ]);
   const primaryUni = pickPrimaryUni(listing);
   const reviews = (REVIEWS_BY_AGENT[listing.agentId] ?? []).slice(0, 3);
   const nearby: NearbyPOI[] = NEARBY_BY_AREA[listing.areaId] ?? [];
   const mapPois = nearby.slice(0, POI_POSITIONS.length);
-  const similar = getSimilarListings(listing, 4);
+  const similarListings = getSimilarListings(listing, 4);
+  const similar = await attachListingRelations(similarListings);
 
   const paragraphs = listing.description.split("\n\n").filter(Boolean);
   const withinBudget =
@@ -333,10 +343,12 @@ export default async function ListingDetailPage({
             <div className="section">
               <h2>Similar rooms</h2>
               <div className="similar-grid">
-                {similar.map((l) => (
+                {similar.map((item) => (
                   <ListingCard
-                    key={l.id}
-                    listing={l}
+                    key={item.listing.id}
+                    listing={item.listing}
+                    agent={item.agent}
+                    area={item.area}
                     currentQuery={currentQuery}
                   />
                 ))}

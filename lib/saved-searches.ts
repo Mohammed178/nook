@@ -7,6 +7,7 @@ import {
   type RawSearchParams,
 } from "@/lib/listings-search";
 import { summarizeChips } from "@/lib/saved-search-summary";
+import { getAllAreas } from "@/lib/data/areas";
 
 export interface SavedSearchRow {
   id: string;
@@ -56,11 +57,16 @@ export async function getSavedSearchesWithCounts(): Promise<SavedSearchRow[]> {
 
   if (error || !data) return [];
 
+  const areas = await getAllAreas();
+  // areaLookup is keyed by slug because saved-query `p.area` carries the URL
+  // value (= area.slug). The DB uuid (area.id) is irrelevant here.
+  const areaLookup = Object.fromEntries(areas.map((a) => [a.slug, a]));
+
   const out: SavedSearchRow[] = [];
   for (const row of data) {
     const query = (row.query_params ?? {}) as ListingSearchParams;
     const { canonicalQs } = canonicalizeQuery(query);
-    const chips = summarizeChips(query);
+    const chips = summarizeChips(query, areaLookup);
     const matchCount = getFilteredListings(query).length;
     out.push({
       id: row.id as string,

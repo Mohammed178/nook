@@ -19,7 +19,11 @@ export interface University {
 }
 
 export interface Area {
+  /** Internal primary key. Post-3b-A: UUIDv5 derived from the legacy seed
+   * id under a frozen namespace. Used for DB joins; 3b-B FK targets land here. */
   id: string;
+  /** URL-stable identifier (e.g. "bangsar"). Used in hrefs and query params. */
+  slug: string;
   name: string;
   city: string;
   state: string;
@@ -30,7 +34,11 @@ export interface Area {
 }
 
 export interface Agent {
+  /** Internal primary key. Post-3b-A: UUIDv5 derived from the legacy seed
+   * id under a frozen namespace. */
   id: string;
+  /** URL-stable identifier (e.g. "aisha-rahman"). Used in hrefs. */
+  slug: string;
   name: string;
   agency?: string;
   rating: number;
@@ -71,6 +79,12 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
+}
+
+export interface ListingWithRelations {
+  listing: Listing;
+  agent: Agent | null;
+  area: Area | null;
 }
 
 export interface Listing {

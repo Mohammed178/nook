@@ -4,16 +4,20 @@ import Link from "next/link";
 import { useOptimistic, useState, useTransition } from "react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
-import type { SavedListing } from "@/lib/favourites";
+import type { ListingWithRelations } from "@/lib/types";
+
+export interface SavedListItem extends ListingWithRelations {
+  savedAt: string;
+}
 
 interface SavedListProps {
-  initial: SavedListing[];
+  initial: SavedListItem[];
 }
 
 export function SavedList({ initial }: SavedListProps) {
-  const [items, setItems] = useState<SavedListing[]>(initial);
+  const [items, setItems] = useState<SavedListItem[]>(initial);
   const [optimisticItems, removeOptimistic] = useOptimistic<
-    SavedListing[],
+    SavedListItem[],
     string
   >(items, (state, removeId) =>
     state.filter((i) => i.listing.id !== removeId),
@@ -58,6 +62,8 @@ export function SavedList({ initial }: SavedListProps) {
             <li key={item.listing.id} className="saved-list-item">
               <ListingCard
                 listing={item.listing}
+                agent={item.agent}
+                area={item.area}
                 variant="horizontal"
                 initialSaved
                 signedIn

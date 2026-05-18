@@ -2,6 +2,7 @@ import { ListingCard } from "@/components/nook/listing-card";
 import { Icon } from "@/components/nook/icon";
 import { Navbar } from "@/components/nook/navbar";
 import { LISTINGS } from "@/lib/seed/listings";
+import { attachListingRelations } from "@/lib/data/listings-relations";
 
 const COLORS: Record<string, [string, string][]> = {
   Brand: [
@@ -57,11 +58,11 @@ const RADII: [string, string][] = [
   ["lg", "8px"],
 ];
 
-const sample = LISTINGS.slice(0, 4);
-const sampleH = LISTINGS.slice(0, 2);
-const sampleMini = LISTINGS.slice(0, 3);
-
-export default function DesignSystemPage() {
+export default async function DesignSystemPage() {
+  const sample = await attachListingRelations(LISTINGS.slice(0, 4));
+  const sampleH = await attachListingRelations(LISTINGS.slice(0, 2));
+  const sampleMini = await attachListingRelations(LISTINGS.slice(0, 3));
+  const [mapSample] = await attachListingRelations([LISTINGS[0]]);
   return (
     <div style={{ background: "var(--ink-50)" }}>
       <Navbar />
@@ -277,8 +278,13 @@ export default function DesignSystemPage() {
               marginBottom: 32,
             }}
           >
-            {sample.map((l) => (
-              <ListingCard key={l.id} listing={l} />
+            {sample.map(({ listing, agent, area }) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                agent={agent}
+                area={area}
+              />
             ))}
           </div>
 
@@ -291,8 +297,14 @@ export default function DesignSystemPage() {
               marginBottom: 32,
             }}
           >
-            {sampleH.map((l) => (
-              <ListingCard key={l.id} listing={l} variant="horizontal" />
+            {sampleH.map(({ listing, agent, area }) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                agent={agent}
+                area={area}
+                variant="horizontal"
+              />
             ))}
           </div>
 
@@ -300,8 +312,14 @@ export default function DesignSystemPage() {
             <div>
               <Eyebrow>Mini (similar listings rail)</Eyebrow>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {sampleMini.map((l) => (
-                  <ListingCard key={l.id} listing={l} variant="mini" />
+                {sampleMini.map(({ listing, agent, area }) => (
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    agent={agent}
+                    area={area}
+                    variant="mini"
+                  />
                 ))}
               </div>
             </div>
@@ -319,7 +337,12 @@ export default function DesignSystemPage() {
                   minHeight: 100,
                 }}
               >
-                <ListingCard listing={LISTINGS[0]} variant="map" />
+                <ListingCard
+                  listing={mapSample.listing}
+                  agent={mapSample.agent}
+                  area={mapSample.area}
+                  variant="map"
+                />
               </div>
             </div>
           </div>

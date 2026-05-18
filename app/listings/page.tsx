@@ -5,7 +5,8 @@ import { Icon } from "@/components/nook/icon";
 import { FilterBar } from "@/components/listings/filter-bar";
 import { ListingsBody } from "@/components/listings/listings-body";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
-import { AREA_BY_ID } from "@/lib/seed/areas";
+import { getAllAreas } from "@/lib/data/areas";
+import { attachListingRelations } from "@/lib/data/listings-relations";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -92,14 +93,21 @@ export default async function ListingsPage({
 
   const listings = getFilteredListings(params, viewerGender);
 
+  const [areas, items] = await Promise.all([
+    getAllAreas(),
+    attachListingRelations(listings),
+  ]);
+  // Keyed by slug — `params.area` carries the URL value (= area.slug).
+  const areaLookup = Object.fromEntries(areas.map((a) => [a.slug, a]));
+
   let mapCenter: [number, number] = KLANG_VALLEY_CENTER;
   let mapZoom = 11;
   if (params.university && UNIVERSITY_BY_ID[params.university]) {
     const u = UNIVERSITY_BY_ID[params.university];
     mapCenter = [u.lat, u.lng];
     mapZoom = 13;
-  } else if (params.area && AREA_BY_ID[params.area]) {
-    const a = AREA_BY_ID[params.area];
+  } else if (params.area && areaLookup[params.area]) {
+    const a = areaLookup[params.area];
     mapCenter = [a.lat, a.lng];
     mapZoom = 13;
   }
@@ -114,6 +122,7 @@ export default async function ListingsPage({
         effectiveSort={sort}
         signedIn={signedIn}
         viewerGender={viewerGender}
+        areaLookup={areaLookup}
       />
 
       <div className="breadcrumb">
@@ -149,7 +158,7 @@ export default async function ListingsPage({
       </div>
 
       <ListingsBody
-        listings={listings}
+        items={items}
         currentQuery={currentQuery}
         mapCenter={mapCenter}
         mapZoom={mapZoom}

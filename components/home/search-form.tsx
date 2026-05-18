@@ -11,24 +11,28 @@ import {
 } from "react";
 import { Icon } from "@/components/nook/icon";
 import { parseMoveInBy, parseWhere } from "@/lib/queries";
-import { UNIVERSITIES } from "@/lib/seed/universities";
 import {
   buildListingsHref,
   type ListingSearchParams,
 } from "@/lib/listings-search";
-import type { University } from "@/lib/types";
+import type { Area, University } from "@/lib/types";
 
 export type SearchFormVariant = "hero" | "popover";
 
 interface SearchFormProps {
   variant?: SearchFormVariant;
   onSubmitNavigate?: () => void;
+  areas: Area[];
+  universities: University[];
 }
 
-function filterUniversities(query: string): University[] {
+function filterUniversities(
+  universities: University[],
+  query: string,
+): University[] {
   const q = query.trim().toLowerCase();
-  if (!q) return UNIVERSITIES.slice();
-  return UNIVERSITIES.filter(
+  if (!q) return universities.slice();
+  return universities.filter(
     (u) =>
       u.name.toLowerCase().includes(q) ||
       u.shortName.toLowerCase().includes(q) ||
@@ -39,6 +43,8 @@ function filterUniversities(query: string): University[] {
 export function SearchForm({
   variant = "hero",
   onSubmitNavigate,
+  areas,
+  universities,
 }: SearchFormProps) {
   const router = useRouter();
   const [where, setWhere] = useState("");
@@ -55,7 +61,10 @@ export function SearchForm({
   const whereCellRef = useRef<HTMLDivElement>(null);
   const whereInputRef = useRef<HTMLInputElement>(null);
 
-  const suggestions = useMemo(() => filterUniversities(where), [where]);
+  const suggestions = useMemo(
+    () => filterUniversities(universities, where),
+    [universities, where],
+  );
   const safeHighlight =
     suggestions.length === 0
       ? 0
@@ -113,7 +122,7 @@ export function SearchForm({
     if (pickedUniversityId) {
       next.university = pickedUniversityId;
     } else if (where.trim()) {
-      const parsed = parseWhere(where);
+      const parsed = parseWhere(where, areas, universities);
       if (parsed.universityId) next.university = parsed.universityId;
       else if (parsed.areaId) next.area = parsed.areaId;
       else if (parsed.q) next.q = parsed.q;

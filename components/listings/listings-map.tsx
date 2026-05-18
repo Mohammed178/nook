@@ -11,10 +11,10 @@ import {
   useMap,
 } from "react-leaflet";
 import { ListingCard } from "@/components/nook/listing-card";
-import type { Listing } from "@/lib/types";
+import type { ListingWithRelations } from "@/lib/types";
 
 interface ListingsMapProps {
-  listings: Listing[];
+  items: ListingWithRelations[];
   center: [number, number];
   zoom: number;
   activeId: string | null;
@@ -43,7 +43,7 @@ function FlyToCenter({ center, zoom }: { center: [number, number]; zoom: number 
 }
 
 export function ListingsMap({
-  listings,
+  items,
   center,
   zoom,
   activeId,
@@ -54,11 +54,11 @@ export function ListingsMap({
 
   const markers = useMemo(
     () =>
-      listings.map((l) => ({
-        l,
-        icon: priceIcon(l.priceMonthly, activeId === l.id),
+      items.map((item) => ({
+        item,
+        icon: priceIcon(item.listing.priceMonthly, activeId === item.listing.id),
       })),
-    [listings, activeId],
+    [items, activeId],
   );
 
   return (
@@ -74,29 +74,31 @@ export function ListingsMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FlyToCenter center={center} zoom={zoom} />
-        {markers.map(({ l, icon }) => (
+        {markers.map(({ item, icon }) => (
           <Marker
-            key={l.id}
-            position={[l.lat, l.lng]}
+            key={item.listing.id}
+            position={[item.listing.lat, item.listing.lng]}
             icon={icon}
             eventHandlers={{
-              mouseover: () => setActiveId(l.id),
+              mouseover: () => setActiveId(item.listing.id),
               mouseout: () => setActiveId(null),
               click: (e) => {
-                setActiveId(l.id);
+                setActiveId(item.listing.id);
                 e.target.openPopup();
               },
             }}
             ref={(marker) => {
               if (marker) {
                 const popup = marker.getPopup();
-                if (popup) popupRefs.current.set(l.id, popup);
+                if (popup) popupRefs.current.set(item.listing.id, popup);
               }
             }}
           >
             <Popup className="listings-map-popup">
               <ListingCard
-                listing={l}
+                listing={item.listing}
+                agent={item.agent}
+                area={item.area}
                 variant="map"
                 currentQuery={currentQuery}
               />

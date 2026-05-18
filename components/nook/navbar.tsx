@@ -3,6 +3,8 @@ import { Icon } from "./icon";
 import { NavSearchTrigger } from "./nav-search-trigger";
 import { AccountMenu } from "./account-menu";
 import { getCurrentUser } from "@/lib/auth";
+import { getAllAreas } from "@/lib/data/areas";
+import { UNIVERSITIES } from "@/lib/seed/universities";
 
 interface NavbarProps {
   active?: "home" | "listings" | "areas" | "universities" | "help";
@@ -18,7 +20,7 @@ const LINKS: { id: NonNullable<NavbarProps["active"]>; label: string; href: stri
 ];
 
 export async function Navbar({ active = "home", transparent = false }: NavbarProps) {
-  const user = await getCurrentUser();
+  const [user, areas] = await Promise.all([getCurrentUser(), getAllAreas()]);
 
   return (
     <header className={`topnav${transparent ? " transparent" : ""}`}>
@@ -38,7 +40,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
             </Link>
           ))}
         </nav>
-        <NavSearchTrigger />
+        <NavSearchTrigger areas={areas} universities={UNIVERSITIES} />
         <div className="nav-right">
           <button className="btn btn-ghost btn-sm" style={{ gap: 6 }} type="button">
             <Icon name="globe" size={14} /> EN

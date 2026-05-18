@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Navbar } from "@/components/nook/navbar";
 import { SearchForm } from "@/components/home/search-form";
+import { getAllAreas } from "@/lib/data/areas";
+import { UNIVERSITIES } from "@/lib/seed/universities";
 import {
   HERO_HEADLINE,
   HERO_IMAGE_URL,
@@ -8,7 +10,8 @@ import {
   QUICK_CHIPS,
 } from "@/lib/home-content";
 
-export function HeroSearch() {
+export async function HeroSearch() {
+  const areas = await getAllAreas();
   return (
     <section
       className="hero"
@@ -19,7 +22,7 @@ export function HeroSearch() {
         <h1>{HERO_HEADLINE}</h1>
         <p className="lede">{HERO_LEDE}</p>
 
-        <SearchForm variant="hero" />
+        <SearchForm variant="hero" areas={areas} universities={UNIVERSITIES} />
 
         <div className="quick-chips">
           <span className="qc-label">Popular:</span>

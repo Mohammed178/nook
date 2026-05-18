@@ -1,93 +1,23 @@
-import type { Agent, Area, Listing, University } from "@/lib/types";
+import type { Area, Listing, University } from "@/lib/types";
 import { LISTINGS } from "@/lib/seed/listings";
-import { AGENTS, AGENT_BY_ID } from "@/lib/seed/agents";
-import { AREAS, AREA_BY_ID } from "@/lib/seed/areas";
-import { UNIVERSITIES, UNIVERSITY_BY_ID } from "@/lib/seed/universities";
+import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import {
-  FEATURED_AGENT_EXTRAS,
   UNIVERSITY_RAIL,
   type UniversityRailItem,
 } from "@/lib/home-content";
 
-const FEATURED_AGENT_RATING_MIN = 4.5;
-const FEATURED_LISTINGS_LIMIT = 4;
-const FEATURED_AGENTS_LIMIT = 3;
-
-function byCreatedAtDesc(a: Listing, b: Listing) {
-  return b.createdAt.localeCompare(a.createdAt);
-}
-
-export function getFeaturedListings(): Listing[] {
-  const featured = LISTINGS
-    .filter((l) => l.featured && (AGENT_BY_ID[l.agentId]?.rating ?? 0) >= FEATURED_AGENT_RATING_MIN)
-    .sort(byCreatedAtDesc)
-    .slice(0, FEATURED_LISTINGS_LIMIT);
-
-  if (featured.length >= FEATURED_LISTINGS_LIMIT) return featured;
-
-  const featuredIds = new Set(featured.map((l) => l.id));
-  const padding = LISTINGS
-    .filter((l) => !featuredIds.has(l.id))
-    .sort(byCreatedAtDesc)
-    .slice(0, FEATURED_LISTINGS_LIMIT - featured.length);
-
-  return [...featured, ...padding];
-}
+// Featured-listings + featured-agents derivation lives in
+// `lib/data/featured.ts` (server-only). Keeping it out of this module avoids
+// pulling the areas/agents bridge — and through it the id-map JSON and the
+// seed areas needed for `deriveAreasServed` — into any client bundle that
+// imports `parseWhere` / `parseMoveInBy` from here.
 
 export function getListingBySlug(slug: string): Listing | undefined {
   return LISTINGS.find((l) => l.slug === slug);
 }
 
-export function getAgentById(id: string): Agent | undefined {
-  return AGENT_BY_ID[id];
-}
-
-export function getAreaById(id: string): Area | undefined {
-  return AREA_BY_ID[id];
-}
-
 export function getUniversityById(id: string): University | undefined {
   return UNIVERSITY_BY_ID[id];
-}
-
-export interface FeaturedAgent {
-  agent: Agent;
-  activeListings: number;
-  areasServed: string;
-}
-
-const EXTRAS_BY_ID = Object.fromEntries(
-  FEATURED_AGENT_EXTRAS.map((e) => [e.agentId, e]),
-);
-
-function deriveAreasServed(agentId: string): string {
-  const names: string[] = [];
-  for (const l of LISTINGS) {
-    if (l.agentId !== agentId) continue;
-    const name = AREA_BY_ID[l.areaId]?.name;
-    if (name && !names.includes(name)) names.push(name);
-    if (names.length === 3) break;
-  }
-  return names.join(" · ");
-}
-
-function countActiveListings(agentId: string): number {
-  return LISTINGS.filter((l) => l.agentId === agentId && l.status === "available").length;
-}
-
-export function getFeaturedAgents(): FeaturedAgent[] {
-  const top = [...AGENTS]
-    .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
-    .slice(0, FEATURED_AGENTS_LIMIT);
-
-  return top.map((agent) => {
-    const extras = EXTRAS_BY_ID[agent.id];
-    return {
-      agent,
-      activeListings: extras?.activeListings ?? countActiveListings(agent.id),
-      areasServed: extras?.areasServed ?? deriveAreasServed(agent.id),
-    };
-  });
 }
 
 export interface UniversityRailEntry extends UniversityRailItem {
@@ -114,11 +44,15 @@ function normalize(s: string): string {
   return s.trim().toLowerCase();
 }
 
-export function parseWhere(input: string): ParsedWhere {
+export function parseWhere(
+  input: string,
+  areas: Area[],
+  universities: University[],
+): ParsedWhere {
   const text = normalize(input);
   if (!text) return {};
 
-  for (const u of UNIVERSITIES) {
+  for (const u of universities) {
     if (
       normalize(u.name) === text ||
       normalize(u.shortName) === text ||
@@ -128,9 +62,10 @@ export function parseWhere(input: string): ParsedWhere {
     }
   }
 
-  for (const a of AREAS) {
+  for (const a of areas) {
     if (normalize(a.name) === text || text.includes(normalize(a.name))) {
-      return { areaId: a.id };
+      // ParsedWhere.areaId feeds the URL `?area=` param — must be the slug.
+      return { areaId: a.slug };
     }
   }
 

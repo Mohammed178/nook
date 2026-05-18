@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { SaveSearchDialog } from "./save-search-dialog";
 import type { ListingSearchParams } from "@/lib/listings-search";
+import type { AreaLookup } from "@/lib/saved-search-summary";
 
 interface SaveSearchButtonProps {
   query: ListingSearchParams;
   signedIn: boolean;
+  areaLookup: AreaLookup;
 }
 
 const TOOLTIP_AUTOCLOSE_MS = 3000;
@@ -17,7 +19,11 @@ interface TipPos {
   right: number;
 }
 
-export function SaveSearchButton({ query, signedIn }: SaveSearchButtonProps) {
+export function SaveSearchButton({
+  query,
+  signedIn,
+  areaLookup,
+}: SaveSearchButtonProps) {
   const btnRef = useRef<HTMLButtonElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
@@ -93,6 +99,7 @@ export function SaveSearchButton({ query, signedIn }: SaveSearchButtonProps) {
         open={dialogOpen}
         anchor={anchor}
         query={query}
+        areaLookup={areaLookup}
         onClose={() => setDialogOpen(false)}
         onSaved={() => {
           setDialogOpen(false);

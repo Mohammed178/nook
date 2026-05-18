@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
-import type { RecentlyViewedListing } from "@/lib/recent-views";
+import type { ListingWithRelations } from "@/lib/types";
 
 const RECENT_DISPLAY_CAP = 20;
 
+export interface RecentListItem extends ListingWithRelations {
+  viewedAt: string;
+}
+
 interface RecentListProps {
-  items: RecentlyViewedListing[];
+  items: RecentListItem[];
   savedIds: Set<string>;
   signedIn: boolean;
 }
@@ -42,6 +46,8 @@ export function RecentList({ items, savedIds, signedIn }: RecentListProps) {
             <li key={item.listing.id} className="saved-list-item">
               <ListingCard
                 listing={item.listing}
+                agent={item.agent}
+                area={item.area}
                 variant="horizontal"
                 initialSaved={savedIds.has(item.listing.id)}
                 signedIn={signedIn}

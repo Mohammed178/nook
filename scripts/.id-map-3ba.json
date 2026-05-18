@@ -1,0 +1,79 @@
+{
+  "namespace": "b6e7f7a4-9c1e-5c0a-9b3d-3f6f4f7e1c2a",
+  "areas": {
+    "bangsar": {
+      "uuid": "92cc05da-10af-5614-9f83-b6794d3d46eb",
+      "slug": "bangsar"
+    },
+    "pantai-dalam": {
+      "uuid": "778a35cd-02a4-5f5a-a59b-7246506757dd",
+      "slug": "pantai-dalam"
+    },
+    "pj": {
+      "uuid": "20f4d67d-56bd-5628-81fa-2d863c0766ad",
+      "slug": "pj"
+    },
+    "bangi": {
+      "uuid": "f167c8b2-b135-5475-9799-6202b9fdc4e0",
+      "slug": "bangi"
+    },
+    "serdang": {
+      "uuid": "5115e662-0f2f-58ae-907d-353ff6d2e968",
+      "slug": "serdang"
+    },
+    "cyberjaya": {
+      "uuid": "df700fb5-e2ed-57ac-a8be-378464ae84f7",
+      "slug": "cyberjaya"
+    },
+    "shah-alam": {
+      "uuid": "bf7327b6-76f1-529a-96d7-033749da9783",
+      "slug": "shah-alam"
+    },
+    "subang-jaya": {
+      "uuid": "68e07598-aae1-5fca-b5bc-a3f9cbd081c8",
+      "slug": "subang-jaya"
+    },
+    "bandar-sunway": {
+      "uuid": "d8a0c05c-a0c9-57b5-b514-eecfb929e38d",
+      "slug": "bandar-sunway"
+    },
+    "cheras": {
+      "uuid": "44e8c6ab-95e8-5758-96ef-39588efc5ead",
+      "slug": "cheras"
+    },
+    "gombak": {
+      "uuid": "51aa0733-9055-520a-b523-142369aab676",
+      "slug": "gombak"
+    },
+    "setapak": {
+      "uuid": "8e28bb33-7732-520e-8dea-3174028bc2f5",
+      "slug": "setapak"
+    }
+  },
+  "agents": {
+    "agent-aisha": {
+      "uuid": "e39d814e-2c17-55fb-8347-fd5a53c48e55",
+      "slug": "aisha-rahman"
+    },
+    "agent-faiz": {
+      "uuid": "30fd97ce-da14-5476-8d90-99b5c2901afd",
+      "slug": "faiz-othman"
+    },
+    "agent-mei": {
+      "uuid": "88651811-43cf-5522-ba8e-2756b041d4f0",
+      "slug": "mei-lin-chong"
+    },
+    "agent-arif": {
+      "uuid": "c198d819-3fa4-5b3d-9aa1-10af3b3a0acc",
+      "slug": "arif-hakim"
+    },
+    "agent-priya": {
+      "uuid": "bbe01357-d8dc-5948-9f4b-1b17c48bd485",
+      "slug": "priya-devi"
+    },
+    "agent-ben": {
+      "uuid": "ac608d3b-0b09-5b3b-8452-3c3455d03fea",
+      "slug": "ben-tan"
+    }
+  }
+}
