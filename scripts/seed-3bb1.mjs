@@ -1,18 +1,20 @@
-// Phase 3b-B-1 seed.
+// Phase 3b-B-1 seed (updated for 3b-B-3).
 // Reads lib/seed/listings.ts (no .mjs mirror — single source of truth),
 // derives deterministic UUIDv5 ids (reusing the 3b-A NS_NOOK namespace), keeps
 // slugs verbatim, resolves photos (galleryFor already runs at module load, so
 // l.photos is the resolved string[]), upserts into Supabase using the
-// service-role key, and writes scripts/.id-map-3bb1.json for the in-app bridge.
+// service-role key, and writes scripts/.id-map-3bb1.json.
 //
-// area_id / agent_id are written as the legacy string ids (decision #4) — no
-// FK in this checkpoint.
+// 3b-B-3: area_id / agent_id are now written as UUIDs (read from the committed
+// scripts/.id-map-3ba.json), matching the uuid FK columns introduced by
+// migration 0009. Must be run AFTER 0009 — the uuid columns reject the legacy
+// slug strings this script used to emit.
 //
 // Run: node --experimental-strip-types --env-file=.env.local scripts/seed-3bb1.mjs
 // Env required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 // Service-role key is never imported by app code.
 
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
@@ -21,6 +23,33 @@ import { LISTINGS } from "../lib/seed/listings.ts";
 
 // Frozen namespace — reused from 3b-A. DO NOT introduce a new one.
 const NS_NOOK = "b6e7f7a4-9c1e-5c0a-9b3d-3f6f4f7e1c2a";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+// Committed id-map artifact from 3b-A — single source of truth for the
+// legacy-area/agent-id -> UUID translation. Read here (not imported) to stay
+// agnostic of Node's JSON import-attribute support.
+const idMap3ba = JSON.parse(
+  readFileSync(resolve(HERE, ".id-map-3ba.json"), "utf8"),
+);
+
+function areaUuid(legacyAreaId) {
+  const uuid = idMap3ba.areas?.[legacyAreaId]?.uuid;
+  if (!uuid) {
+    console.error(`No area UUID in .id-map-3ba.json for "${legacyAreaId}"`);
+    process.exit(1);
+  }
+  return uuid;
+}
+
+function agentUuid(legacyAgentId) {
+  const uuid = idMap3ba.agents?.[legacyAgentId]?.uuid;
+  if (!uuid) {
+    console.error(`No agent UUID in .id-map-3ba.json for "${legacyAgentId}"`);
+    process.exit(1);
+  }
+  return uuid;
+}
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -50,7 +79,7 @@ const listingRows = LISTINGS.map((l) => ({
   available_from: l.availableFrom,
   min_stay_months: l.minStayMonths ?? null,
   address: l.address,
-  area_id: l.areaId,
+  area_id: areaUuid(l.areaId),
   city: l.city,
   state: l.state,
   lat: l.lat,
@@ -61,7 +90,7 @@ const listingRows = LISTINGS.map((l) => ({
   amenities: l.amenities,
   photos: l.photos,
   description: l.description,
-  agent_id: l.agentId,
+  agent_id: agentUuid(l.agentId),
   rating: l.rating ?? null,
   review_count: l.reviewCount ?? null,
   featured: l.featured ?? null,
@@ -89,8 +118,7 @@ const idMap = {
   ),
 };
 
-const here = dirname(fileURLToPath(import.meta.url));
-const outPath = resolve(here, ".id-map-3bb1.json");
+const outPath = resolve(HERE, ".id-map-3bb1.json");
 writeFileSync(outPath, JSON.stringify(idMap, null, 2) + "\n", "utf8");
 console.log(`Wrote ${outPath}`);
 

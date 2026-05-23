@@ -88,7 +88,8 @@ export const UNIVERSITY_RAIL: UniversityRailItem[] = [
 ];
 
 export interface FeaturedAgentExtra {
-  agentId: string;
+  /** Agent slug (URL-stable). Keyed by slug, not legacy id, since 3b-B-3. */
+  agentSlug: string;
   activeListings: number;
   areasServed: string;
 }
@@ -96,7 +97,7 @@ export interface FeaturedAgentExtra {
 // Top 3 by rating desc, reviewCount tiebreak (mei/aisha/priya).
 // activeListings + areasServed are display-only marketing data.
 export const FEATURED_AGENT_EXTRAS: FeaturedAgentExtra[] = [
-  { agentId: "agent-mei", activeListings: 18, areasServed: "Sunway · Subang · USJ" },
-  { agentId: "agent-aisha", activeListings: 24, areasServed: "UM · Bangsar · PJ" },
-  { agentId: "agent-priya", activeListings: 31, areasServed: "Cyberjaya · MMU · Putrajaya" },
+  { agentSlug: "mei-lin-chong", activeListings: 18, areasServed: "Sunway · Subang · USJ" },
+  { agentSlug: "aisha-rahman", activeListings: 24, areasServed: "UM · Bangsar · PJ" },
+  { agentSlug: "priya-devi", activeListings: 31, areasServed: "Cyberjaya · MMU · Putrajaya" },
 ];

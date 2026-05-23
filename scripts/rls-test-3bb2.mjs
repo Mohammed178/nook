@@ -14,7 +14,8 @@
 // Uses anon key (RLS paths) and service-role key (setup/teardown ONLY — never
 // app code). Self-provisions two ephemeral auth users, tears them down.
 //
-// Pre-req: apply migration 0008 against the local DB before running.
+// Pre-req: apply migrations 0008 + 0009 (post-0009 the probe listing references
+// real area/agent UUIDs — listings.area_id/agent_id are uuid FKs, RESTRICT).
 // Run: node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb2.mjs
 // Exit 0 = pass. Exit 1 = first FAIL.
 
@@ -58,6 +59,9 @@ const root = resolve(here, "..");
 const idMap = JSON.parse(
   readFileSync(resolve(here, ".id-map-3bb1.json"), "utf8"),
 );
+const idMap3ba = JSON.parse(
+  readFileSync(resolve(here, ".id-map-3ba.json"), "utf8"),
+);
 
 // A real listing UUID (lst-001) for the valid-FK paths.
 const REAL_LISTING = idMap.listings["lst-001"].uuid;
@@ -67,6 +71,11 @@ const ABSENT_LISTING = "deadbeef-dead-4ead-8ead-deaddeadbeef";
 const PROBE_LISTING = "11111111-1111-4111-8111-111111111111";
 const PROBE_SLUG = "cascade-probe-zzz-3bb2";
 const NON_UUID = "lst-001"; // legacy-shaped string => must fail uuid cast
+// Real area + agent UUIDs for the probe listing. Post-0009 listings.area_id /
+// agent_id are uuid FKs (RESTRICT) to areas/agents, so the probe must point at
+// real parent rows or its insert fails 23503.
+const PROBE_AREA = idMap3ba.areas["bangsar"].uuid;
+const PROBE_AGENT = idMap3ba.agents["agent-aisha"].uuid;
 
 const admin = createClient(URL, SRK, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -86,7 +95,7 @@ function probeListingRow() {
     furnishing: "full",
     available_from: "2026-01-01",
     address: "x",
-    area_id: "bangsar",
+    area_id: PROBE_AREA,
     city: "x",
     state: "x",
     lat: 0,
@@ -95,7 +104,7 @@ function probeListingRow() {
     amenities: [],
     photos: [],
     description: "x",
-    agent_id: "agent-aisha",
+    agent_id: PROBE_AGENT,
     created_at: "2026-01-01",
     updated_at: "2026-01-01",
   };

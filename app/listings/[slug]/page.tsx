@@ -12,13 +12,10 @@ import { getListingBySlug, getSimilarListings } from "@/lib/data/listings";
 import listingsIdMap from "@/scripts/.id-map-3bb1.json";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
-import { getAgentBySlug } from "@/lib/data/agents";
-import { getAreaBySlug } from "@/lib/data/areas";
 import {
-  agentSlugForLegacyId,
-  areaSlugForLegacyId,
-} from "@/lib/data/legacy-id-bridge";
-import { attachListingRelations } from "@/lib/data/listings-relations";
+  attachListingRelations,
+  attachSingleListingRelations,
+} from "@/lib/data/listings-relations";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { REVIEWS_BY_AGENT } from "@/lib/seed/reviews";
 import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
@@ -123,15 +120,12 @@ export default async function ListingDetailPage({
   const signedIn = user !== null;
   const initialSaved = savedIds.includes(listing.id);
 
-  const agentSlug = agentSlugForLegacyId(listing.agentId);
-  const areaSlug = areaSlugForLegacyId(listing.areaId);
-  const [agent, area] = await Promise.all([
-    agentSlug ? getAgentBySlug(agentSlug) : Promise.resolve(null),
-    areaSlug ? getAreaBySlug(areaSlug) : Promise.resolve(null),
-  ]);
+  // Post-3b-B-3: Listing.areaId / agentId are UUIDs. Resolve the Agent/Area
+  // rows by UUID, then index the slug-keyed seed lookups by their stable slug.
+  const { agent, area } = await attachSingleListingRelations(listing);
   const primaryUni = pickPrimaryUni(listing);
-  const reviews = (REVIEWS_BY_AGENT[listing.agentId] ?? []).slice(0, 3);
-  const nearby: NearbyPOI[] = NEARBY_BY_AREA[listing.areaId] ?? [];
+  const reviews = (agent ? (REVIEWS_BY_AGENT[agent.slug] ?? []) : []).slice(0, 3);
+  const nearby: NearbyPOI[] = area ? (NEARBY_BY_AREA[area.slug] ?? []) : [];
   const mapPois = nearby.slice(0, POI_POSITIONS.length);
   const similarListings = await getSimilarListings(listing, 4);
   const similar = await attachListingRelations(similarListings);
@@ -156,7 +150,7 @@ export default async function ListingDetailPage({
         <span>›</span>
         <Link href="/listings">{listing.state}</Link>
         <span>›</span>
-        <Link href={`/listings?area=${listing.areaId}`}>{area?.name ?? listing.city}</Link>
+        <Link href={`/listings?area=${area?.slug ?? ""}`}>{area?.name ?? listing.city}</Link>
         <span>›</span>
         <span style={{ color: "var(--ink-700)", fontWeight: 600 }}>{listing.title}</span>
       </div>

@@ -4,11 +4,6 @@ import { getAllListings } from "@/lib/data/listings";
 import { FEATURED_AGENT_EXTRAS } from "@/lib/home-content";
 import { getAllAgents } from "@/lib/data/agents";
 import { getAllAreas } from "@/lib/data/areas";
-import {
-  agentSlugForLegacyId,
-  areaSlugForLegacyId,
-} from "@/lib/data/legacy-id-bridge";
-import idMap from "@/scripts/.id-map-3ba.json";
 
 const FEATURED_AGENT_RATING_MIN = 4.5;
 const FEATURED_LISTINGS_LIMIT = 4;
@@ -20,12 +15,11 @@ function byCreatedAtDesc(a: Listing, b: Listing) {
 
 export async function getFeaturedListings(): Promise<Listing[]> {
   const [agents, listings] = await Promise.all([getAllAgents(), getAllListings()]);
-  const agentBySlug = new Map(agents.map((a) => [a.slug, a]));
+  // Post-3b-B-3: Listing.agentId is the agent UUID (FK to agents.id).
+  const agentById = new Map(agents.map((a) => [a.id, a]));
 
-  function agentRatingFor(legacyAgentId: string): number {
-    const slug = agentSlugForLegacyId(legacyAgentId);
-    if (!slug) return 0;
-    return agentBySlug.get(slug)?.rating ?? 0;
+  function agentRatingFor(agentId: string): number {
+    return agentById.get(agentId)?.rating ?? 0;
   }
 
   const featured = listings
@@ -54,42 +48,31 @@ export interface FeaturedAgent {
   areasServed: string;
 }
 
-const EXTRAS_BY_LEGACY_ID = Object.fromEntries(
-  FEATURED_AGENT_EXTRAS.map((e) => [e.agentId, e]),
+// FEATURED_AGENT_EXTRAS is keyed by agent slug (URL-stable across schema
+// changes). Display-only marketing data; falls back to derived values when an
+// agent has no extra.
+const EXTRAS_BY_AGENT_SLUG = Object.fromEntries(
+  FEATURED_AGENT_EXTRAS.map((e) => [e.agentSlug, e]),
 );
 
-interface IdMapEntry {
-  uuid: string;
-  slug: string;
-}
-
-const LEGACY_BY_AGENT_SLUG = new Map<string, string>();
-for (const [legacyId, entry] of Object.entries(
-  (idMap.agents ?? {}) as Record<string, IdMapEntry>,
-)) {
-  LEGACY_BY_AGENT_SLUG.set(entry.slug, legacyId);
-}
-
 function deriveAreasServed(
-  legacyAgentId: string,
-  areaNameBySlug: Map<string, string>,
+  agentId: string,
+  areaNameById: Map<string, string>,
   listings: Listing[],
 ): string {
   const names: string[] = [];
   for (const l of listings) {
-    if (l.agentId !== legacyAgentId) continue;
-    const areaSlug = areaSlugForLegacyId(l.areaId);
-    if (!areaSlug) continue;
-    const name = areaNameBySlug.get(areaSlug);
+    if (l.agentId !== agentId) continue;
+    const name = areaNameById.get(l.areaId);
     if (name && !names.includes(name)) names.push(name);
     if (names.length === 3) break;
   }
   return names.join(" · ");
 }
 
-function countActiveListings(legacyAgentId: string, listings: Listing[]): number {
+function countActiveListings(agentId: string, listings: Listing[]): number {
   return listings.filter(
-    (l) => l.agentId === legacyAgentId && l.status === "available",
+    (l) => l.agentId === agentId && l.status === "available",
   ).length;
 }
 
@@ -99,23 +82,20 @@ export async function getFeaturedAgents(): Promise<FeaturedAgent[]> {
     getAllAreas(),
     getAllListings(),
   ]);
-  const areaNameBySlug = new Map(areas.map((a) => [a.slug, a.name]));
+  const areaNameById = new Map(areas.map((a) => [a.id, a.name]));
 
   const top = [...agents]
     .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
     .slice(0, FEATURED_AGENTS_LIMIT);
 
   return top.map((agent) => {
-    const legacyAgentId = LEGACY_BY_AGENT_SLUG.get(agent.slug);
-    const extras = legacyAgentId ? EXTRAS_BY_LEGACY_ID[legacyAgentId] : undefined;
+    const extras = EXTRAS_BY_AGENT_SLUG[agent.slug];
     return {
       agent,
       activeListings:
-        extras?.activeListings ??
-        (legacyAgentId ? countActiveListings(legacyAgentId, listings) : 0),
+        extras?.activeListings ?? countActiveListings(agent.id, listings),
       areasServed:
-        extras?.areasServed ??
-        (legacyAgentId ? deriveAreasServed(legacyAgentId, areaNameBySlug, listings) : ""),
+        extras?.areasServed ?? deriveAreasServed(agent.id, areaNameById, listings),
     };
   });
 }

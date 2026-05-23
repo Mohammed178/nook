@@ -104,6 +104,8 @@ export interface Listing {
   availableFrom: string;
   minStayMonths?: number;
   address: string;
+  /** Area UUID (FK to areas.id) since 3b-B-3. Same primitive type, no longer a
+   * legacy slug id. */
   areaId: string;
   city: string;
   state: string;
@@ -115,6 +117,8 @@ export interface Listing {
   amenities: string[];
   photos: string[];
   description: string;
+  /** Agent UUID (FK to agents.id) since 3b-B-3. Same primitive type, no longer
+   * the legacy agent string id. */
   agentId: string;
   rating?: number;
   reviewCount?: number;

@@ -6,6 +6,7 @@ import {
   type ListingRow,
 } from "@/lib/data/_row-mappers";
 import type { Gender, Listing } from "@/lib/types";
+import { getAreaBySlug } from "@/lib/data/areas";
 import {
   applyFilters,
   applySort,
@@ -53,12 +54,27 @@ export async function getListingResolver(): Promise<
 // byte-identical to the original; only the data source (LISTINGS → fetched
 // array) and the async/await wrapping changed. The pure applyFilters /
 // applySort / defaultSort helpers stay in lib/listings-search.ts untouched.
+//
+// 3b-B-3: the `?area=` param carries the area slug (URL-stable contract), but
+// Listing.areaId is now the area UUID (migration 0009). Resolve slug → UUID
+// here, at the data seam, so applyFilters' equality stays correct without
+// touching lib/listings-search.ts or the URL contract.
 export async function getFilteredListings(
   p: ListingSearchParams,
   viewerGender?: Gender,
 ): Promise<Listing[]> {
-  const filtered = applyFilters(await getAllListings(), p, viewerGender);
+  const filterParams = p.area
+    ? { ...p, area: await areaSlugToUuid(p.area) }
+    : p;
+  const filtered = applyFilters(await getAllListings(), filterParams, viewerGender);
   return applySort(filtered, defaultSort(p), p.university);
+}
+
+// Maps an `?area=` slug to its area UUID. Falls back to the slug itself when no
+// area matches (yields an empty filter result — correct for an unknown area).
+async function areaSlugToUuid(slug: string): Promise<string> {
+  const area = await getAreaBySlug(slug);
+  return area?.id ?? slug;
 }
 
 export async function getSimilarListings(

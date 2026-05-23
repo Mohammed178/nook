@@ -176,10 +176,23 @@ export const REVIEWS: Review[] = [
   },
 ];
 
+// Review entries carry the legacy agent id; the detail page indexes by agent
+// slug since 3b-B-3 (Listing.agentId is now a UUID, not the legacy id, so the
+// page resolves the Agent first and looks up reviews by its stable slug).
+const AGENT_SLUG_BY_LEGACY_ID: Record<string, string> = {
+  "agent-aisha": "aisha-rahman",
+  "agent-faiz": "faiz-othman",
+  "agent-mei": "mei-lin-chong",
+  "agent-arif": "arif-hakim",
+  "agent-priya": "priya-devi",
+  "agent-ben": "ben-tan",
+};
+
 export const REVIEWS_BY_AGENT: Record<string, Review[]> = REVIEWS.reduce(
   (acc, r) => {
     if (!r.agentId) return acc;
-    (acc[r.agentId] ??= []).push(r);
+    const slug = AGENT_SLUG_BY_LEGACY_ID[r.agentId] ?? r.agentId;
+    (acc[slug] ??= []).push(r);
     return acc;
   },
   {} as Record<string, Review[]>,
