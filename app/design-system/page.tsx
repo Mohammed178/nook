@@ -1,7 +1,7 @@
 import { ListingCard } from "@/components/nook/listing-card";
 import { Icon } from "@/components/nook/icon";
 import { Navbar } from "@/components/nook/navbar";
-import { LISTINGS } from "@/lib/seed/listings";
+import { getAllListings } from "@/lib/data/listings";
 import { attachListingRelations } from "@/lib/data/listings-relations";
 
 const COLORS: Record<string, [string, string][]> = {
@@ -59,10 +59,11 @@ const RADII: [string, string][] = [
 ];
 
 export default async function DesignSystemPage() {
-  const sample = await attachListingRelations(LISTINGS.slice(0, 4));
-  const sampleH = await attachListingRelations(LISTINGS.slice(0, 2));
-  const sampleMini = await attachListingRelations(LISTINGS.slice(0, 3));
-  const [mapSample] = await attachListingRelations([LISTINGS[0]]);
+  const listings = await getAllListings();
+  const sample = await attachListingRelations(listings.slice(0, 4));
+  const sampleH = await attachListingRelations(listings.slice(0, 2));
+  const sampleMini = await attachListingRelations(listings.slice(0, 3));
+  const [mapSample] = await attachListingRelations([listings[0]]);
   return (
     <div style={{ background: "var(--ink-50)" }}>
       <Navbar />

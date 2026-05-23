@@ -1,5 +1,4 @@
-import type { Area, Listing, University } from "@/lib/types";
-import { LISTINGS } from "@/lib/seed/listings";
+import type { Area, University } from "@/lib/types";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import {
   UNIVERSITY_RAIL,
@@ -11,10 +10,11 @@ import {
 // pulling the areas/agents bridge — and through it the id-map JSON and the
 // seed areas needed for `deriveAreasServed` — into any client bundle that
 // imports `parseWhere` / `parseMoveInBy` from here.
-
-export function getListingBySlug(slug: string): Listing | undefined {
-  return LISTINGS.find((l) => l.slug === slug);
-}
+//
+// 3b-B-1: the seed-backed sync `getListingBySlug` moved to the DB-backed
+// async helper in `lib/data/listings.ts` (server-only). It had no callers here
+// (the detail page now imports it from lib/data/listings); kept this module
+// client-safe by dropping the seed import entirely.
 
 export function getUniversityById(id: string): University | undefined {
   return UNIVERSITY_BY_ID[id];

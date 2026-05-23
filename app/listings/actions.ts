@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createActionClient } from "@/lib/supabase/server";
-import { LISTING_BY_ID } from "@/lib/seed/listings";
+import { getListingResolver } from "@/lib/data/listings";
 import type { ListingSearchParams } from "@/lib/listings-search";
 import { canonicalizeQuery } from "@/lib/saved-searches";
 
@@ -13,12 +13,15 @@ export type ToggleResult =
 /**
  * Toggle favourite for the current user + listingId.
  * Idempotent: insert if missing, delete if present.
- * Validates listingId against seed (no FK in DB; seed = source of truth).
+ * Validates listingId against the listings table (no FK in DB; the table is
+ * source of truth). The resolver also accepts a legacy "lst-NNN" id so a stale
+ * client still validates during the transition.
  */
 export async function toggleFavouriteAction(
   listingId: string,
 ): Promise<ToggleResult> {
-  if (!(listingId in LISTING_BY_ID)) {
+  const resolveListing = await getListingResolver();
+  if (!resolveListing(listingId)) {
     return { error: "Unknown listing." };
   }
 
@@ -62,7 +65,8 @@ export async function toggleFavouriteAction(
  * just bumps viewed_at.
  */
 export async function recordViewAction(listingId: string): Promise<void> {
-  if (!(listingId in LISTING_BY_ID)) return;
+  const resolveListing = await getListingResolver();
+  if (!resolveListing(listingId)) return;
 
   const supabase = await createActionClient();
   const {

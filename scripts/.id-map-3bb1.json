@@ -1,0 +1,77 @@
+{
+  "namespace": "b6e7f7a4-9c1e-5c0a-9b3d-3f6f4f7e1c2a",
+  "listings": {
+    "lst-001": {
+      "uuid": "9e9adbb1-83fe-5ada-8cdd-329dc31d5ddc",
+      "slug": "cosy-studio-bangsar-near-um"
+    },
+    "lst-002": {
+      "uuid": "6becc568-a96b-5ef3-9df8-a0671f39b370",
+      "slug": "single-room-pantai-dalam-um"
+    },
+    "lst-003": {
+      "uuid": "4ea8c305-dbeb-5d45-b28d-5bacf7c00702",
+      "slug": "shared-house-bangi-ukm"
+    },
+    "lst-004": {
+      "uuid": "63f85dcf-717e-5de5-bdaa-06ca3fff2de9",
+      "slug": "studio-cyberjaya-mmu"
+    },
+    "lst-005": {
+      "uuid": "1e991614-ada8-505a-b939-6b35acc0531b",
+      "slug": "apartment-subang-sunway-monash"
+    },
+    "lst-006": {
+      "uuid": "0a89ec8a-7d7b-5e7d-8a1d-de42f261da9f",
+      "slug": "room-ss15-taylors"
+    },
+    "lst-007": {
+      "uuid": "a6d74966-1097-5c91-a7d0-04db5c3ecfa6",
+      "slug": "studio-cheras-ucsi"
+    },
+    "lst-008": {
+      "uuid": "a3710fad-0a7f-5c14-b07b-8a49a9b234af",
+      "slug": "room-gombak-iium"
+    },
+    "lst-009": {
+      "uuid": "40789d2f-03bc-5676-bd3d-efd7eca4509c",
+      "slug": "apartment-shah-alam-uitm"
+    },
+    "lst-010": {
+      "uuid": "4b6da057-f90a-5577-863b-0bf93f36f6d8",
+      "slug": "studio-serdang-upm"
+    },
+    "lst-011": {
+      "uuid": "40b3c65e-457f-58d4-939d-6186f744e212",
+      "slug": "room-setapak-iium"
+    },
+    "lst-012": {
+      "uuid": "1a2d47c5-ff87-5f9d-8a86-358b99e4dd7f",
+      "slug": "apartment-pj-um-monash"
+    },
+    "lst-013": {
+      "uuid": "9e3e9541-d9a6-580b-8803-5076cb4d3e0f",
+      "slug": "studio-cyberjaya-mmu-budget"
+    },
+    "lst-014": {
+      "uuid": "7044d95b-f980-5629-9898-f65b1a069396",
+      "slug": "house-bangi-ukm-shared"
+    },
+    "lst-015": {
+      "uuid": "0ec4d205-9896-5993-a964-61da5513de0a",
+      "slug": "studio-ss15-monash"
+    },
+    "lst-016": {
+      "uuid": "ba69000c-6889-5a8a-9055-95b5ecd9ad8d",
+      "slug": "room-cheras-ucsi-budget"
+    },
+    "lst-017": {
+      "uuid": "1e05314d-e88b-5ec2-88c0-06b9f59f5047",
+      "slug": "apartment-shah-alam-uitm-premium"
+    },
+    "lst-018": {
+      "uuid": "07f209ad-63b7-5e82-ba76-e334796937e5",
+      "slug": "studio-bangsar-um-luxe"
+    }
+  }
+}

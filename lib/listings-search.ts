@@ -1,5 +1,4 @@
 import type { Gender, Listing, ListingType } from "@/lib/types";
-import { LISTINGS } from "@/lib/seed/listings";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { AREA_BY_ID } from "@/lib/seed/areas";
 
@@ -228,54 +227,10 @@ export function applySort(
   return arr;
 }
 
-export function getFilteredListings(
-  p: ListingSearchParams,
-  viewerGender?: Gender,
-): Listing[] {
-  const filtered = applyFilters(LISTINGS, p, viewerGender);
-  return applySort(filtered, defaultSort(p), p.university);
-}
-
-export function getSimilarListings(
-  current: Listing,
-  limit = 4,
-): Listing[] {
-  const primaryUniId = current.nearbyUniversityIds[0];
-  const candidates = LISTINGS.filter((l) => l.id !== current.id);
-
-  const sameUni = primaryUniId
-    ? candidates.filter((l) => l.nearbyUniversityIds.includes(primaryUniId))
-    : [];
-
-  const ranked = [...sameUni].sort(
-    (a, b) =>
-      Math.abs(a.priceMonthly - current.priceMonthly) -
-      Math.abs(b.priceMonthly - current.priceMonthly),
-  );
-
-  if (ranked.length >= limit) return ranked.slice(0, limit);
-
-  // Fallback: same area
-  const sameArea = candidates
-    .filter(
-      (l) => l.areaId === current.areaId && !ranked.includes(l),
-    )
-    .sort(
-      (a, b) =>
-        Math.abs(a.priceMonthly - current.priceMonthly) -
-        Math.abs(b.priceMonthly - current.priceMonthly),
-    );
-
-  const merged = [...ranked, ...sameArea];
-  if (merged.length >= limit) return merged.slice(0, limit);
-
-  // Final fallback: newest other listings
-  const remaining = candidates
-    .filter((l) => !merged.includes(l))
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-  return [...merged, ...remaining].slice(0, limit);
-}
+// getFilteredListings / getSimilarListings relocated to lib/data/listings.ts
+// in Phase 3b-B-1 (they bind to the DB data source; this module stays a pure
+// array-operating core). applyFilters / applySort / defaultSort above are
+// unchanged and consumed by the relocated wrappers.
 
 /** Resolve a search-params bundle into a human-readable area/uni breadcrumb. */
 export function resolveLocationLabel(p: ListingSearchParams): {

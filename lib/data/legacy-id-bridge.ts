@@ -3,10 +3,15 @@ import "server-only";
 // scripts/derive-id-map-3ba.mjs). It is the SINGLE source of truth for slug
 // derivation — this bridge never runs slugify itself.
 //
-// 3b-A only: Listing.areaId / Listing.agentId still carry legacy seed string
-// ids. RSCs use these helpers to translate to the slug, then fetch the row
-// from Supabase. The bridge is deleted in 3b-B once listings carry UUIDs.
+// 3b-A: Listing.areaId / Listing.agentId still carry legacy seed string ids.
+// RSCs use these helpers to translate to the slug, then fetch the row from
+// Supabase.
+// 3b-B-1: listings now carry UUIDs, but favourites/recent_views rows written
+// before this checkpoint hold the legacy "lst-NNN" id; listing*ForLegacyId
+// translates those to the UUID so they still hydrate. The whole bridge is
+// deleted in 3b-B-3 once every reference is a UUID.
 import idMap from "@/scripts/.id-map-3ba.json";
+import listingIdMap from "@/scripts/.id-map-3bb1.json";
 
 interface MapEntry {
   uuid: string;
@@ -15,6 +20,7 @@ interface MapEntry {
 
 const AREAS = idMap.areas as Record<string, MapEntry>;
 const AGENTS = idMap.agents as Record<string, MapEntry>;
+const LISTINGS = listingIdMap.listings as Record<string, MapEntry>;
 
 export function areaSlugForLegacyId(legacyId: string): string | null {
   return AREAS[legacyId]?.slug ?? null;
@@ -30,4 +36,12 @@ export function areaUuidForLegacyId(legacyId: string): string | null {
 
 export function agentUuidForLegacyId(legacyId: string): string | null {
   return AGENTS[legacyId]?.uuid ?? null;
+}
+
+export function listingSlugForLegacyId(legacyId: string): string | null {
+  return LISTINGS[legacyId]?.slug ?? null;
+}
+
+export function listingUuidForLegacyId(legacyId: string): string | null {
+  return LISTINGS[legacyId]?.uuid ?? null;
 }

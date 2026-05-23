@@ -2,10 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import {
   parseListingSearchParams,
   serializeListingSearchParams,
-  getFilteredListings,
   type ListingSearchParams,
   type RawSearchParams,
 } from "@/lib/listings-search";
+import { getFilteredListings } from "@/lib/data/listings";
 import { summarizeChips } from "@/lib/saved-search-summary";
 import { getAllAreas } from "@/lib/data/areas";
 
@@ -67,7 +67,7 @@ export async function getSavedSearchesWithCounts(): Promise<SavedSearchRow[]> {
     const query = (row.query_params ?? {}) as ListingSearchParams;
     const { canonicalQs } = canonicalizeQuery(query);
     const chips = summarizeChips(query, areaLookup);
-    const matchCount = getFilteredListings(query).length;
+    const matchCount = (await getFilteredListings(query)).length;
     out.push({
       id: row.id as string,
       name: row.name as string,

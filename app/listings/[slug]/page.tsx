@@ -8,7 +8,8 @@ import { HeartButton } from "@/components/nook/heart-button";
 import { Gallery } from "@/components/listings/gallery";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
 import { ViewTracker } from "@/components/listings/view-tracker";
-import { LISTINGS } from "@/lib/seed/listings";
+import { getListingBySlug, getSimilarListings } from "@/lib/data/listings";
+import listingsIdMap from "@/scripts/.id-map-3bb1.json";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
 import { getAgentBySlug } from "@/lib/data/agents";
@@ -26,13 +27,14 @@ import { formatPrice } from "@/lib/utils";
 import {
   parseListingSearchParams,
   preserveQueryString,
-  getSimilarListings,
   type RawSearchParams,
 } from "@/lib/listings-search";
 import type { Listing, NearbyPOI, NearbyPOIKind } from "@/lib/types";
 
 export function generateStaticParams() {
-  return LISTINGS.map((l) => ({ slug: l.slug }));
+  // Slugs come from the committed id-map artifact (no DB / no cookies at build
+  // time, and the seed file is no longer imported by app code post-3b-B-1).
+  return Object.values(listingsIdMap.listings).map((l) => ({ slug: l.slug }));
 }
 
 export async function generateMetadata({
@@ -41,7 +43,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = LISTINGS.find((l) => l.slug === slug);
+  const listing = await getListingBySlug(slug);
   if (!listing) return { title: "Listing not found · Nook" };
   return {
     title: `${listing.title} · Nook`,
@@ -111,7 +113,7 @@ export default async function ListingDetailPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
-  const listing = LISTINGS.find((l) => l.slug === slug);
+  const listing = await getListingBySlug(slug);
   if (!listing) notFound();
 
   const parsed = parseListingSearchParams(sp);
@@ -131,7 +133,7 @@ export default async function ListingDetailPage({
   const reviews = (REVIEWS_BY_AGENT[listing.agentId] ?? []).slice(0, 3);
   const nearby: NearbyPOI[] = NEARBY_BY_AREA[listing.areaId] ?? [];
   const mapPois = nearby.slice(0, POI_POSITIONS.length);
-  const similarListings = getSimilarListings(listing, 4);
+  const similarListings = await getSimilarListings(listing, 4);
   const similar = await attachListingRelations(similarListings);
 
   const paragraphs = listing.description.split("\n\n").filter(Boolean);

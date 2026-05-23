@@ -7,6 +7,7 @@ import { ListingsBody } from "@/components/listings/listings-body";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { getAllAreas } from "@/lib/data/areas";
 import { attachListingRelations } from "@/lib/data/listings-relations";
+import { getFilteredListings } from "@/lib/data/listings";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +17,6 @@ import {
   preserveQueryString,
   defaultSort,
   resolveLocationLabel,
-  getFilteredListings,
   type RawSearchParams,
   type SortKey,
 } from "@/lib/listings-search";
@@ -91,7 +91,7 @@ export default async function ListingsPage({
     }
   }
 
-  const listings = getFilteredListings(params, viewerGender);
+  const listings = await getFilteredListings(params, viewerGender);
 
   const [areas, items] = await Promise.all([
     getAllAreas(),

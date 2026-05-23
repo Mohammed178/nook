@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { LISTING_BY_ID } from "@/lib/seed/listings";
+import { getListingResolver } from "@/lib/data/listings";
 import type { Listing } from "@/lib/types";
 
 /**
@@ -29,8 +29,8 @@ export interface SavedListing {
 
 /**
  * Server-only. Returns hydrated saved listings for the current user, newest
- * first. Drops rows whose listing_id is no longer in the seed (defensive —
- * no DB FK; seed is source of truth).
+ * first. Drops rows whose listing_id resolves to no current listing
+ * (defensive — no DB FK; listings table is source of truth).
  */
 export async function getSavedListings(): Promise<SavedListing[]> {
   const supabase = await createClient();
@@ -47,9 +47,10 @@ export async function getSavedListings(): Promise<SavedListing[]> {
 
   if (error || !data) return [];
 
+  const resolve = await getListingResolver();
   const out: SavedListing[] = [];
   for (const row of data) {
-    const listing = LISTING_BY_ID[row.listing_id as string];
+    const listing = resolve(row.listing_id as string);
     if (!listing) continue;
     out.push({ listing, savedAt: row.created_at as string });
   }
