@@ -29,8 +29,8 @@ export interface SavedListing {
 
 /**
  * Server-only. Returns hydrated saved listings for the current user, newest
- * first. Drops rows whose listing_id resolves to no current listing
- * (defensive — no DB FK; listings table is source of truth).
+ * first. Drops rows whose listing_id resolves to no current listing (defensive
+ * belt-and-braces; the DB enforces a FK to listings(id) as of migration 0008).
  */
 export async function getSavedListings(): Promise<SavedListing[]> {
   const supabase = await createClient();

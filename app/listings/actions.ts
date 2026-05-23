@@ -13,9 +13,8 @@ export type ToggleResult =
 /**
  * Toggle favourite for the current user + listingId.
  * Idempotent: insert if missing, delete if present.
- * Validates listingId against the listings table (no FK in DB; the table is
- * source of truth). The resolver also accepts a legacy "lst-NNN" id so a stale
- * client still validates during the transition.
+ * Validates listingId against the listings table before the insert (defensive;
+ * the DB also enforces a FK to listings(id) as of migration 0008).
  */
 export async function toggleFavouriteAction(
   listingId: string,

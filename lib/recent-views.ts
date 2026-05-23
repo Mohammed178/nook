@@ -12,7 +12,8 @@ export interface RecentlyViewedListing {
 /**
  * Server-only. Returns hydrated recently-viewed listings for the current user,
  * most-recent first, capped to the last 20 unique listings (Phase 3a locked).
- * Drops rows whose listing_id resolves to no current listing (defensive — no DB FK).
+ * Drops rows whose listing_id resolves to no current listing (defensive
+ * belt-and-braces; the DB enforces a FK to listings(id) as of migration 0008).
  */
 export async function getRecentlyViewed(): Promise<RecentlyViewedListing[]> {
   const supabase = await createClient();

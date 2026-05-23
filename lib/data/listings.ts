@@ -5,7 +5,6 @@ import {
   rowToListing,
   type ListingRow,
 } from "@/lib/data/_row-mappers";
-import { listingUuidForLegacyId } from "@/lib/data/legacy-id-bridge";
 import type { Gender, Listing } from "@/lib/types";
 import {
   applyFilters,
@@ -37,23 +36,17 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
   return rowToListing(data as ListingRow);
 }
 
-// Resolver for favourites / recent_views, which store Listing.id. Post-3b-B-1
-// that is the UUID, so new rows key by UUID; pre-3b-B-1 rows hold the legacy
-// "lst-NNN" id, which we translate via the committed id-map (legacy → uuid)
-// so existing saved/recent rows still hydrate through the transition. The
-// table column itself is untouched here — 3b-B-2 converts it to a UUID FK and
-// migrates any remaining legacy values.
+// Resolver for favourites / recent_views, which store Listing.id (the UUID).
+// Builds a UUID-keyed map over all listings; returns undefined for an id absent
+// from the table (defensive — callers drop unresolved rows). As of migration
+// 0008 the listing_id columns are a UUID FK to listings(id), so stored values
+// are guaranteed to reference a real listing.
 export async function getListingResolver(): Promise<
-  (idOrLegacy: string) => Listing | undefined
+  (id: string) => Listing | undefined
 > {
   const listings = await getAllListings();
   const byId = new Map(listings.map((l) => [l.id, l]));
-  return (idOrLegacy) => {
-    const direct = byId.get(idOrLegacy);
-    if (direct) return direct;
-    const uuid = listingUuidForLegacyId(idOrLegacy);
-    return uuid ? byId.get(uuid) : undefined;
-  };
+  return (id) => byId.get(id);
 }
 
 // Relocated from lib/listings-search.ts (Phase 3b-B-1, decision Q1). Body is
