@@ -1,5 +1,6 @@
 export type ListingType = "room" | "studio" | "apartment" | "house";
 export type ListingStatus = "available" | "reserved" | "rented";
+export type AgentStatus = "pending" | "approved" | "rejected";
 export type FurnishingLevel = "unfurnished" | "partial" | "full";
 export type Gender = "male" | "female" | "mixed";
 export type Density = "compact" | "default" | "comfortable";
@@ -49,7 +50,11 @@ export interface Agent {
   whatsapp: string;
   phone?: string;
   email?: string;
-  verified: boolean;
+  status: AgentStatus;
+  statusReason?: string;
+  submittedAt: string;
+  verifiedAt?: string;
+  deletedAt?: string;
   yearsActive: number;
   bio?: string;
   bovaepLicence?: string;

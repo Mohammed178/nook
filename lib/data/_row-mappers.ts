@@ -4,6 +4,7 @@
 // output shape, change it here and the test catches drift automatically.
 import type {
   Agent,
+  AgentStatus,
   Area,
   FurnishingLevel,
   Gender,
@@ -38,7 +39,11 @@ export interface AgentRow {
   whatsapp: string;
   phone: string | null;
   email: string | null;
-  verified: boolean;
+  status: AgentStatus;
+  status_reason: string | null;
+  submitted_at: string;
+  verified_at: string | null;
+  deleted_at: string | null;
   years_active: number;
   bio: string | null;
   bovaep_licence: string | null;
@@ -72,7 +77,11 @@ export function rowToAgent(r: AgentRow): Agent {
     whatsapp: r.whatsapp,
     phone: r.phone ?? undefined,
     email: r.email ?? undefined,
-    verified: r.verified,
+    status: r.status,
+    statusReason: r.status_reason ?? undefined,
+    submittedAt: r.submitted_at,
+    verifiedAt: r.verified_at ?? undefined,
+    deletedAt: r.deleted_at ?? undefined,
     yearsActive: r.years_active,
     bio: r.bio ?? undefined,
     bovaepLicence: r.bovaep_licence ?? undefined,
@@ -83,7 +92,7 @@ export const AREA_COLS =
   "id, slug, name, city, state, lat, lng, nearby_university_ids, vibe";
 
 export const AGENT_COLS =
-  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, verified, years_active, bio, bovaep_licence";
+  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence";
 
 export interface ListingRow {
   id: string;

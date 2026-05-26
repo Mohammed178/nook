@@ -39,7 +39,7 @@ export async function FeaturedAgents() {
             <div style={{ flex: 1 }}>
               <div className="agent-name">
                 {agent.name}
-                {agent.verified && (
+                {agent.status === "approved" && (
                   <Icon name="check" size={14} strokeWidth={2} style={{ color: "var(--success)" }} />
                 )}
               </div>

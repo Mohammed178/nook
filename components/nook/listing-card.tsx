@@ -78,7 +78,7 @@ export function ListingCard({
       <Link href={linkHref} className="lc">
         <div className="photo" style={{ backgroundImage: `url(${photo})` }}>
           <div className="pills">
-            {agent?.verified && (
+            {agent?.status === "approved" && (
               <span className="pill-mini pill-verified-mini">
                 <Icon name="check" size={10} />
                 Verified
@@ -168,7 +168,7 @@ export function ListingCard({
     <Link href={linkHref} className={cardClass}>
       <div className="card-photo" style={{ backgroundImage: `url(${photo})` }}>
         <div className="badges-tl">
-          {agent?.verified && (
+          {agent?.status === "approved" && (
             <span className="pill pill-verified">
               <Icon name="check" size={10} />
               Verified
@@ -233,7 +233,7 @@ export function ListingCard({
                   {agent.agency ? ` · ${agent.agency}` : ""}
                 </div>
                 <div className="card-agent-license tabular">
-                  {agent.verified ? "BOVAEP verified" : "Independent"}
+                  {agent.status === "approved" ? "BOVAEP verified" : " "}
                 </div>
               </div>
               <div className="card-actions">

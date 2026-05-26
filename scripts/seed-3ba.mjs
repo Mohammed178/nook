@@ -14,6 +14,7 @@ import { createClient } from "@supabase/supabase-js";
 import { v5 as uuidv5 } from "uuid";
 import { AREAS } from "../lib/seed/areas.ts";
 import { AGENTS } from "../lib/seed/agents.ts";
+import { slugify } from "../lib/slugify.ts";
 
 // Frozen namespace. DO NOT CHANGE — every id is derived from this constant.
 // Hand-edited from a v4 to a v5-shape value; functionally any fixed 128-bit
@@ -29,13 +30,19 @@ for (const [k, v] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: URL, SUPABASE_SE
   }
 }
 
-function slugify(s) {
-  return s
-    .normalize("NFKD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+// Phase 4a-1 seed-only auth constants. Development data — NEVER production.
+// All seed agents share one deterministic password so the RLS test can sign in
+// as an approved seed agent. Auth login email (agent-{x}+seed@nook.test) is the
+// .test TLD reserved by RFC 6761 for non-routable testing use; it is distinct
+// from the agent's public contact email in agents.email.
+const SEED_PASSWORD = "nook-seed-2026";
+const SEED_VERIFIED_AT = "2026-01-01T00:00:00Z"; // fixed audit timestamp, approved agents
+const ARIF_REJECTION =
+  "Sample rejection — BOVAEP registry could not confirm licence. This is seed data for development.";
+
+function seedEmail(legacyId) {
+  // legacyId is already "agent-aisha" etc → "agent-aisha+seed@nook.test"
+  return `${legacyId}+seed@nook.test`;
 }
 
 function deriveAgentSlugs(agents) {
@@ -56,6 +63,37 @@ function deriveAgentSlugs(agents) {
 }
 
 const sb = createClient(URL, SRK, { auth: { persistSession: false } });
+
+// Idempotent auth-user resolution. Supabase admin API has no get-by-email, so
+// page listUsers to find an existing seed user; otherwise create one. Returns
+// the auth user id, used as agents.user_id.
+async function findUserByEmail(email) {
+  for (let page = 1; ; page++) {
+    const { data, error } = await sb.auth.admin.listUsers({ page, perPage: 200 });
+    if (error) {
+      console.error(`listUsers failed: ${error.message}`);
+      process.exit(1);
+    }
+    const hit = data.users.find((u) => u.email === email);
+    if (hit) return hit;
+    if (data.users.length < 200) return null;
+  }
+}
+
+async function ensureAuthUser(email) {
+  const existing = await findUserByEmail(email);
+  if (existing) return existing.id;
+  const { data, error } = await sb.auth.admin.createUser({
+    email,
+    password: SEED_PASSWORD,
+    email_confirm: true, // service-role bypass; .test inbox is non-routable
+  });
+  if (error || !data?.user) {
+    console.error(`createUser ${email} failed: ${error?.message}`);
+    process.exit(1);
+  }
+  return data.user.id;
+}
 
 // ---------- areas ----------
 const areaSlugByLegacy = new Map(AREAS.map((a) => [a.id, a.id])); // slug = legacy id
@@ -83,25 +121,38 @@ console.log(`Upserting ${areaRows.length} areas...`);
 }
 
 // ---------- agents ----------
+// Each seed agent gets an auth.users row (idempotent) and a linked user_id.
+// agents.email is the PUBLIC contact (display); the auth login email is the
+// separate agent-{x}+seed@nook.test. Approved agents carry a fixed verified_at
+// audit timestamp; Arif (rejected) carries the rejection reason. submitted_at /
+// deleted_at fall to DB defaults.
 const agentSlugByLegacy = deriveAgentSlugs(AGENTS);
-const agentRows = AGENTS.map((a) => ({
-  id: uuidv5(a.id, NS_NOOK),
-  slug: agentSlugByLegacy.get(a.id),
-  name: a.name,
-  agency: a.agency ?? null,
-  rating: a.rating,
-  review_count: a.reviewCount,
-  response_time_mins: a.responseTimeMins,
-  languages: a.languages,
-  avatar_url: a.avatarUrl,
-  whatsapp: a.whatsapp,
-  phone: a.phone ?? null,
-  email: a.email ?? null,
-  verified: a.verified,
-  years_active: a.yearsActive,
-  bio: a.bio ?? null,
-  bovaep_licence: a.bovaepLicence ?? null,
-}));
+const agentRows = [];
+for (const a of AGENTS) {
+  const userId = await ensureAuthUser(seedEmail(a.id));
+  const approved = a.status === "approved";
+  agentRows.push({
+    id: uuidv5(a.id, NS_NOOK),
+    slug: agentSlugByLegacy.get(a.id),
+    name: a.name,
+    agency: a.agency ?? null,
+    rating: a.rating,
+    review_count: a.reviewCount,
+    response_time_mins: a.responseTimeMins,
+    languages: a.languages,
+    avatar_url: a.avatarUrl,
+    whatsapp: a.whatsapp,
+    phone: a.phone ?? null,
+    email: a.email ?? null,
+    bovaep_licence: a.bovaepLicence ?? null,
+    bio: a.bio ?? null,
+    years_active: a.yearsActive,
+    user_id: userId,
+    status: a.status,
+    status_reason: approved ? null : a.id === "agent-arif" ? ARIF_REJECTION : null,
+    verified_at: approved ? SEED_VERIFIED_AT : null,
+  });
+}
 
 console.log(`Upserting ${agentRows.length} agents...`);
 {

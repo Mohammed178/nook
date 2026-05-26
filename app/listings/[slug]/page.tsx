@@ -162,7 +162,7 @@ export default async function ListingDetailPage({
           <div className="title-row">
             <div>
               <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                {agent?.verified && (
+                {agent?.status === "approved" && (
                   <span className="pill pill-verified">
                     <Icon name="check" size={10} /> Verified agent
                   </span>
@@ -361,7 +361,7 @@ export default async function ListingDetailPage({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="agent-meta-name">
                     {agent.name}
-                    {agent.verified && (
+                    {agent.status === "approved" && (
                       <span className="verif" title="BOVAEP-licensed">
                         <Icon name="check-circle" size={14} />
                       </span>
@@ -414,7 +414,7 @@ export default async function ListingDetailPage({
                   <span className="ico"><Icon name="check" size={14} /></span>
                   Identity verified by Nook
                 </div>
-                {agent.verified && (
+                {agent.status === "approved" && (
                   <div className="trust-item">
                     <span className="ico"><Icon name="check" size={14} /></span>
                     BOVAEP licence checked against LPEPH

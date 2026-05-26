@@ -220,6 +220,11 @@ img { display: block; max-width: 100%; }
 .pill-today    { background: #FFF3DC; color: #8B5A00; }
 .pill-photos   { background: rgba(0,0,0,0.65); color: #fff; }
 .pill-lg       { padding: 4px 10px; font-size: var(--t-xs); }
+.pill-pending  { background: var(--warning-50); color: var(--warning-700); }
+.pill-rejected { background: var(--danger-50); color: var(--danger-700); }
+
+/* Agent application-status header (/agents/pending) */
+.agent-status-head { margin-bottom: 16px; }
 
 /* === Inputs === */
 .input, .select {

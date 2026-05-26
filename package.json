@@ -7,13 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "seed:3ba": "node --experimental-strip-types --env-file=.env.local scripts/seed-3ba.mjs",
     "rls-test:3ba": "node --env-file=.env.local scripts/rls-test-3ba.mjs",
     "derive-id-map:3bb1": "node --experimental-strip-types scripts/derive-id-map-3bb1.mjs",
     "seed:3bb1": "node --experimental-strip-types --env-file=.env.local scripts/seed-3bb1.mjs",
     "rls-test:3bb1": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb1.mjs",
     "rls-test:3bb2": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb2.mjs",
-    "rls-test:3bb3": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb3.mjs"
+    "rls-test:3bb3": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb3.mjs",
+    "rls-test:4a1": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4a1.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
