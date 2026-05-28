@@ -24,6 +24,10 @@ export default async function RegisterPage() {
           <Link href="/login" className="auth-topbar-link">
             Sign in
           </Link>
+          {"  ·  "}Want to list a property?{" "}
+          <Link href="/agents/register" className="auth-topbar-link">
+            Register as an agent
+          </Link>
         </div>
       </div>
       <AuthShell variant="register">

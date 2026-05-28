@@ -282,7 +282,7 @@ img { display: block; max-width: 100%; }
 .nav-links { display: flex; gap: 4px; flex: 1; }
 .nav-link {
   padding: 8px 12px; color: var(--ink-700); font-weight: 700;
-  font-size: 1.05rem; border-radius: var(--r-sm); position: relative;
+  font-size: 0.95rem; border-radius: var(--r-sm); position: relative;
 }
 .nav-link:hover { color: var(--ink-900); text-decoration: none; background: var(--ink-100); }
 .nav-link.active { color: var(--ink-900); }

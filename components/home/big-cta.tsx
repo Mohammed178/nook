@@ -12,8 +12,8 @@ export function BigCTA() {
             Free for your first 3 listings — no commission, ever.
           </p>
           <div className="ctas">
-            <Link href="/list-property" className="btn-on-brand">List a property →</Link>
-            <Link href="/list-property#pricing" className="btn-on-brand-ghost">See pricing</Link>
+            <Link href="/agents/register" className="btn-on-brand">List a property →</Link>
+            <Link href="/agents/register" className="btn-on-brand-ghost">Learn more</Link>
           </div>
         </div>
         <div className="big-cta-stats">

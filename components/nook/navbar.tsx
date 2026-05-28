@@ -7,7 +7,7 @@ import { getAllAreas } from "@/lib/data/areas";
 import { UNIVERSITIES } from "@/lib/seed/universities";
 
 interface NavbarProps {
-  active?: "home" | "listings" | "areas" | "universities" | "help";
+  active?: "home" | "listings" | "areas" | "universities" | "help" | "admin";
   transparent?: boolean;
 }
 
@@ -17,6 +17,7 @@ const LINKS: { id: NonNullable<NavbarProps["active"]>; label: string; href: stri
   { id: "areas", label: "Areas", href: "/areas" },
   { id: "universities", label: "Universities", href: "/universities" },
   { id: "help", label: "Help", href: "/help" },
+  { id: "admin", label: "Admin", href: "/admin/agents" },
 ];
 
 export async function Navbar({ active = "home", transparent = false }: NavbarProps) {
@@ -30,7 +31,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
           <span>nook</span>
         </Link>
         <nav className="nav-links">
-          {LINKS.map((l) => (
+          {LINKS.filter((l) => l.id !== "admin" || user?.isAdmin).map((l) => (
             <Link
               key={l.id}
               href={l.href}
@@ -52,7 +53,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
               <Link href="/login" className="btn btn-ghost btn-sm">
                 Sign in
               </Link>
-              <Link href="/list-property" className="btn btn-secondary btn-sm">
+              <Link href="/agents/register" className="btn btn-secondary btn-sm">
                 List a property
               </Link>
             </>

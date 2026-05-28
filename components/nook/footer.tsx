@@ -65,7 +65,7 @@ export function Footer() {
           <div>
             <h4>For agents</h4>
             <ul>
-              <li><Link href="/list-property">List a property</Link></li>
+              <li><Link href="/agents/register">List a property</Link></li>
               <li><Link href="/verification">Verification</Link></li>
               <li><Link href="/pricing">Pricing</Link></li>
               <li><Link href="/agent-login">Agent login</Link></li>

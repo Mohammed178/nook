@@ -20,7 +20,7 @@ export default async function AdminLayout({
 
   return (
     <>
-      <Navbar />
+      <Navbar active="admin" />
       <div className="container account-shell">
         <AdminSidebar displayName={user.displayName} email={user.email} />
         <main className="account-content">{children}</main>
