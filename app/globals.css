@@ -1668,6 +1668,44 @@ html[dir="rtl"] body { font-family: var(--font-inter), 'Inter', 'Noto Naskh Arab
 }
 .account-page-sub { color: var(--ink-500); }
 
+/* Admin verification queue (4a-2). Reuses .pill / .btn; table styling only. */
+.admin-queue-wrap {
+  border: 1px solid var(--ink-150);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--surface);
+}
+.admin-queue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+}
+.admin-queue-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-500);
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--ink-150);
+  background: var(--ink-50);
+}
+.admin-queue-table td {
+  padding: var(--s-4);
+  border-bottom: 1px solid var(--ink-150);
+  color: var(--ink-700);
+  vertical-align: middle;
+}
+.admin-queue-table tr:last-child td { border-bottom: 0; }
+.admin-queue-table td.tabular { font-variant-numeric: tabular-nums; }
+.admin-queue-actions {
+  display: flex;
+  gap: var(--s-2);
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
 .saved-list {
   list-style: none;
   display: flex;

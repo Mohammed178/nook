@@ -15,7 +15,11 @@
     "rls-test:3bb1": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb1.mjs",
     "rls-test:3bb2": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb2.mjs",
     "rls-test:3bb3": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb3.mjs",
-    "rls-test:4a1": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4a1.mjs"
+    "rls-test:4a1": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4a1.mjs",
+    "rls-test:4a2": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4a2.mjs",
+    "promote-to-admin": "node --experimental-strip-types --env-file=.env.local scripts/promote-to-admin.mjs",
+    "demote-from-admin": "node --experimental-strip-types --env-file=.env.local scripts/demote-from-admin.mjs",
+    "lint:service-role-containment": "node scripts/lint-service-role-containment.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

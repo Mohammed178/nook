@@ -37,6 +37,12 @@ for (const [k, v] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: URL, SUPABASE_SE
 // from the agent's public contact email in agents.email.
 const SEED_PASSWORD = "nook-seed-2026";
 const SEED_VERIFIED_AT = "2026-01-01T00:00:00Z"; // fixed audit timestamp, approved agents
+// Phase 4a-2 (L-4a2.9): one seed admin, app_metadata.role = 'admin'. Distinct
+// from the agent seed users; not added to the agents table (admin is an
+// auth-only role, orthogonal to being an agent/student). Its auth id backfills
+// decided_by on the 5 approved + rejected Arif (L-4a2.7); decided_at reuses the
+// fixed SEED_VERIFIED_AT (agents has no created_at column).
+const ADMIN_EMAIL = "admin+seed@nook.test";
 const ARIF_REJECTION =
   "Sample rejection — BOVAEP registry could not confirm licence. This is seed data for development.";
 
@@ -95,6 +101,35 @@ async function ensureAuthUser(email) {
   return data.user.id;
 }
 
+// Idempotent seed admin (L-4a2.9). Creates with app_metadata.role='admin', or
+// re-asserts the claim on an existing user. Returns the auth id for decided_by.
+async function ensureAdminUser(email) {
+  const existing = await findUserByEmail(email);
+  if (existing) {
+    if (existing.app_metadata?.role !== "admin") {
+      const { error } = await sb.auth.admin.updateUserById(existing.id, {
+        app_metadata: { ...existing.app_metadata, role: "admin" },
+      });
+      if (error) {
+        console.error(`admin claim update ${email} failed: ${error.message}`);
+        process.exit(1);
+      }
+    }
+    return existing.id;
+  }
+  const { data, error } = await sb.auth.admin.createUser({
+    email,
+    password: SEED_PASSWORD,
+    email_confirm: true,
+    app_metadata: { role: "admin" },
+  });
+  if (error || !data?.user) {
+    console.error(`createUser ${email} failed: ${error?.message}`);
+    process.exit(1);
+  }
+  return data.user.id;
+}
+
 // ---------- areas ----------
 const areaSlugByLegacy = new Map(AREAS.map((a) => [a.id, a.id])); // slug = legacy id
 const areaRows = AREAS.map((a) => ({
@@ -126,11 +161,18 @@ console.log(`Upserting ${areaRows.length} areas...`);
 // separate agent-{x}+seed@nook.test. Approved agents carry a fixed verified_at
 // audit timestamp; Arif (rejected) carries the rejection reason. submitted_at /
 // deleted_at fall to DB defaults.
+// Seed admin first so its auth id is available to backfill decided_by below.
+const adminUid = await ensureAdminUser(ADMIN_EMAIL);
+
 const agentSlugByLegacy = deriveAgentSlugs(AGENTS);
 const agentRows = [];
 for (const a of AGENTS) {
   const userId = await ensureAuthUser(seedEmail(a.id));
   const approved = a.status === "approved";
+  // Decided = not pending. Every current seed agent is approved/rejected, so all
+  // get decided_by (admin uid) + decided_at (fixed). A future pending seed agent
+  // would get null/null. (L-4a2.7 backfill.)
+  const decided = a.status !== "pending";
   agentRows.push({
     id: uuidv5(a.id, NS_NOOK),
     slug: agentSlugByLegacy.get(a.id),
@@ -151,6 +193,8 @@ for (const a of AGENTS) {
     status: a.status,
     status_reason: approved ? null : a.id === "agent-arif" ? ARIF_REJECTION : null,
     verified_at: approved ? SEED_VERIFIED_AT : null,
+    decided_by: decided ? adminUid : null,
+    decided_at: decided ? SEED_VERIFIED_AT : null,
   });
 }
 

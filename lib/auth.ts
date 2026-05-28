@@ -4,6 +4,21 @@ export interface AuthUser {
   id: string;
   email: string;
   displayName: string;
+  isAdmin: boolean;
+}
+
+/**
+ * Admin claim check (L-4a2.1). The role lives at app_metadata.role === 'admin'
+ * (app_metadata namespace only — the user cannot self-modify it). Pure function,
+ * no client/cookie access, so middleware (which has the JWT-decoded user from
+ * updateSession but no cookies() in the getCurrentUser shape) and server actions
+ * can both reuse it. Middleware itself checks the claim inline to avoid importing
+ * this module (which would pull next/headers into the middleware bundle).
+ */
+export function isAdmin(
+  user: { app_metadata?: Record<string, unknown> } | null,
+): boolean {
+  return user?.app_metadata?.role === "admin";
 }
 
 /**
@@ -31,5 +46,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     id: user.id,
     email: user.email ?? "",
     displayName,
+    // Populated from the auth.getUser() call above — no second round-trip.
+    isAdmin: isAdmin(user),
   };
 }

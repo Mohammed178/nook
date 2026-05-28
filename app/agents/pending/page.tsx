@@ -47,7 +47,8 @@ export default async function AgentPendingPage() {
           <>
             <h2>Application rejected</h2>
             <p>
-              Your application was rejected. Reason: {agent.statusReason}.
+              Your application was rejected.
+              {agent.statusReason ? ` Reason: ${agent.statusReason}.` : ""}
             </p>
             <p>
               Email hello@getnook.com if you want to reapply. Reapplication is not
