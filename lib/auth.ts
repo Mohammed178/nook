@@ -1,10 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAgentByUserId } from "@/lib/data/agents";
+import type { AgentStatus } from "@/lib/types";
 
 export interface AuthUser {
   id: string;
   email: string;
   displayName: string;
   isAdmin: boolean;
+  /** Agent verification status, undefined if the caller has no agents row
+   * (i.e. a student). Resolved via the same RLS read client. */
+  agentStatus?: AgentStatus;
+  /** Agency name for the role label; undefined if no agent row. */
+  agencyName?: string;
 }
 
 /**
@@ -42,11 +49,19 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     profile?.display_name ??
     (user.email ? user.email.split("@")[0] : "Account");
 
+  // One indexed lookup on agents by user_id (RLS read client). Folded into the
+  // existing per-render DB work; reuses the user above — no second auth.getUser().
+  // undefined for students (no agents row). The JWT-claim optimisation that would
+  // remove this query is deferred (LC-18).
+  const agent = await getAgentByUserId(user.id);
+
   return {
     id: user.id,
     email: user.email ?? "",
     displayName,
     // Populated from the auth.getUser() call above — no second round-trip.
     isAdmin: isAdmin(user),
+    agentStatus: agent?.status,
+    agencyName: agent?.agency,
   };
 }

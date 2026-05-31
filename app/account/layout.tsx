@@ -20,6 +20,8 @@ export default async function AccountLayout({
         <AccountSidebar
           displayName={user?.displayName ?? "Account"}
           email={user?.email ?? ""}
+          agentStatus={user?.agentStatus}
+          agencyName={user?.agencyName}
         />
         <main className="account-content">{children}</main>
       </div>

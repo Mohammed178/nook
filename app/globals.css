@@ -1603,6 +1603,15 @@ html[dir="rtl"] body { font-family: var(--font-inter), 'Inter', 'Noto Naskh Arab
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.account-sidebar-role {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--ink-700);
+  margin-top: var(--s-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .account-nav {
   list-style: none;
   margin: 0;
@@ -2266,5 +2275,80 @@ html[dir="rtl"] body { font-family: var(--font-inter), 'Inter', 'Noto Naskh Arab
   }
   .account-nav-soon { display: none; }
   .account-tiles { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   Agent dashboard (Phase 4b) — reuses account-shell / pill / btn / field
+   primitives; tokens only, no literal colours.
+   ============================================================ */
+.account-content-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-4); margin-bottom: var(--s-8);
+}
+.account-content-head h1 { font-size: var(--t-2xl); margin: 0; }
+
+.dashboard-form-page { max-width: 640px; }
+
+.dashboard-section { margin-bottom: var(--s-8); }
+.dashboard-section-title {
+  font-size: var(--t-sm); font-weight: 600; color: var(--ink-800);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin: 0 0 var(--s-3);
+}
+.dashboard-empty { color: var(--ink-500); font-size: var(--t-base); }
+
+.listing-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: var(--s-3);
+}
+.listing-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--s-4); padding: var(--s-4);
+  border: 1px solid var(--ink-200); border-radius: var(--r-lg);
+  background: var(--paper); transition: border-color 120ms;
+}
+.listing-row:hover { border-color: var(--ink-300); }
+.listing-row-main { min-width: 0; }
+.listing-row-head { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.listing-row-title { font-weight: 600; color: var(--ink-900); }
+.listing-row-meta {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
+  font-size: var(--t-sm); color: var(--ink-500);
+}
+.listing-row-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Status pills — built on base .pill. draft = neutral ink; available =
+   success; reserved = warning; rented = muted ink. */
+.pill-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.pill-status-draft     { background: var(--ink-100); color: var(--ink-700); }
+.pill-status-available { background: var(--success-50); color: var(--success-700); }
+.pill-status-reserved  { background: var(--warning-50); color: var(--warning-700); }
+.pill-status-rented    { background: var(--ink-100); color: var(--ink-500); }
+
+/* Listing form — checkbox groups + textarea + field-level error */
+.textarea {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--ink-300);
+  border-radius: var(--r-sm); background: var(--paper); color: var(--ink-900);
+  font-size: var(--t-base); font-family: inherit; line-height: 1.5;
+  resize: vertical; transition: border-color 120ms, box-shadow 120ms;
+}
+.textarea:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 3px var(--brand-50); }
+.field-err { font-size: var(--t-sm); color: var(--danger); margin-top: 6px; }
+
+.listing-form-group { border: none; margin: 0 0 var(--s-4); padding: 0; }
+.listing-form-checks {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px; margin-top: 8px;
+}
+
+/* Inline archive confirmation (two-step, calm reversibility copy) */
+.listing-confirm { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.listing-confirm-actions { display: flex; gap: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .listing-row { transition: none; }
 }
 

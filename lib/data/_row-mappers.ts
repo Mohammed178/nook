@@ -114,8 +114,10 @@ export interface ListingRow {
   area_id: string;
   city: string;
   state: string;
-  lat: number;
-  lng: number;
+  // Nullable since 4b (migration 0014 drops NOT NULL): drafts carry null until
+  // the 4c map-picker sets coordinates at publish (LC-19).
+  lat: number | null;
+  lng: number | null;
   nearby_university_ids: string[];
   walk_mins_to_campus: number | null;
   metres_to_campus: number | null;
@@ -129,6 +131,7 @@ export interface ListingRow {
   review_count: number | null;
   featured: boolean | null;
   listed_today: boolean | null;
+  deleted_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -154,8 +157,8 @@ export function rowToListing(r: ListingRow): Listing {
     areaId: r.area_id,
     city: r.city,
     state: r.state,
-    lat: r.lat,
-    lng: r.lng,
+    lat: r.lat ?? undefined,
+    lng: r.lng ?? undefined,
     nearbyUniversityIds: r.nearby_university_ids,
     walkMinsToCampus: r.walk_mins_to_campus ?? undefined,
     metresToCampus: r.metres_to_campus ?? undefined,
@@ -172,10 +175,11 @@ export function rowToListing(r: ListingRow): Listing {
     reviewCount: r.review_count ?? undefined,
     featured: r.featured ?? undefined,
     listedToday: r.listed_today ?? undefined,
+    deletedAt: r.deleted_at ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
 }
 
 export const LISTING_COLS =
-  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, nearby_university_ids, walk_mins_to_campus, metres_to_campus, amenities, photos, description, agent_id, rating, review_count, featured, listed_today, created_at, updated_at";
+  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, nearby_university_ids, walk_mins_to_campus, metres_to_campus, amenities, photos, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at";

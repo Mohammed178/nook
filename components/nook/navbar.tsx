@@ -47,7 +47,10 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
             <Icon name="globe" size={14} /> EN
           </button>
           {user ? (
-            <AccountMenu displayName={user.displayName} />
+            <AccountMenu
+              displayName={user.displayName}
+              agentStatus={user.agentStatus}
+            />
           ) : (
             <>
               <Link href="/login" className="btn btn-ghost btn-sm">

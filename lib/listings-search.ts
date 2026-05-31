@@ -166,6 +166,10 @@ export function listingDistanceKm(l: Listing, universityId?: string): number {
   if (!targetUniId) return Number.POSITIVE_INFINITY;
   const uni = UNIVERSITY_BY_ID[targetUniId];
   if (!uni) return Number.POSITIVE_INFINITY;
+  // lat/lng are nullable since 4b (drafts have no coordinates). Distance sorting
+  // only runs on published listings (RLS hides drafts), so this guard is
+  // belt-and-braces — a coordinate-less listing sorts last.
+  if (l.lat == null || l.lng == null) return Number.POSITIVE_INFINITY;
   return distanceKm(l.lat, l.lng, uni.lat, uni.lng);
 }
 

@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { signOutAction } from "@/app/account/actions";
+import type { AgentStatus } from "@/lib/types";
 
 interface AccountMenuProps {
   displayName: string;
+  agentStatus?: AgentStatus;
 }
 
-export function AccountMenu({ displayName }: AccountMenuProps) {
+export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +86,16 @@ export function AccountMenu({ displayName }: AccountMenuProps) {
           >
             <Icon name="search" size={14} /> Saved searches
           </Link>
+          {agentStatus === "approved" ? (
+            <Link
+              href="/agents/dashboard"
+              className="account-menu-item"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+            >
+              <Icon name="grid" size={14} /> Agent dashboard
+            </Link>
+          ) : null}
           <div className="account-menu-divider" />
           <form action={signOutAction}>
             <button

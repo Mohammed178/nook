@@ -52,12 +52,27 @@ export function ListingsMap({
 }: ListingsMapProps) {
   const popupRefs = useRef<Map<string, L.Popup>>(new Map());
 
+  // lat/lng are nullable since 4b (drafts carry no coordinates). The map only
+  // ever receives published listings (RLS hides drafts), so this flatMap guard
+  // is belt-and-braces — a coordinate-less listing simply gets no marker, and
+  // narrows lat/lng to `number` for the Marker position below.
   const markers = useMemo(
     () =>
-      items.map((item) => ({
-        item,
-        icon: priceIcon(item.listing.priceMonthly, activeId === item.listing.id),
-      })),
+      items.flatMap((item) => {
+        const { lat, lng } = item.listing;
+        if (lat == null || lng == null) return [];
+        return [
+          {
+            item,
+            lat,
+            lng,
+            icon: priceIcon(
+              item.listing.priceMonthly,
+              activeId === item.listing.id,
+            ),
+          },
+        ];
+      }),
     [items, activeId],
   );
 
@@ -74,10 +89,10 @@ export function ListingsMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <FlyToCenter center={center} zoom={zoom} />
-        {markers.map(({ item, icon }) => (
+        {markers.map(({ item, lat, lng, icon }) => (
           <Marker
             key={item.listing.id}
-            position={[item.listing.lat, item.listing.lng]}
+            position={[lat, lng]}
             icon={icon}
             eventHandlers={{
               mouseover: () => setActiveId(item.listing.id),

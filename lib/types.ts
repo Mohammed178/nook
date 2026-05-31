@@ -1,5 +1,5 @@
 export type ListingType = "room" | "studio" | "apartment" | "house";
-export type ListingStatus = "available" | "reserved" | "rented";
+export type ListingStatus = "draft" | "available" | "reserved" | "rented";
 export type AgentStatus = "pending" | "approved" | "rejected";
 export type FurnishingLevel = "unfurnished" | "partial" | "full";
 export type Gender = "male" | "female" | "mixed";
@@ -114,8 +114,11 @@ export interface Listing {
   areaId: string;
   city: string;
   state: string;
-  lat: number;
-  lng: number;
+  /** Nullable since 4b (migration 0014): drafts are authored without
+   * coordinates; the 4c map-picker populates lat/lng at publish (LC-19). Only
+   * private drafts carry null — published listings always have coordinates. */
+  lat?: number;
+  lng?: number;
   nearbyUniversityIds: string[];
   walkMinsToCampus?: number;
   metresToCampus?: number;
@@ -129,6 +132,10 @@ export interface Listing {
   reviewCount?: number;
   featured?: boolean;
   listedToday?: boolean;
+  /** Soft-delete timestamp (migration 0014). Set → archived (hidden from public
+   * reads by RLS, visible to the owning agent). null → live. Mirrors
+   * Agent.deletedAt. */
+  deletedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
