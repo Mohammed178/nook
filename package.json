@@ -18,6 +18,7 @@
     "rls-test:4a1": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4a1.mjs",
     "rls-test:4a2": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4a2.mjs",
     "rls-test:4b": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4b.mjs",
+    "rls-test:4c": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-4c.mjs",
     "promote-to-admin": "node --experimental-strip-types --env-file=.env.local scripts/promote-to-admin.mjs",
     "demote-from-admin": "node --experimental-strip-types --env-file=.env.local scripts/demote-from-admin.mjs",
     "lint:service-role-containment": "node scripts/lint-service-role-containment.mjs"

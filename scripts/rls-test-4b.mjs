@@ -16,6 +16,10 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
+import {
+  plantAvailableListing,
+  demoteAndDeleteListing,
+} from "./rls-harness.mjs";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -176,10 +180,12 @@ async function adminField(id, col) {
 }
 
 async function teardown() {
+  // Demote-first: post-0015 an available listing's last photo cannot be deleted
+  // and the cascade must not be wedged. Demoting available->draft (service-role)
+  // clears both the last-photo trigger and the photo-presence trigger before the
+  // listing (and its cascading listing_photos) is removed.
   for (const id of createdListings) {
-    try {
-      await admin.from("listings").delete().eq("id", id);
-    } catch {}
+    await demoteAndDeleteListing(admin, id);
   }
   for (const id of createdAgents) {
     try {
@@ -386,8 +392,17 @@ async function main() {
     ok("owner sees own draft (1 row)");
   }
 
-  // An available (published) listing owned by agentA, for D3 + D4.
-  const availId = await plantListing({ agentId: agentA.agentId, status: "available" });
+  // An available (published) listing owned by agentA, for D3 + D4. Post-0015 an
+  // available row needs coords + a listing_photos row, so this is the multi-step
+  // shared helper, not a single-INSERT plantListing.
+  const { listingId: availId } = await plantAvailableListing({
+    admin,
+    areaUuid: AREA_UUID,
+    agentId: agentA.agentId,
+    createdListings,
+    fail,
+    now: NOW,
+  });
 
   step("D3 — soft-delete hides from public but not from owner");
   {

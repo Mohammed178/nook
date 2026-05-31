@@ -251,3 +251,139 @@ export async function getAgentListingById(id: string): Promise<Listing | null> {
   if (error || !data) return null;
   return rowToListing(data as ListingRow);
 }
+
+// ============================================================
+// Phase 4c-A — publish + photo writes (data layer only; UI is Phase B).
+// All createActionClient + RLS-bound, zero service-role. The publish
+// preconditions are DB-enforced (migration 0015): coords CHECK (23514), a
+// photo-presence trigger (NK001), and a last-photo trigger (NK002). These
+// functions catch those and return a typed result so Phase B's UI can branch.
+// ============================================================
+
+export type PublishResult =
+  | { ok: true }
+  | { ok: false; reason: "needs_photos" | "needs_coords" | "not_found" | "error" };
+
+// draft -> available. The owner-update RLS policy scopes this to the caller's own
+// rows; .eq("status","draft") makes it a pure draft->available transition (and a
+// no-op 0-row match if the row is not the agent's draft). The DB enforces the
+// preconditions, so we map the raised error to a typed reason rather than throw.
+export async function publishListing(id: string): Promise<PublishResult> {
+  const sb = await createActionClient();
+  const { data, error } = await sb
+    .from("listings")
+    .update({ status: "available", updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("status", "draft")
+    .select("id");
+
+  if (error) {
+    // The BEFORE trigger (NK001) fires before the coords CHECK (23514), so a
+    // draft missing both reports needs_photos first; the agent fixes photos,
+    // retries, then sees needs_coords.
+    if (error.code === "NK001") return { ok: false, reason: "needs_photos" };
+    if (error.code === "23514") return { ok: false, reason: "needs_coords" };
+    return { ok: false, reason: "error" };
+  }
+  if (!data || data.length === 0) return { ok: false, reason: "not_found" };
+  return { ok: true };
+}
+
+export interface AddListingPhotoInput {
+  listingId: string;
+  storagePath: string;
+  altText: string;
+}
+
+// Appends a photo to the listing. sort_order = max(existing) + 1; the owner-read
+// RLS scopes the max() query to the caller's own photos. A rare concurrent
+// double-add collides on the deferred unique (listing_id, sort_order) and
+// surfaces as 23505 -> error (no silent corruption). Ownership is enforced by
+// the listing_photos owner-insert with-check policy.
+export async function addListingPhoto(
+  input: AddListingPhotoInput,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const sb = await createActionClient();
+
+  const { data: maxRow, error: maxErr } = await sb
+    .from("listing_photos")
+    .select("sort_order")
+    .eq("listing_id", input.listingId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (maxErr) return { ok: false, error: "Could not read existing photos." };
+
+  const nextSort = (maxRow?.sort_order ?? -1) + 1;
+
+  const { data, error } = await sb
+    .from("listing_photos")
+    .insert({
+      listing_id: input.listingId,
+      storage_path: input.storagePath,
+      alt_text: input.altText,
+      sort_order: nextSort,
+    })
+    .select("id")
+    .single();
+  if (error || !data) return { ok: false, error: "Could not add the photo." };
+  return { ok: true, id: data.id as string };
+}
+
+// Deletes a photo. The last-photo trigger (NK002) blocks removing the only photo
+// of an available listing. A non-owned / missing id matches 0 rows (RLS), no error.
+export async function removeListingPhoto(
+  photoId: string,
+): Promise<{ ok: true } | { ok: false; reason: "last_photo" | "not_found" | "error" }> {
+  const sb = await createActionClient();
+  const { data, error } = await sb
+    .from("listing_photos")
+    .delete()
+    .eq("id", photoId)
+    .select("id");
+  if (error) {
+    if (error.code === "NK002") return { ok: false, reason: "last_photo" };
+    return { ok: false, reason: "error" };
+  }
+  if (!data || data.length === 0) return { ok: false, reason: "not_found" };
+  return { ok: true };
+}
+
+// Reassigns sort_order to match orderedPhotoIds (index = new sort_order). Reads
+// the listing's photos (owner-read RLS), remaps, then writes them back in a
+// SINGLE upsert statement keyed on the PK. Because the (listing_id, sort_order)
+// unique is DEFERRABLE INITIALLY DEFERRED, the transient duplicate orders that
+// occur mid-swap are tolerated until the statement's transaction commits. Full
+// rows are sent so the upsert's INSERT branch (never taken here) would not trip
+// NOT NULL. Ownership is enforced by the owner-read + owner-update policies.
+export async function reorderListingPhotos(
+  listingId: string,
+  orderedPhotoIds: string[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const sb = await createActionClient();
+
+  const { data: photos, error: readErr } = await sb
+    .from("listing_photos")
+    .select("id, listing_id, storage_path, alt_text, sort_order, created_at")
+    .eq("listing_id", listingId);
+  if (readErr || !photos) return { ok: false, error: "Could not read photos." };
+
+  const byId = new Map(photos.map((p) => [p.id as string, p]));
+  if (
+    orderedPhotoIds.length !== photos.length ||
+    !orderedPhotoIds.every((id) => byId.has(id))
+  ) {
+    return { ok: false, error: "Order must list every photo of this listing exactly once." };
+  }
+
+  const rows = orderedPhotoIds.map((id, index) => ({
+    ...byId.get(id)!,
+    sort_order: index,
+  }));
+
+  const { error } = await sb
+    .from("listing_photos")
+    .upsert(rows, { onConflict: "id" });
+  if (error) return { ok: false, error: "Could not reorder the photos." };
+  return { ok: true };
+}
