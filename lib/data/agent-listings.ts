@@ -49,9 +49,10 @@ export interface ListingInput {
   areaId: string;
   city: string;
   state: string;
-  nearbyUniversityIds: string[];
-  walkMinsToCampus?: number;
-  metresToCampus?: number;
+  // Distance claims (nearbyUniversityIds / walkMinsToCampus / metresToCampus)
+  // removed in 4c-B2 (compute-don't-claim). Proximity is computed at read from
+  // lat/lng; the agent no longer authors it. lat/lng are set by the map-picker
+  // via setListingCoords, not through this input.
   amenities: string[];
   description: string;
 }
@@ -85,7 +86,8 @@ async function deriveListingSlug(title: string, sb: ActionClient): Promise<strin
 
 // Maps the editable input to listings columns. lat/lng are deliberately omitted
 // — 4b drafts have no coordinates (nullable since 0014); the 4c map-picker sets
-// them at publish (LC-19). photos default to [] (L-4b.8 — photos are 4c).
+// them at publish (LC-19). photos live in listing_photos now (4c-B1) and are not
+// a listings column; new drafts start photoless and add photos on the edit page.
 function inputToColumns(input: ListingInput) {
   return {
     title: input.title,
@@ -104,9 +106,6 @@ function inputToColumns(input: ListingInput) {
     area_id: input.areaId,
     city: input.city,
     state: input.state,
-    nearby_university_ids: input.nearbyUniversityIds,
-    walk_mins_to_campus: input.walkMinsToCampus ?? null,
-    metres_to_campus: input.metresToCampus ?? null,
     amenities: input.amenities,
     description: input.description,
   };
@@ -131,7 +130,6 @@ export async function createListing(
     slug,
     status: "draft" as const,
     ...cols,
-    photos: [] as string[],
     agent_id: agentId as string,
     created_at: now,
     updated_at: now,
@@ -289,6 +287,40 @@ export async function publishListing(id: string): Promise<PublishResult> {
   return { ok: true };
 }
 
+export type SetCoordsResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+// Sets lat/lng for an owned listing (4c-B2 map-picker). Deliberately NOT folded
+// into updateListing: coordinates come from the picker, a sibling section, not
+// the details form (which still excludes lat/lng, LC-19). This writes ONLY
+// lat/lng — no other column — under the owner-update RLS policy (0014), so it
+// needs no service-role and no new policy. Writing coords to a draft is fine;
+// the available-needs-coords CHECK (0015) only bites at publish.
+export async function setListingCoords(
+  id: string,
+  lat: number,
+  lng: number,
+): Promise<SetCoordsResult> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return { ok: false, error: "Coordinates must be numbers." };
+  }
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return { ok: false, error: "Coordinates are out of range." };
+  }
+  const sb = await createActionClient();
+  const { data, error } = await sb
+    .from("listings")
+    .update({ lat, lng, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id");
+  if (error) return { ok: false, error: "Could not save the location." };
+  if (!data || data.length === 0) {
+    return { ok: false, error: "Listing not found, or it is not yours." };
+  }
+  return { ok: true };
+}
+
 export interface AddListingPhotoInput {
   listingId: string;
   storagePath: string;
@@ -386,4 +418,30 @@ export async function reorderListingPhotos(
     .upsert(rows, { onConflict: "id" });
   if (error) return { ok: false, error: "Could not reorder the photos." };
   return { ok: true };
+}
+
+export interface ListingPhoto {
+  id: string;
+  storagePath: string;
+  altText: string;
+  sortOrder: number;
+}
+
+// The listing's photos in display order, for the edit-page photo manager. Uses
+// the read client (server component); owner-read RLS scopes it to the caller's
+// own listing. A non-owned / missing id simply returns [].
+export async function getListingPhotos(listingId: string): Promise<ListingPhoto[]> {
+  const sb = await createClient();
+  const { data, error } = await sb
+    .from("listing_photos")
+    .select("id, storage_path, alt_text, sort_order")
+    .eq("listing_id", listingId)
+    .order("sort_order", { ascending: true });
+  if (error || !data) return [];
+  return data.map((p) => ({
+    id: p.id as string,
+    storagePath: p.storage_path as string,
+    altText: p.alt_text as string,
+    sortOrder: p.sort_order as number,
+  }));
 }

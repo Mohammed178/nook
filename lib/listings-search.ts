@@ -1,6 +1,12 @@
 import type { Gender, Listing, ListingType } from "@/lib/types";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { AREA_BY_ID } from "@/lib/seed/areas";
+import {
+  haversineKm,
+  isNearCampus,
+  nearestCampus,
+  NEAR_CAMPUS_RADIUS_KM,
+} from "@/lib/distance";
 
 export type SortKey = "priceAsc" | "priceDesc" | "distance" | "newest";
 export type GenderOverride = "off";
@@ -145,32 +151,21 @@ export function preserveQueryString(sp: RawSearchParams): string {
   return usp.toString();
 }
 
-// Haversine distance in km
-function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
-  const R = 6371;
-  const dLat = ((bLat - aLat) * Math.PI) / 180;
-  const dLng = ((bLng - aLng) * Math.PI) / 180;
-  const lat1 = (aLat * Math.PI) / 180;
-  const lat2 = (bLat * Math.PI) / 180;
-  const x =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(x));
-}
-
+// Straight-line km from a listing to a campus. With an explicit universityId,
+// measures to that campus; otherwise to the listing's nearest campus (4c-B2 —
+// the old l.nearbyUniversityIds[0] claim is gone, distance is computed from
+// coordinates). lat/lng are nullable (drafts carry none); a coordinate-less
+// listing sorts last. The haversine lives in lib/distance.ts (single source).
 export function listingDistanceKm(l: Listing, universityId?: string): number {
+  if (l.lat == null || l.lng == null) return Number.POSITIVE_INFINITY;
   const targetUniId =
     universityId && UNIVERSITY_BY_ID[universityId]
       ? universityId
-      : l.nearbyUniversityIds[0];
+      : nearestCampus(l.lat, l.lng)?.uniId;
   if (!targetUniId) return Number.POSITIVE_INFINITY;
   const uni = UNIVERSITY_BY_ID[targetUniId];
   if (!uni) return Number.POSITIVE_INFINITY;
-  // lat/lng are nullable since 4b (drafts have no coordinates). Distance sorting
-  // only runs on published listings (RLS hides drafts), so this guard is
-  // belt-and-braces — a coordinate-less listing sorts last.
-  if (l.lat == null || l.lng == null) return Number.POSITIVE_INFINITY;
-  return distanceKm(l.lat, l.lng, uni.lat, uni.lng);
+  return haversineKm(l.lat, l.lng, uni.lat, uni.lng);
 }
 
 export function applyFilters(
@@ -183,7 +178,13 @@ export function applyFilters(
   return listings.filter((l) => {
     if (p.priceMin != null && l.priceMonthly < p.priceMin) return false;
     if (p.priceMax != null && l.priceMonthly > p.priceMax) return false;
-    if (p.university && !l.nearbyUniversityIds.includes(p.university)) return false;
+    // Compute-don't-claim (4c-B2): "near university X" = within
+    // NEAR_CAMPUS_RADIUS_KM of X's campus, computed from the listing's coords
+    // (was: agent-tagged nearbyUniversityIds). A coordless listing matches no
+    // campus filter, but still appears in unfiltered browse.
+    if (p.university && !isNearCampus(l.lat, l.lng, p.university, NEAR_CAMPUS_RADIUS_KM)) {
+      return false;
+    }
     if (p.area && l.areaId !== p.area) return false;
     if (p.type && p.type.length > 0 && !p.type.includes(l.type)) return false;
     if (p.beds != null && l.bedrooms < p.beds) return false;

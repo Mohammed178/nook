@@ -94,6 +94,24 @@ export const AREA_COLS =
 export const AGENT_COLS =
   "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence";
 
+// Embedded listing_photos row (Phase 4c-B1). Only the fields the public-URL
+// resolution and ordering need; the table carries more (id, alt_text, etc.).
+export interface ListingPhotoRow {
+  storage_path: string;
+  sort_order: number;
+}
+
+// Builds the public URL for a listing-photos storage object. Mirrors Supabase's
+// public-object URL format — /storage/v1/object/public/{bucket}/{path} — so it
+// needs no Supabase client (keeps this module pure and usable from .mjs tests).
+// If supabase-js ever changes that format, update here. Paths are uuid-based
+// ({listing_id}/{photo_uuid}.{ext}), so no URL-encoding is required.
+const LISTING_PHOTOS_BUCKET = "listing-photos";
+export function publicPhotoUrl(storagePath: string): string {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  return `${base}/storage/v1/object/public/${LISTING_PHOTOS_BUCKET}/${storagePath}`;
+}
+
 export interface ListingRow {
   id: string;
   slug: string;
@@ -118,11 +136,15 @@ export interface ListingRow {
   // the 4c map-picker sets coordinates at publish (LC-19).
   lat: number | null;
   lng: number | null;
-  nearby_university_ids: string[];
-  walk_mins_to_campus: number | null;
-  metres_to_campus: number | null;
+  // Distance columns (nearby_university_ids / walk_mins_to_campus /
+  // metres_to_campus) dropped in 4c-B2 (migration 0019); proximity is computed
+  // app-side from lat/lng via lib/distance.ts. No longer selected or mapped.
   amenities: string[];
-  photos: string[];
+  // Photos now live in the listing_photos table (Phase 4c-B1) and arrive as a
+  // PostgREST embed, not the retired listings.photos text[] column. rowToListing
+  // sorts by sort_order and resolves each storage_path to a public URL, so the
+  // domain Listing.photos shape (resolved-URL string[]) is unchanged.
+  listing_photos: ListingPhotoRow[];
   description: string;
   agent_id: string;
   // numeric(2,1) arrives as a string from supabase-js — coerced below. Nullable
@@ -159,11 +181,11 @@ export function rowToListing(r: ListingRow): Listing {
     state: r.state,
     lat: r.lat ?? undefined,
     lng: r.lng ?? undefined,
-    nearbyUniversityIds: r.nearby_university_ids,
-    walkMinsToCampus: r.walk_mins_to_campus ?? undefined,
-    metresToCampus: r.metres_to_campus ?? undefined,
     amenities: r.amenities,
-    photos: r.photos,
+    // Embed order is not guaranteed; sort by sort_order, then resolve to URLs.
+    photos: [...r.listing_photos]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((p) => publicPhotoUrl(p.storage_path)),
     description: r.description,
     agentId: r.agent_id,
     rating:
@@ -182,4 +204,4 @@ export function rowToListing(r: ListingRow): Listing {
 }
 
 export const LISTING_COLS =
-  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, nearby_university_ids, walk_mins_to_campus, metres_to_campus, amenities, photos, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at";
+  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at, listing_photos(storage_path, sort_order)";

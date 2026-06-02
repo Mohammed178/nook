@@ -3,6 +3,8 @@ import { Icon } from "./icon";
 import { HeartButton } from "./heart-button";
 import type { Agent, Area, Listing } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
+import { nearestCampus } from "@/lib/distance";
+import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 
 export type ListingCardVariant =
   | "vertical"
@@ -47,15 +49,26 @@ export function ListingCard({
 }: ListingCardProps) {
   const baseHref = href ?? `/listings/${listing.slug}`;
   const linkHref = currentQuery ? `${baseHref}?${currentQuery}` : baseHref;
+  // A photoless draft (no listing_photos yet) has no first photo. Guard the
+  // background-image so it renders the .is-empty placeholder instead of
+  // `url(undefined)` (4c-B1).
   const photo = listing.photos[0];
+  const photoStyle = photo ? { backgroundImage: `url(${photo})` } : undefined;
+  const photoEmptyClass = photo ? "" : " is-empty";
   const areaLabel = area?.name ?? listing.city;
-  const distanceLabel =
-    listing.walkMinsToCampus != null ? `${listing.walkMinsToCampus} min walk` : "";
+  // Compute-don't-claim (4c-B2): straight-line distance to the nearest campus,
+  // derived from coords. Coordless listing → no label.
+  const nearestCmp = nearestCampus(listing.lat, listing.lng);
+  const distanceLabel = nearestCmp
+    ? `${nearestCmp.km.toFixed(1)} km from ${UNIVERSITY_BY_ID[nearestCmp.uniId]?.shortName ?? "campus"}`
+    : "";
 
   if (variant === "mini") {
     return (
       <Link href={linkHref} className="card card-mini">
-        <div className="card-photo" style={{ backgroundImage: `url(${photo})` }} />
+        <div className={`card-photo${photoEmptyClass}`} style={photoStyle}>
+          {!photo && <Icon name="camera" size={16} aria-hidden />}
+        </div>
         <div className="card-body">
           <div className="card-price-amt">
             {formatPrice(listing.priceMonthly)}
@@ -76,7 +89,8 @@ export function ListingCard({
   if (variant === "homepage") {
     return (
       <Link href={linkHref} className="lc">
-        <div className="photo" style={{ backgroundImage: `url(${photo})` }}>
+        <div className={`photo${photoEmptyClass}`} style={photoStyle}>
+          {!photo && <Icon name="camera" size={20} aria-hidden />}
           <div className="pills">
             {agent?.status === "approved" && (
               <span className="pill-mini pill-verified-mini">
@@ -118,7 +132,8 @@ export function ListingCard({
   if (variant === "map") {
     return (
       <div className="card card-map" style={{ boxShadow: "var(--shadow-modal)" }}>
-        <div className="card-photo" style={{ backgroundImage: `url(${photo})` }}>
+        <div className={`card-photo${photoEmptyClass}`} style={photoStyle}>
+          {!photo && <Icon name="camera" size={20} aria-hidden />}
           <div className="badges-tl">
             <span className="pill pill-verified">
               <Icon name="check" size={10} />
@@ -166,7 +181,8 @@ export function ListingCard({
 
   return (
     <Link href={linkHref} className={cardClass}>
-      <div className="card-photo" style={{ backgroundImage: `url(${photo})` }}>
+      <div className={`card-photo${photoEmptyClass}`} style={photoStyle}>
+        {!photo && <Icon name="camera" size={22} aria-hidden />}
         <div className="badges-tl">
           {agent?.status === "approved" && (
             <span className="pill pill-verified">

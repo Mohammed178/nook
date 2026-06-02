@@ -17,6 +17,16 @@ import {
   attachSingleListingRelations,
 } from "@/lib/data/listings-relations";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
+import {
+  campusesWithinRadius,
+  haversineKm,
+  nearestCampus,
+  NEAR_CAMPUS_RADIUS_KM,
+} from "@/lib/distance";
+import {
+  ListingDetailMap,
+  type DetailMapCampus,
+} from "@/components/listings/listing-detail-map";
 import { REVIEWS_BY_AGENT } from "@/lib/seed/reviews";
 import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
 import { amenitySpec } from "@/lib/amenities";
@@ -26,7 +36,7 @@ import {
   preserveQueryString,
   type RawSearchParams,
 } from "@/lib/listings-search";
-import type { Listing, NearbyPOI, NearbyPOIKind } from "@/lib/types";
+import type { NearbyPOI, NearbyPOIKind } from "@/lib/types";
 
 export function generateStaticParams() {
   // Slugs come from the committed id-map artifact (no DB / no cookies at build
@@ -58,21 +68,6 @@ const POI_ICON_BY_KIND: Record<NearbyPOIKind, "school" | "train" | "bag" | "park
   food: "kitchen",
 };
 
-const POI_DOT_CLASS_BY_KIND: Record<NearbyPOIKind, string> = {
-  uni: "",
-  train: " train",
-  mall: " mall",
-  mart: " mall",
-  park: "",
-  hospital: "",
-  food: "",
-};
-
-function formatDistance(metres: number): string {
-  if (metres < 1000) return `${metres} m`;
-  return `${(metres / 1000).toFixed(1)} km`;
-}
-
 function initials(name: string): string {
   return name
     .split(" ")
@@ -87,19 +82,6 @@ function withinBudgetCopy(price: number, max: number): string {
   if (diff <= 0) return "";
   return `Within budget · ${formatPrice(diff)} below your ${formatPrice(max)} cap`;
 }
-
-function pickPrimaryUni(listing: Listing) {
-  return listing.nearbyUniversityIds[0]
-    ? UNIVERSITY_BY_ID[listing.nearbyUniversityIds[0]]
-    : undefined;
-}
-
-const POI_POSITIONS: { left: string; top: string }[] = [
-  { left: "30%", top: "40%" },
-  { left: "72%", top: "30%" },
-  { left: "68%", top: "70%" },
-  { left: "28%", top: "78%" },
-];
 
 export default async function ListingDetailPage({
   params,
@@ -123,10 +105,29 @@ export default async function ListingDetailPage({
   // Post-3b-B-3: Listing.areaId / agentId are UUIDs. Resolve the Agent/Area
   // rows by UUID, then index the slug-keyed seed lookups by their stable slug.
   const { agent, area } = await attachSingleListingRelations(listing);
-  const primaryUni = pickPrimaryUni(listing);
+  // Compute-don't-claim (4c-B2): nearest campus + the campuses within radius are
+  // derived from the listing's coordinates, not a stored tag. A coordless
+  // listing yields null/[] and the location UI degrades to "not set".
+  const nearest = nearestCampus(listing.lat, listing.lng);
+  const primaryUni = nearest ? UNIVERSITY_BY_ID[nearest.uniId] : undefined;
+  const nearbyCampuses: DetailMapCampus[] = campusesWithinRadius(
+    listing.lat,
+    listing.lng,
+  )
+    .map((id) => {
+      const u = UNIVERSITY_BY_ID[id];
+      return {
+        id,
+        shortName: u.shortName,
+        km: haversineKm(listing.lat!, listing.lng!, u.lat, u.lng),
+        lat: u.lat,
+        lng: u.lng,
+      };
+    })
+    .sort((a, b) => a.km - b.km);
   const reviews = (agent ? (REVIEWS_BY_AGENT[agent.slug] ?? []) : []).slice(0, 3);
+  // Area-level context names only (no fabricated per-listing distances, 4c-B2).
   const nearby: NearbyPOI[] = area ? (NEARBY_BY_AREA[area.slug] ?? []) : [];
-  const mapPois = nearby.slice(0, POI_POSITIONS.length);
   const similarListings = await getSimilarListings(listing, 4);
   const similar = await attachListingRelations(similarListings);
 
@@ -136,8 +137,8 @@ export default async function ListingDetailPage({
       ? withinBudgetCopy(listing.priceMonthly, parsed.priceMax)
       : "";
 
-  const distanceLabel = listing.metresToCampus != null
-    ? `${formatDistance(listing.metresToCampus)} to ${primaryUni?.shortName ?? "campus"} gate`
+  const distanceLabel = nearest
+    ? `${nearest.km.toFixed(1)} km from ${primaryUni?.shortName ?? "campus"}`
     : null;
 
   return (
@@ -231,9 +232,7 @@ export default async function ListingDetailPage({
             <div className="qf">
               <div className="qf-icon"><Icon name="school" size={20} /></div>
               <div className="qf-val">
-                {listing.metresToCampus != null
-                  ? formatDistance(listing.metresToCampus)
-                  : "—"}
+                {nearest ? `${nearest.km.toFixed(1)} km` : "—"}
               </div>
               <div className="qf-lab">to {primaryUni?.shortName ?? "campus"}</div>
             </div>
@@ -263,42 +262,45 @@ export default async function ListingDetailPage({
 
           <div className="section">
             <h2>Location</h2>
-            <div className="detail-map">
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d="M 10 70 Q 20 50 35 55 Q 45 60 40 80 Q 25 90 10 80 Z" fill="#D4E2C8" opacity="0.6" />
-                <path d="M 0 50 L 100 48" stroke="#fff" strokeWidth="0.7" />
-                <path d="M 50 0 L 50 100" stroke="#fff" strokeWidth="0.6" />
-                <path d="M 0 25 Q 50 30 100 22" stroke="#fff" strokeWidth="0.4" />
-                <path d="M 0 75 Q 40 72 100 78" stroke="#fff" strokeWidth="0.4" />
-              </svg>
-              <div className="radius-circle" />
-              <div className="center-pin">
-                <div className="center-pin-marker" />
-              </div>
-              {mapPois.map((p, i) => (
-                <div
-                  key={p.name}
-                  className="poi"
-                  style={POI_POSITIONS[i]}
-                >
-                  <div className={`poi-dot${POI_DOT_CLASS_BY_KIND[p.kind]}`} />
-                  <div className="poi-label">
-                    {p.name} ({formatDistance(p.distanceMetres)})
-                  </div>
+            <ListingDetailMap
+              lat={listing.lat ?? null}
+              lng={listing.lng ?? null}
+              title={listing.title}
+              campuses={nearbyCampuses}
+              radiusKm={NEAR_CAMPUS_RADIUS_KM}
+            />
+            {/* Distance chips = the accessible text alternative to the map's
+                campus pins (4c-B2). A screen-reader user reads "X.X km from UM"
+                as text; no information lives only as a pin. Straight-line
+                distance, computed from coordinates. */}
+            {nearbyCampuses.length > 0 && (
+              <ul className="campus-chips">
+                {nearbyCampuses.map((c) => (
+                  <li key={c.id} className="campus-chip">
+                    <Icon name="school" size={12} />
+                    {c.km.toFixed(1)} km from {c.shortName}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {/* Area-level context (answer A): real neighbourhood names, no
+                fabricated per-listing distances. Relabelled so the names are not
+                misread as distances from this listing. */}
+            {nearby.length > 0 && (
+              <>
+                <h3 className="nearby-heading">In the area</h3>
+                <div className="nearby-list">
+                  {nearby.slice(0, 6).map((p) => (
+                    <div key={p.name} className="nearby">
+                      <span className="ico">
+                        <Icon name={POI_ICON_BY_KIND[p.kind]} size={14} />
+                      </span>
+                      {p.name}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="nearby-list">
-              {nearby.map((p) => (
-                <div key={p.name} className="nearby">
-                  <span className="ico">
-                    <Icon name={POI_ICON_BY_KIND[p.kind]} size={14} />
-                  </span>
-                  {p.name}
-                  <span className="dist">{formatDistance(p.distanceMetres)}</span>
-                </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           {agent && reviews.length > 0 && (

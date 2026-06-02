@@ -444,6 +444,12 @@ img { display: block; max-width: 100%; }
   position: relative; aspect-ratio: 16 / 10;
   background: var(--ink-200) center/cover no-repeat;
 }
+/* Photoless-draft placeholder (4c-B1): grey panel + centred camera glyph,
+   instead of a broken url(undefined) background. */
+.card-photo.is-empty, .photo.is-empty {
+  display: grid; place-items: center;
+  background: var(--ink-200); color: var(--ink-400);
+}
 .card-photo .badges-tl { position: absolute; top: 8px; left: 8px; display: flex; gap: 4px; }
 .card-photo .badges-tr { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
 .card-photo .badges-br { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 4px; }
@@ -2288,6 +2294,99 @@ html[dir="rtl"] body { font-family: var(--font-inter), 'Inter', 'Noto Naskh Arab
 .account-content-head h1 { font-size: var(--t-2xl); margin: 0; }
 
 .dashboard-form-page { max-width: 640px; }
+
+/* Edit-page sections (4c-B1): photos + details stacked. */
+.dashboard-form-section { margin-bottom: var(--s-8); }
+.dashboard-form-section > h2 {
+  font-size: var(--t-lg); font-weight: 700; color: var(--ink-900);
+  margin: 0 0 var(--s-4);
+}
+
+/* Photo manager (4c-B1) */
+.photo-manager { display: flex; flex-direction: column; gap: var(--s-5); }
+.photo-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--s-3);
+}
+.photo-tile {
+  position: relative; border: 1px solid var(--ink-200);
+  border-radius: var(--r-md); overflow: hidden; background: var(--ink-100);
+}
+.photo-tile-img {
+  display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+}
+.photo-tile-actions {
+  position: absolute; top: 6px; right: 6px; display: flex; gap: 4px;
+}
+.photo-tile-actions .btn-icon {
+  width: 28px; height: 28px;
+  background: rgba(255, 255, 255, 0.95);
+}
+.photo-add {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  border-top: 1px solid var(--ink-200); padding-top: var(--s-5);
+}
+
+/* Map-picker + publish (4c-B2). Agent edit-page sibling sections. */
+.map-picker { display: flex; flex-direction: column; gap: var(--s-4); align-items: flex-start; }
+.map-picker > * { width: 100%; }
+.map-picker-host {
+  height: 320px; border: 1px solid var(--ink-200);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.map-picker-host .leaflet-container { height: 320px; }
+.map-coord-fields { display: flex; gap: var(--s-4); flex-wrap: wrap; }
+.map-coord-fields .field { flex: 1; min-width: 140px; }
+.map-readout {
+  font-size: var(--t-sm); color: var(--ink-500);
+  font-variant-numeric: tabular-nums; margin: 0;
+}
+.publish-control { display: flex; flex-direction: column; gap: var(--s-3); align-items: flex-start; }
+.field-ok { color: var(--success); font-size: var(--t-sm); }
+
+/* Pin divIcons (picker + detail map). divIcon strips default styling, so the
+   teardrop is drawn here. */
+.map-pin-listing, .map-pin-pick, .map-pin-campus { background: transparent; border: none; }
+.map-pin-dot {
+  display: block; width: 18px; height: 18px;
+  border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  background: var(--brand-500); border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.map-pin-campus-label {
+  display: inline-block; transform: translate(-50%, -50%);
+  background: var(--ink-900); color: #fff;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+  padding: 2px 6px; border-radius: var(--r-xs);
+}
+
+/* Detail-page real map + campus distance chips (4c-B2, replaces the SVG). */
+.detail-map-live {
+  height: 340px; border: 1px solid var(--ink-200);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.detail-map-live .leaflet-container { height: 340px; }
+.detail-radius-circle { stroke: var(--brand-500); fill: var(--brand-500); }
+.detail-map-empty {
+  display: grid; place-items: center;
+  color: var(--ink-500); background: var(--ink-100);
+}
+.campus-chips {
+  list-style: none; margin: 12px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.campus-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border: 1px solid var(--ink-200);
+  border-radius: var(--r-pill); font-size: var(--t-xs);
+  color: var(--ink-700); font-variant-numeric: tabular-nums;
+}
+.campus-chip svg { color: var(--accent-blue, #4A90A4); }
+.nearby-heading {
+  font-size: var(--t-sm); font-weight: 700;
+  color: var(--ink-700); margin: 16px 0 8px;
+}
 
 .dashboard-section { margin-bottom: var(--s-8); }
 .dashboard-section-title {

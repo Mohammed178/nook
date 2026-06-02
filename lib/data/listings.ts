@@ -13,6 +13,11 @@ import {
   defaultSort,
   type ListingSearchParams,
 } from "@/lib/listings-search";
+import {
+  isNearCampus,
+  nearestCampus,
+  NEAR_CAMPUS_RADIUS_KM,
+} from "@/lib/distance";
 
 // THE fetch seam (Option A). Today: fetch every row and let the unchanged
 // in-memory applyFilters / applySort do the work. The listings table is
@@ -82,11 +87,18 @@ export async function getSimilarListings(
   limit = 4,
 ): Promise<Listing[]> {
   const all = await getAllListings();
-  const primaryUniId = current.nearbyUniversityIds[0];
   const candidates = all.filter((l) => l.id !== current.id);
 
-  const sameUni = primaryUniId
-    ? candidates.filter((l) => l.nearbyUniversityIds.includes(primaryUniId))
+  // Compute-don't-claim (4c-B2, answer B): "similar" = within
+  // NEAR_CAMPUS_RADIUS_KM of the current listing's nearest campus, computed from
+  // coordinates. Null-coord candidates are skipped (isNearCampus → false). This
+  // overlapping-membership set mirrors the old shared-university intent without
+  // a stored tag.
+  const nearest = nearestCampus(current.lat, current.lng);
+  const sameUni = nearest
+    ? candidates.filter((l) =>
+        isNearCampus(l.lat, l.lng, nearest.uniId, NEAR_CAMPUS_RADIUS_KM),
+      )
     : [];
 
   const ranked = [...sameUni].sort(

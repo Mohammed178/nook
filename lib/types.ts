@@ -119,7 +119,13 @@ export interface Listing {
    * private drafts carry null — published listings always have coordinates. */
   lat?: number;
   lng?: number;
-  nearbyUniversityIds: string[];
+  /** Seed-only since 4c-B2 (compute-don't-claim). The DB columns
+   * nearby_university_ids / walk_mins_to_campus / metres_to_campus were dropped
+   * (migration 0019); proximity is computed at read from lat/lng + the
+   * UNIVERSITY_BY_ID constant (lib/distance.ts). These fields survive only on
+   * the seed objects (rls-test A2 parity) and are never emitted by rowToListing.
+   * Vestigial — the A2-oracle rework LC removes the need for them. */
+  nearbyUniversityIds?: string[];
   walkMinsToCampus?: number;
   metresToCampus?: number;
   amenities: string[];

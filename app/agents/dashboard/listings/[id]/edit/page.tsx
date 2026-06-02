@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAgentListingById } from "@/lib/data/agent-listings";
+import {
+  getAgentListingById,
+  getListingPhotos,
+} from "@/lib/data/agent-listings";
 import { getAllAreas } from "@/lib/data/areas";
-import { UNIVERSITIES } from "@/lib/seed/universities";
 import { ListingForm } from "@/components/agents/listing-form";
+import { PhotoManager } from "@/components/agents/photo-manager";
+import { MapPicker } from "@/components/agents/map-picker";
+import { PublishControl } from "@/components/agents/publish-control";
 
 export const metadata = {
   title: "Edit listing · Nook",
@@ -15,9 +20,10 @@ export default async function EditListingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [listing, areas] = await Promise.all([
+  const [listing, areas, photos] = await Promise.all([
     getAgentListingById(id),
     getAllAreas(),
+    getListingPhotos(id),
   ]);
 
   // Owner-read RLS returns null for a listing the caller does not own (or one
@@ -33,7 +39,30 @@ export default async function EditListingPage({
           Back to listings
         </Link>
       </header>
-      <ListingForm areas={areas} universities={UNIVERSITIES} listing={listing} />
+
+      <section className="dashboard-form-section" aria-labelledby="photos-heading">
+        <h2 id="photos-heading">Photos</h2>
+        <PhotoManager listingId={listing.id} initialPhotos={photos} />
+      </section>
+
+      <section className="dashboard-form-section" aria-labelledby="details-heading">
+        <h2 id="details-heading">Details</h2>
+        <ListingForm areas={areas} listing={listing} />
+      </section>
+
+      <section className="dashboard-form-section" aria-labelledby="location-heading">
+        <h2 id="location-heading">Location</h2>
+        <MapPicker
+          listingId={listing.id}
+          initialLat={listing.lat ?? null}
+          initialLng={listing.lng ?? null}
+        />
+      </section>
+
+      <section className="dashboard-form-section" aria-labelledby="publish-heading">
+        <h2 id="publish-heading">Publish</h2>
+        <PublishControl listingId={listing.id} status={listing.status} />
+      </section>
     </div>
   );
 }

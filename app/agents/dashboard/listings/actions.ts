@@ -6,6 +6,11 @@ import {
   updateListing,
   softDeleteListing,
   restoreListing,
+  addListingPhoto,
+  removeListingPhoto,
+  reorderListingPhotos,
+  setListingCoords,
+  publishListing,
   type ListingInput,
 } from "@/lib/data/agent-listings";
 import type { FurnishingLevel, Gender, ListingType } from "@/lib/types";
@@ -49,6 +54,10 @@ export interface ListingActionResult {
   // Field-level errors keyed by input name, surfaced inline by the form.
   fieldErrors?: Record<string, string>;
   ok?: boolean;
+  // Set on a successful create so the form can redirect to the edit page, where
+  // the agent adds photos (4c-B1). The edit page is the listing-completion hub
+  // the map-picker + publish button will join in B2.
+  id?: string;
 }
 
 // Parses + validates the shared create/edit form. Required-vs-optional mirrors
@@ -97,14 +106,6 @@ function parseListingForm(
   const bathrooms = reqInt(fd, "bathrooms");
   if (bathrooms == null || bathrooms < 0) fieldErrors.bathrooms = "Add the number of bathrooms.";
 
-  const nearbyUniversityIds = fd
-    .getAll("nearbyUniversityIds")
-    .map((v) => String(v))
-    .filter(Boolean);
-  if (nearbyUniversityIds.length === 0) {
-    fieldErrors.nearbyUniversityIds = "Choose at least one nearby university.";
-  }
-
   const amenities = fd
     .getAll("amenities")
     .map((v) => String(v))
@@ -119,8 +120,6 @@ function parseListingForm(
   if (minStayMonths != null && minStayMonths < 0) {
     fieldErrors.minStayMonths = "Minimum stay cannot be negative.";
   }
-  const walkMinsToCampus = optInt(fd, "walkMinsToCampus");
-  const metresToCampus = optInt(fd, "metresToCampus");
 
   const genderPreference = oneOf(str(fd, "genderPreference"), GENDERS);
   const utilitiesIncluded = fd.get("utilitiesIncluded") != null;
@@ -145,9 +144,6 @@ function parseListingForm(
       areaId,
       city,
       state,
-      nearbyUniversityIds,
-      walkMinsToCampus,
-      metresToCampus,
       amenities,
       description,
     },
@@ -164,7 +160,7 @@ export async function createListingAction(
   if ("error" in result) return { error: result.error };
 
   revalidatePath("/agents/dashboard");
-  return { ok: true };
+  return { ok: true, id: result.id };
 }
 
 export async function updateListingAction(
@@ -201,4 +197,122 @@ export async function restoreListingAction(fd: FormData): Promise<void> {
   const result = await restoreListing(id);
   if (result.error) throw new Error(result.error);
   revalidatePath("/agents/dashboard");
+}
+
+// ---------- Photo management (4c-B1) ----------
+// The bytes are uploaded client-side by the photo manager (browser client +
+// agent session → storage RLS). These actions only record / mutate the
+// listing_photos rows through the RLS-enforced data layer. No service-role.
+
+export interface PhotoActionResult {
+  ok?: boolean;
+  error?: string;
+}
+
+export interface AddPhotoActionResult extends PhotoActionResult {
+  // The new listing_photos id + sort_order, so the client can append the photo
+  // optimistically without a round-trip for the id.
+  id?: string;
+}
+
+// Records an already-uploaded object. alt_text is required (NOT NULL + the a11y
+// contract) — an empty alt is rejected here, not just in the UI.
+export async function addListingPhotoAction(
+  listingId: string,
+  storagePath: string,
+  altText: string,
+): Promise<AddPhotoActionResult> {
+  if (!listingId || !storagePath) return { error: "Missing photo details." };
+  const alt = altText.trim();
+  if (!alt) return { error: "Add alt text describing the photo." };
+
+  const result = await addListingPhoto({ listingId, storagePath, altText: alt });
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
+  revalidatePath("/agents/dashboard");
+  return { ok: true, id: result.id };
+}
+
+// Deletes a photo row. For a draft, removing the last photo is allowed; the
+// last-photo trigger (NK002) only fires on an available listing, surfaced here
+// as a clear message rather than a thrown error.
+export async function removeListingPhotoAction(
+  listingId: string,
+  photoId: string,
+): Promise<PhotoActionResult> {
+  if (!photoId) return { error: "Missing photo id." };
+
+  const result = await removeListingPhoto(photoId);
+  if (!result.ok) {
+    if (result.reason === "last_photo") {
+      return { error: "A published listing must keep at least one photo." };
+    }
+    if (result.reason === "not_found") {
+      return { error: "Photo not found, or it is not yours to remove." };
+    }
+    return { error: "Could not remove the photo. Try again." };
+  }
+
+  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
+  revalidatePath("/agents/dashboard");
+  return { ok: true };
+}
+
+// ---------- Location + publish (4c-B2) ----------
+
+// Persists the map-picker's chosen point. Owner-only via the data layer's RLS
+// (no service-role). lat/lng only — never other columns.
+export async function setListingCoordsAction(
+  listingId: string,
+  lat: number,
+  lng: number,
+): Promise<PhotoActionResult> {
+  if (!listingId) return { error: "Missing listing id." };
+
+  const result = await setListingCoords(listingId, lat, lng);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
+  revalidatePath("/agents/dashboard");
+  return { ok: true };
+}
+
+// draft → available. The DB triggers/CHECK are the gate; map the typed reason to
+// a message pointing the agent at the section to fix (Photos / Location).
+export async function publishListingAction(
+  listingId: string,
+): Promise<PhotoActionResult> {
+  if (!listingId) return { error: "Missing listing id." };
+
+  const result = await publishListing(listingId);
+  if (result.ok) {
+    revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
+    revalidatePath("/agents/dashboard");
+    return { ok: true };
+  }
+
+  const messages: Record<string, string> = {
+    needs_photos: "Add at least one photo (Photos section) before publishing.",
+    needs_coords: "Set the listing location (Location section) before publishing.",
+    not_found: "Listing not found, or it is not a draft you own.",
+    error: "Could not publish the listing. Try again.",
+  };
+  return { error: messages[result.reason] ?? messages.error };
+}
+
+export async function reorderListingPhotosAction(
+  listingId: string,
+  orderedPhotoIds: string[],
+): Promise<PhotoActionResult> {
+  if (!listingId || orderedPhotoIds.length === 0) {
+    return { error: "Missing reorder details." };
+  }
+
+  const result = await reorderListingPhotos(listingId, orderedPhotoIds);
+  if (!result.ok) return { error: result.error };
+
+  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
+  revalidatePath("/agents/dashboard");
+  return { ok: true };
 }

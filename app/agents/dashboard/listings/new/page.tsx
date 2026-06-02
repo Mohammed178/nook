@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getAllAreas } from "@/lib/data/areas";
-import { UNIVERSITIES } from "@/lib/seed/universities";
 import { ListingForm } from "@/components/agents/listing-form";
 
 export const metadata = {
@@ -18,7 +17,7 @@ export default async function NewListingPage() {
           Back to listings
         </Link>
       </header>
-      <ListingForm areas={areas} universities={UNIVERSITIES} />
+      <ListingForm areas={areas} />
     </div>
   );
 }

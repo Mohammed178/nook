@@ -97,15 +97,35 @@ step("A2 — helper-output shape parity vs seed lst-001 + UUID derivation");
 
   // Every field on the seed object except id must match the mapper output.
   // Both sides serialized so arrays / absent-optional (undefined) compare cleanly.
+  //
+  // Skipped fields (A2_SKIP): the mapper no longer emits these, but the seed
+  // object still carries them, so comparing input-vs-output is meaningless:
+  //   - photos (4c-B1): resolved to bucket URLs; seed has no photos field.
+  //   - nearbyUniversityIds / walkMinsToCampus / metresToCampus (4c-B2): the
+  //     DB columns were dropped (0019) and proximity is computed at read, so
+  //     rowToListing omits them; the seed retains them only as historical data.
+  // These skips are band-aids. A2 compares raw seed-object INPUT against RESOLVED
+  // mapper OUTPUT — a wrong contract for every field the mapper resolves;
+  // `areaId` (slug -> UUID since 0009) still fails here for that reason and is
+  // left red intentionally. The real fix is reworking A2's oracle to compare
+  // against expected resolved values — tracked as the A2-rework LC. Without it,
+  // A2 decays toward all-skips; do not keep adding skips as the only response.
+  const A2_SKIP = new Set([
+    "id",
+    "photos",
+    "nearbyUniversityIds",
+    "walkMinsToCampus",
+    "metresToCampus",
+  ]);
   for (const key of Object.keys(seed)) {
-    if (key === "id") continue;
+    if (A2_SKIP.has(key)) continue;
     const a = JSON.stringify(seed[key]);
     const b = JSON.stringify(listing[key]);
     if (a !== b) fail(`lst-001 field "${key}" mismatch: seed=${a} helper=${b}`);
   }
   // Guard the reverse direction too: mapper must not invent keys the seed lacks.
   for (const key of Object.keys(listing)) {
-    if (key === "id") continue;
+    if (A2_SKIP.has(key)) continue;
     if (listing[key] === undefined) continue;
     if (!(key in seed)) fail(`helper produced extra field "${key}" not on seed`);
   }
@@ -160,9 +180,7 @@ async function assertDenied(op, action) {
         state: "x",
         lat: 0,
         lng: 0,
-        nearby_university_ids: [],
         amenities: [],
-        photos: [],
         description: "x",
         agent_id: "agent-aisha",
         created_at: "2026-01-01",

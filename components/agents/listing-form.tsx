@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { Area, Listing, University } from "@/lib/types";
+import type { Area, Listing } from "@/lib/types";
 import {
   createListingAction,
   updateListingAction,
@@ -52,7 +52,6 @@ const AMENITY_OPTIONS: { value: string; label: string }[] = [
 
 interface ListingFormProps {
   areas: Area[];
-  universities: University[];
   // Present → edit mode (fields pre-filled, submits an update); absent → create.
   listing?: Listing;
 }
@@ -76,7 +75,7 @@ function aria(id: string, fieldErrors: Record<string, string>) {
   };
 }
 
-export function ListingForm({ areas, universities, listing }: ListingFormProps) {
+export function ListingForm({ areas, listing }: ListingFormProps) {
   const router = useRouter();
   const isEdit = Boolean(listing);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +99,13 @@ export function ListingForm({ areas, universities, listing }: ListingFormProps) 
         setError(result.error);
         return;
       }
-      router.push("/agents/dashboard");
+      // On create, go to the edit page — that's where photos are added (4c-B1).
+      // On edit, back to the dashboard list.
+      if (!isEdit && result.id) {
+        router.push(`/agents/dashboard/listings/${result.id}/edit`);
+      } else {
+        router.push("/agents/dashboard");
+      }
       router.refresh();
     });
   }
@@ -421,63 +426,6 @@ export function ListingForm({ areas, universities, listing }: ListingFormProps) 
           {...aria("state", fieldErrors)}
         />
         {err("state", fieldErrors)}
-      </div>
-
-      <fieldset className="field listing-form-group">
-        <legend className="label">Nearby universities</legend>
-        <div className="help">Choose at least one.</div>
-        <div
-          className="listing-form-checks"
-          role="group"
-          aria-describedby={
-            fieldErrors.nearbyUniversityIds ? "nearbyUniversityIds-err" : undefined
-          }
-        >
-          {universities.map((u) => (
-            <label key={u.id} className="check-row">
-              <input
-                type="checkbox"
-                name="nearbyUniversityIds"
-                value={u.id}
-                defaultChecked={listing?.nearbyUniversityIds.includes(u.id) ?? false}
-              />
-              <span>{u.name}</span>
-            </label>
-          ))}
-        </div>
-        {err("nearbyUniversityIds", fieldErrors)}
-      </fieldset>
-
-      <div className="field">
-        <label className="label" htmlFor="lf-walk">
-          Walk to campus (minutes)
-        </label>
-        <input
-          id="lf-walk"
-          className="input"
-          name="walkMinsToCampus"
-          type="number"
-          inputMode="numeric"
-          min={0}
-          defaultValue={sel(listing?.walkMinsToCampus)}
-        />
-        <div className="help">Optional.</div>
-      </div>
-
-      <div className="field">
-        <label className="label" htmlFor="lf-metres">
-          Distance to campus (metres)
-        </label>
-        <input
-          id="lf-metres"
-          className="input"
-          name="metresToCampus"
-          type="number"
-          inputMode="numeric"
-          min={0}
-          defaultValue={sel(listing?.metresToCampus)}
-        />
-        <div className="help">Optional.</div>
       </div>
 
       <fieldset className="field listing-form-group">
