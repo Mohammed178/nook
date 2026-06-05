@@ -88,11 +88,64 @@ export function rowToAgent(r: AgentRow): Agent {
   };
 }
 
+// Maps an `agents_public` view row to an Agent (Phase H2). status is hardcoded
+// 'approved' (the view is approved-only); submittedAt / verifiedAt / deletedAt /
+// statusReason are absent from the view and left undefined — Agent declares them
+// optional precisely so a public-sourced agent need not carry them.
+export function rowToPublicAgent(r: AgentPublicRow): Agent {
+  return {
+    id: r.id,
+    slug: r.slug,
+    name: r.name,
+    agency: r.agency ?? undefined,
+    rating: typeof r.rating === "string" ? Number(r.rating) : r.rating,
+    reviewCount: r.review_count,
+    responseTimeMins: r.response_time_mins,
+    languages: r.languages as Locale[],
+    avatarUrl: r.avatar_url,
+    whatsapp: r.whatsapp,
+    phone: r.phone ?? undefined,
+    email: r.email ?? undefined,
+    status: "approved",
+    yearsActive: r.years_active,
+    bio: r.bio ?? undefined,
+    bovaepLicence: r.bovaep_licence ?? undefined,
+  };
+}
+
 export const AREA_COLS =
   "id, slug, name, city, state, lat, lng, nearby_university_ids, vibe";
 
 export const AGENT_COLS =
   "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence";
+
+// Public read surface (Phase H2). The `agents_public` view (migration 0020) exposes
+// only these safe columns for approved, non-deleted agents — no user_id, status,
+// status_reason, submitted_at, verified_at, deleted_at, decided_by, or decided_at.
+// `status` is not selected: the view is approved-only, so rowToPublicAgent hardcodes
+// it. Keep this string in lockstep with the view's SELECT list (see 0020).
+export const AGENT_PUBLIC_COLS =
+  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, years_active, bio, bovaep_licence";
+
+// Row shape returned by the `agents_public` view — the safe-column subset of
+// AgentRow, with no status/audit columns.
+export interface AgentPublicRow {
+  id: string;
+  slug: string;
+  name: string;
+  agency: string | null;
+  rating: number | string;
+  review_count: number;
+  response_time_mins: number;
+  languages: string[];
+  avatar_url: string;
+  whatsapp: string;
+  phone: string | null;
+  email: string | null;
+  years_active: number;
+  bio: string | null;
+  bovaep_licence: string | null;
+}
 
 // Embedded listing_photos row (Phase 4c-B1). Only the fields the public-URL
 // resolution and ordering need; the table carries more (id, alt_text, etc.).

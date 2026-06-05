@@ -52,7 +52,12 @@ export interface Agent {
   email?: string;
   status: AgentStatus;
   statusReason?: string;
-  submittedAt: string;
+  // Optional since Phase H2: the public `agents_public` view omits submitted_at,
+  // so a public-sourced agent (rowToPublicAgent) does not carry it. The self/admin
+  // paths (rowToAgent, full AGENT_COLS) still populate it. Chosen over a dedicated
+  // PublicAgent type, which would retype 6+ files incl the shared
+  // ListingWithRelations and listing-card — wider than this one flag warrants.
+  submittedAt?: string;
   verifiedAt?: string;
   deletedAt?: string;
   yearsActive: number;

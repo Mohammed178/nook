@@ -24,7 +24,9 @@ export default async function AgentPendingPage() {
   if (agent.status === "approved") redirect("/"); // approved → away (no dashboard yet)
 
   const rejected = agent.status === "rejected";
-  const submitted = formatSubmitted(agent.submittedAt);
+  // submittedAt is non-null on the self path (getAgentByUserId uses the full
+  // AGENT_COLS mapper); the type is optional only for public-view agents (H2).
+  const submitted = formatSubmitted(agent.submittedAt!);
 
   return (
     <div className="auth-shell auth-shell-login">

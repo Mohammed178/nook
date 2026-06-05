@@ -1,4 +1,4 @@
-import { listPendingAgents } from "@/lib/data/agents";
+import { listPendingAgents } from "./_data";
 import { approveAgentAction, rejectAgentAction } from "./actions";
 
 export const metadata = {
@@ -46,7 +46,7 @@ export default async function AdminAgentsPage() {
                   <td>{agent.agency ?? "—"}</td>
                   <td className="tabular">{agent.bovaepLicence ?? "—"}</td>
                   <td>{agent.email ?? "—"}</td>
-                  <td>{formatSubmitted(agent.submittedAt)}</td>
+                  <td>{formatSubmitted(agent.submittedAt!)}</td>
                   <td>
                     <span className="pill pill-pending">Pending</span>
                   </td>
