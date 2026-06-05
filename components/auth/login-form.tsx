@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { signInAction } from "@/app/login/actions";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/account";
+  const redirectTo = safeRedirectPath(searchParams.get("redirect"));
 
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,6 @@ export function LoginForm() {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
-    fd.set("redirect", redirectTo);
     startTransition(async () => {
       const result = await signInAction(fd);
       if (result?.error) {

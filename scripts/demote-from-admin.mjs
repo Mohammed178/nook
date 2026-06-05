@@ -9,6 +9,19 @@
 // lib/supabase/admin.ts helper). app_metadata is merged by GoTrue; role is set to
 // null so the isAdmin() check (role === 'admin') no longer matches.
 //
+// No explicit session/token revocation step (H1 decision A). Nulling the role is
+// effective on the demoted admin's NEXT request: every admin gate round-trips
+// `supabase.auth.getUser()` (middleware.ts:33 reads user.app_metadata.role from
+// the updateSession/getUser result; lib/auth.ts isAdmin() likewise), and getUser
+// hits GoTrue /user which returns server-fresh app_metadata. Nothing trusts a
+// locally-decoded JWT claim. The live access token still CARRIES role=admin until
+// its TTL (~1h), but no code path reads that decoded claim, so there is no admin
+// access to revoke. This is NOT a session revocation — it relies on getUser
+// freshness. `auth.admin.signOut(jwt)` is not usable here: it needs the target
+// user's live JWT, which this CLI (which only has the user id, looked up by email)
+// does not possess. See LATE_CATCHES: if any gate moves to getSession()/getClaims()
+// (local decode), a demoted admin's stale claim resurfaces for <= token TTL.
+//
 // Exit handling: process.exitCode + return, never process.exit() after a network
 // call — forcing exit mid-socket-close trips a libuv assertion on Windows
 // (UV_HANDLE_CLOSING). See promote-to-admin.mjs.
