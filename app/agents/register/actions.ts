@@ -46,10 +46,12 @@ export async function signUpAgentAction(
   if (!terms) {
     return { error: "You must agree to the Terms of Service to continue." };
   }
-  // F3 — defense-in-depth licence format check. Conservative length + charset
-  // (the BOVAEP number format is unconfirmed); the unique index (0025) and the
-  // manual admin registry check (LOCK-4.6) are the real integrity gates.
-  if (!/^[A-Za-z0-9/\- ]{4,40}$/.test(bovaepLicence)) {
+  // F3 — defense-in-depth licence format check. Length + charset that admits the
+  // BOVAEP "E(n)NNNN" estate-agent number (parentheses required — the seed agents
+  // use E(3)2148 etc.) plus other class prefixes. Deliberately not pinned to a
+  // single E(n) shape: the unique index (0025) and the manual admin registry check
+  // (LOCK-4.6) are the real integrity gates; format is only a sanity bound.
+  if (!/^[A-Za-z0-9()/\- ]{4,40}$/.test(bovaepLicence)) {
     return { error: "Enter a valid BOVAEP licence number." };
   }
 

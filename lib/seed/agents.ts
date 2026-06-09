@@ -89,7 +89,10 @@ export const AGENTS: SeedAgent[] = [
     status: "rejected",
     yearsActive: 2,
     bio: "IIUM and Gombak listings.",
-    bovaepLicence: "PENDING-ARIF-001",
+    // Standardized to the BOVAEP E(n)NNNN format (was the non-standard placeholder
+    // "PENDING-ARIF-001"). Migration 0026 normalizes the already-seeded live row to
+    // this same value. Unique vs the other five live licences (0025 partial index).
+    bovaepLicence: "E(3)0001",
   },
   {
     id: "agent-priya",
