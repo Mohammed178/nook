@@ -41,6 +41,26 @@ async function findUserByEmail(sb, target) {
   }
 }
 
+// Count current admins (A-1 last-admin guard). GoTrue admin listUsers has no
+// server-side app_metadata filter, so paginate and count role === 'admin' in JS.
+// Pagination + end-condition mirror findUserByEmail (page/perPage=200, stop when a
+// page returns < perPage). Returns null on a listUsers error so the caller can fail
+// closed (a wrong count must never silently defeat the guard).
+async function countAdmins(sb) {
+  let count = 0;
+  for (let page = 1; ; page++) {
+    const { data, error } = await sb.auth.admin.listUsers({ page, perPage: 200 });
+    if (error) {
+      console.error(`listUsers failed: ${error.message}`);
+      return null;
+    }
+    for (const u of data.users) {
+      if (u.app_metadata?.role === "admin") count++;
+    }
+    if (data.users.length < 200) return count;
+  }
+}
+
 async function main() {
   const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -54,9 +74,11 @@ async function main() {
     }
   }
 
-  const email = process.argv.slice(2).filter((a) => a !== "--")[0];
+  const args = process.argv.slice(2).filter((a) => a !== "--");
+  const force = args.includes("--force");
+  const email = args.find((a) => a !== "--force");
   if (!email) {
-    console.error("Usage: npm run demote-from-admin -- <email>");
+    console.error("Usage: npm run demote-from-admin -- <email> [--force]");
     return 1;
   }
 
@@ -74,6 +96,24 @@ async function main() {
   if (user.app_metadata?.role !== "admin") {
     console.log(`${email} is not an admin (no-op).`);
     return 0;
+  }
+
+  // A-1 — last-admin lockout guard. The target IS an admin (checked above), so the
+  // post-demote admin count = current count - 1. Refuse if that would hit zero (no
+  // one could reach /admin; recovery needs a service-role re-promote). "Self" isn't
+  // defined here — the CLI runs as the service-role key-holder with no admin session
+  // identity — so the meaningful guard is "don't drop to zero admins". --force overrides.
+  if (!force) {
+    const adminCount = await countAdmins(sb);
+    if (adminCount === null) return 1; // count failed → fail closed, do not demote
+    if (adminCount <= 1) {
+      console.error(
+        `Refusing to demote ${email}: it is the last admin (post-demote admin count would be 0). ` +
+          `This would lock everyone out of /admin until a service-role re-promote. ` +
+          `Re-run with --force to override.`,
+      );
+      return 1;
+    }
   }
 
   const { error } = await sb.auth.admin.updateUserById(user.id, {

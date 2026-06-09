@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth";
 import type { Agent } from "@/lib/types";
 import { AGENT_COLS, rowToAgent, type AgentRow } from "@/lib/data/_row-mappers";
 
@@ -13,6 +14,14 @@ import { AGENT_COLS, rowToAgent, type AgentRow } from "@/lib/data/_row-mappers";
 // the full AGENT_COLS (service-role sees every column); decided_by/decided_at are
 // excluded by AGENT_COLS as before (pending rows have both null).
 export async function listPendingAgents(): Promise<Agent[]> {
+  // A-2 — in-function authz re-assert BEFORE the RLS-bypassing service-role client.
+  // The layout (app/admin/layout.tsx) is the primary gate; this is the belt that
+  // makes the invariant uniform — no service-role use anywhere without an in-function
+  // admin check (parity with actions.ts:37). Guards against a future ungated caller
+  // dumping pending-agent PII. getCurrentUser().isAdmin == lib/auth.ts isAdmin(user).
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) throw new Error("Forbidden");
+
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("agents")
