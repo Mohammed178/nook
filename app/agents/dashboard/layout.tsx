@@ -14,10 +14,13 @@ export const metadata = {
 // here because it needs a DB read (the agent's status), which middleware avoids
 // per-request.
 //
-//   no session        → /login   (middleware already does this; belt-and-braces)
-//   no agents row      → /        (student / non-agent)
-//   pending | rejected → /agents/pending
-//   approved           → render the dashboard
+//   no session             → /login   (middleware already does this; belt-and-braces)
+//   no agents row          → /        (student / non-agent)
+//   pending | rejected     → /agents/pending
+//   soft-deleted (any sts) → /agents/pending  (F4 airbag — status alone is blind
+//                            to a withdrawn/removed row; current_agent_id() nulls
+//                            their data, but the gate must not render the shell)
+//   approved & live        → render the dashboard
 //
 // Child pages re-resolve the agent's own listings via current_agent_id() (RLS),
 // so they do not depend on a prop from here — this layout is purely the gate +
@@ -32,7 +35,10 @@ export default async function DashboardLayout({
 
   const agent = await getAgentByUserId(user.id);
   if (!agent) redirect("/");
-  if (agent.status !== "approved") redirect("/agents/pending");
+  // F4 — status alone is deleted_at-blind: a soft-deleted-but-approved row would
+  // otherwise reach the dashboard shell. getAgentByUserId / agents_self_read keep
+  // the row fetchable on purpose so the gate can read deletedAt and act here.
+  if (agent.status !== "approved" || agent.deletedAt) redirect("/agents/pending");
 
   return (
     <>

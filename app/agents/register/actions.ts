@@ -46,6 +46,12 @@ export async function signUpAgentAction(
   if (!terms) {
     return { error: "You must agree to the Terms of Service to continue." };
   }
+  // F3 — defense-in-depth licence format check. Conservative length + charset
+  // (the BOVAEP number format is unconfirmed); the unique index (0025) and the
+  // manual admin registry check (LOCK-4.6) are the real integrity gates.
+  if (!/^[A-Za-z0-9/\- ]{4,40}$/.test(bovaepLicence)) {
+    return { error: "Enter a valid BOVAEP licence number." };
+  }
 
   const supabase = await createActionClient();
   const { error: signUpError } = await supabase.auth.signUp({
@@ -83,6 +89,13 @@ export async function signUpAgentAction(
 
   const slug = await deriveUniqueSlug(name, supabase);
 
+  // F1 — send ONLY the 8 columns a registrant legitimately sets. The column
+  // INSERT grant (0024) revokes the broad table grant and permits exactly these;
+  // status / rating / review_count / response_time_mins / languages / years_active
+  // / avatar_url are omitted on purpose and fall to their DB DEFAULTs (0023 /
+  // 0010). Naming any of them here would be rejected with 42501 under the column
+  // grant — the omission is load-bearing, not cosmetic. id / submitted_at /
+  // created_at / updated_at also default in the DB; bio / verified_at stay null.
   const { error: insertError } = await supabase.from("agents").insert({
     user_id: user.id,
     slug,
@@ -92,14 +105,6 @@ export async function signUpAgentAction(
     whatsapp,
     email, // public contact == registration email for self-registered agents
     bovaep_licence: bovaepLicence,
-    status: "pending", // explicit — required by the RLS with-check
-    rating: 0.0,
-    review_count: 0,
-    response_time_mins: 60,
-    languages: ["en"],
-    years_active: 0,
-    avatar_url: "/agent-placeholder.svg",
-    // id, submitted_at default in the DB; bio stays null.
   });
   if (insertError) {
     console.error(

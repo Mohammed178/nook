@@ -6,13 +6,27 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
 import { notifyAgentDecision } from "@/lib/email/notifications";
 
-// Approve / reject mechanics (L-4a2.6). Shared core: assert admin → service-role
-// guarded UPDATE → notify → revalidate.
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Approve / reject mechanics (L-4a2.6). Shared core: validate → assert admin →
+// service-role guarded UPDATE → notify → revalidate.
 async function decide(
   agentId: string,
   status: "approved" | "rejected",
+  reason: string,
 ): Promise<void> {
-  if (!agentId) throw new Error("Missing agent id");
+  // F5 — validate the id is a UUID before any query (a malformed id otherwise
+  // throws a raw Postgres error at the .eq("id", …) boundary).
+  if (!UUID_RE.test(agentId)) throw new Error("Invalid agent id");
+
+  // F2 — a rejection MUST carry a reason. The HTML `required` on the form is
+  // bypassable on a raw POST; this server-side throw is the real gate (LOCK-4.7:
+  // rejection email + pending page both surface status_reason).
+  const trimmedReason = reason.trim();
+  if (status === "rejected" && !trimmedReason) {
+    throw new Error("Rejection reason required");
+  }
 
   // 1. Caller + isAdmin assert. Defence-in-depth: this throws even if route
   //    gating (middleware + layout) somehow let a non-admin reach the action.
@@ -28,13 +42,18 @@ async function decide(
 
   // 3. Guarded UPDATE. status='pending' guard prevents double-decisions on stale
   //    tabs; deleted_at is null guard prevents deciding a withdrawn (soft-deleted)
-  //    application (H5). decided_by = the admin's auth.uid().
+  //    application (H5). decided_by = the admin's auth.uid(). F2: persist the
+  //    reason on reject, clear it on approve. F5: stamp verified_at on approve,
+  //    clear on reject.
+  const nowIso = new Date().toISOString();
   const { data, error } = await admin
     .from("agents")
     .update({
       status,
+      status_reason: status === "rejected" ? trimmedReason : null,
+      verified_at: status === "approved" ? nowIso : null,
       decided_by: user!.id,
-      decided_at: new Date().toISOString(),
+      decided_at: nowIso,
     })
     .eq("id", agentId)
     .eq("status", "pending")
@@ -50,6 +69,7 @@ async function decide(
       email: data.email ?? "",
       status,
       agencyName: data.agency ?? "",
+      statusReason: status === "rejected" ? trimmedReason : undefined,
     });
   }
 
@@ -58,9 +78,13 @@ async function decide(
 }
 
 export async function approveAgentAction(formData: FormData): Promise<void> {
-  await decide(String(formData.get("agentId") ?? ""), "approved");
+  await decide(String(formData.get("agentId") ?? ""), "approved", "");
 }
 
 export async function rejectAgentAction(formData: FormData): Promise<void> {
-  await decide(String(formData.get("agentId") ?? ""), "rejected");
+  await decide(
+    String(formData.get("agentId") ?? ""),
+    "rejected",
+    String(formData.get("reason") ?? ""),
+  );
 }

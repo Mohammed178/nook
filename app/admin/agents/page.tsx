@@ -57,8 +57,17 @@ export default async function AdminAgentsPage() {
                         Approve
                       </button>
                     </form>
-                    <form action={rejectAgentAction}>
+                    <form action={rejectAgentAction} className="admin-reject-form">
                       <input type="hidden" name="agentId" value={agent.id} />
+                      <input
+                        type="text"
+                        name="reason"
+                        required
+                        maxLength={500}
+                        placeholder="Reason"
+                        aria-label="Rejection reason"
+                        className="admin-reject-reason"
+                      />
                       <button type="submit" className="btn btn-sm btn-ghost">
                         Reject
                       </button>
