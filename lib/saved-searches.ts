@@ -64,10 +64,31 @@ export async function getSavedSearchesWithCounts(): Promise<SavedSearchRow[]> {
 
   const out: SavedSearchRow[] = [];
   for (const row of data) {
-    const query = (row.query_params ?? {}) as ListingSearchParams;
-    const { canonicalQs } = canonicalizeQuery(query);
-    const chips = summarizeChips(query, areaLookup);
-    const matchCount = (await getFilteredListings(query)).length;
+    const raw = (row.query_params ?? {}) as ListingSearchParams;
+    // F-S1: stored query_params is untrusted jsonb (RLS pins user_id but not the
+    // column shape, so a raw self-write can store any object). Canonicalize on
+    // read through the same round-trip the write path uses, then derive chips /
+    // matchCount / the client-returned query from the CANONICAL form — never the
+    // raw stored value (only canonicalQs was normalized before). A malformed
+    // shape (e.g. a non-array `type` that throws in serializeListingSearchParams)
+    // must not crash the whole /account/searches render: degrade that one row to
+    // an empty no-filter search. The row stays visible, renamable, and deletable.
+    let query: ListingSearchParams = {};
+    let canonicalQs = "";
+    let chips: string[] = [];
+    let matchCount = 0;
+    try {
+      const canonical = canonicalizeQuery(raw);
+      query = canonical.normalized;
+      canonicalQs = canonical.canonicalQs;
+      chips = summarizeChips(query, areaLookup);
+      matchCount = (await getFilteredListings(query)).length;
+    } catch {
+      query = {};
+      canonicalQs = "";
+      chips = [];
+      matchCount = 0;
+    }
     out.push({
       id: row.id as string,
       name: row.name as string,

@@ -40,19 +40,37 @@ export async function toggleFavouriteAction(
     .maybeSingle();
 
   if (existing) {
+    // DELETE by id is already idempotent (a concurrent delete = 0 rows, no error).
     const { error } = await supabase
       .from("favourites")
       .delete()
       .eq("id", existing.id);
-    if (error) return { error: error.message, signedIn: true };
+    if (error) {
+      // F-S4: never surface raw Postgres strings to the UI — log + generic message.
+      console.error(
+        `[favourite] delete failed for user=${user.id} listing=${listingId}: ${error.message}`,
+      );
+      return { error: "Couldn't update favourite.", signedIn: true };
+    }
     revalidatePath("/account/saved");
     return { saved: false, signedIn: true };
   }
 
+  // F-S4: upsert with ignoreDuplicates = INSERT ... ON CONFLICT DO NOTHING. The
+  // select-then-insert above is a TOCTOU window; a concurrent double-tap must not
+  // raise a 23505 unique violation on (user_id, listing_id). End state: favourited.
   const { error } = await supabase
     .from("favourites")
-    .insert({ user_id: user.id, listing_id: listingId });
-  if (error) return { error: error.message, signedIn: true };
+    .upsert(
+      { user_id: user.id, listing_id: listingId },
+      { onConflict: "user_id,listing_id", ignoreDuplicates: true },
+    );
+  if (error) {
+    console.error(
+      `[favourite] insert failed for user=${user.id} listing=${listingId}: ${error.message}`,
+    );
+    return { error: "Couldn't update favourite.", signedIn: true };
+  }
   revalidatePath("/account/saved");
   return { saved: true, signedIn: true };
 }
