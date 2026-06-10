@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { ListingCard } from "@/components/nook/listing-card";
 import { Icon } from "@/components/nook/icon";
 import { Navbar } from "@/components/nook/navbar";
@@ -59,6 +60,11 @@ const RADII: [string, string][] = [
 ];
 
 export default async function DesignSystemPage() {
+  // F-P4 — dev-only component showcase. 404 in production so it stays off the anon
+  // surface (no middleware change needed); reachable in dev. Guard runs BEFORE any
+  // data load so prod never even queries.
+  if (process.env.NODE_ENV === "production") notFound();
+
   const listings = await getAllListings();
   const sample = await attachListingRelations(listings.slice(0, 4));
   const sampleH = await attachListingRelations(listings.slice(0, 2));
