@@ -30,6 +30,7 @@ export async function signUpAgentAction(
 ): Promise<{ error?: string } | undefined> {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
+  const contactEmail = String(formData.get("contact_email") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const whatsapp = String(formData.get("whatsapp") ?? "").trim();
   const agency = String(formData.get("agency") ?? "").trim();
@@ -37,11 +38,18 @@ export async function signUpAgentAction(
   const password = String(formData.get("password") ?? "");
   const terms = formData.get("terms");
 
-  if (!name || !email || !phone || !whatsapp || !agency || !bovaepLicence || !password) {
+  if (!name || !email || !contactEmail || !phone || !whatsapp || !agency || !bovaepLicence || !password) {
     return { error: "All fields are required." };
   }
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters." };
+  }
+  // LC-26 — the public contact email is a SEPARATE field from the login email and
+  // is shown publicly (agents_public). Validate its shape server-side; the form's
+  // type="email" is client-only and non-authoritative. Simple email-shape bound,
+  // not the bovaep charset.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
+    return { error: "Enter a valid contact email." };
   }
   if (!terms) {
     return { error: "You must agree to the Terms of Service to continue." };
@@ -105,7 +113,11 @@ export async function signUpAgentAction(
     agency,
     phone,
     whatsapp,
-    email, // public contact == registration email for self-registered agents
+    // LC-26 — `agents.email` holds the PUBLIC contact, not the login email. It is
+    // written from the separate contact_email field, decoupled from the signUp
+    // (auth) email above. Column rename agents.email → contact_email is deferred
+    // (LATE_CATCHES); until then the column name is a temporary misnomer.
+    email: contactEmail,
     bovaep_licence: bovaepLicence,
   });
   if (insertError) {

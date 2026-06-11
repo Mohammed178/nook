@@ -86,7 +86,10 @@ function fullAgentRow({ id, userId, slug, status, deletedAt = null }) {
     whatsapp: "+60000000000",
     phone: "+60000000000",
     email: `${slug}@nook.test`,
-    bovaep_licence: "EPH-TEST",
+    // Unique per fixture: 0025 added a partial UNIQUE index on bovaep_licence
+    // (where deleted_at is null), so the 3 non-deleted fixtures cannot share one
+    // value. (Index landed after this harness was written.)
+    bovaep_licence: `EPH-${slug}`,
     years_active: 0,
     status,
     deleted_at: deletedAt,
@@ -320,6 +323,60 @@ async function main() {
       fail(`T8 containment lint failed (status ${res.status}): ${res.stdout}\n${res.stderr}`);
     }
     ok("containment lint exit 0 (service-role import confined to app/admin/)");
+  }
+
+  // T9 — LC-26 decision notification resolves the AUTH/login email, not the public
+  // contact column (agents.email). Replicates app/admin/agents/actions.ts decide()
+  // resolution path: guarded UPDATE selecting user_id → admin.getUserById → email.
+  // Also covers the miss-handling branch (unknown user_id → empty → skip send).
+  //
+  // The register action itself (separate contact_email field) is a cookie-bound
+  // server action, not drivable from this harness; its decoupling is asserted here
+  // at the read/resolution layer: login email (auth.users) and contact column
+  // (agents.email) are independent and differ for the fixture.
+  step("T9 — decision notify resolves AUTH email (getUserById), not contact column");
+  {
+    const subject = await makeEphemeralAgent({ status: "pending" });
+    const contactEmail = `${subject.slug}@nook.test`; // fullAgentRow sets this
+    const loginEmail = subject.email; // ephemeral-<uuid>@nook.test (auth.users)
+    if (loginEmail === contactEmail) {
+      fail(`T9 fixture invalid: login and contact email coincide (${loginEmail})`);
+    }
+
+    // Replicate decide(): guarded UPDATE pending→approved, select user_id.
+    const nowIso = new Date().toISOString();
+    const { data, error } = await admin
+      .from("agents")
+      .update({
+        status: "approved",
+        status_reason: null,
+        verified_at: nowIso,
+        decided_at: nowIso,
+      })
+      .eq("id", subject.agentId)
+      .eq("status", "pending")
+      .is("deleted_at", null)
+      .select("user_id, agency")
+      .maybeSingle();
+    if (error) fail(`T9 guarded update errored: ${error.message}`);
+    if (!data) fail("T9 guarded update returned no row");
+
+    // Resolve auth email the way decide() now does.
+    const { data: au } = await admin.auth.admin.getUserById(data.user_id);
+    const resolved = au?.user?.email ?? "";
+    if (resolved !== loginEmail) {
+      fail(`T9 resolved notify email '${resolved}', expected login '${loginEmail}'`);
+    }
+    if (resolved === contactEmail) {
+      fail("T9 notify resolved the CONTACT column, not the auth/login email");
+    }
+
+    // Miss-handling: unknown user id → no user → empty email → caller skips send.
+    const { data: miss } = await admin.auth.admin.getUserById(randomUUID());
+    if ((miss?.user?.email ?? "") !== "") {
+      fail("T9 getUserById(unknown) unexpectedly resolved an email");
+    }
+    ok(`notify → auth login '${loginEmail}' (≠ contact '${contactEmail}'); miss → empty (skip)`);
   }
 
   console.log("\nrls-test-h2 PASSED");

@@ -86,7 +86,7 @@ export function AgentRegisterForm() {
 
         <div className="field">
           <label className="label" htmlFor="agent-email">
-            Email
+            Login email
           </label>
           <input
             id="agent-email"
@@ -97,6 +97,22 @@ export function AgentRegisterForm() {
             autoComplete="email"
             placeholder="you@agency.my"
           />
+          <div className="help">You sign in with this address. Not shown publicly.</div>
+        </div>
+
+        <div className="field">
+          <label className="label" htmlFor="agent-contact-email">
+            Public contact email
+          </label>
+          <input
+            id="agent-contact-email"
+            className="input"
+            name="contact_email"
+            type="email"
+            required
+            placeholder="contact@agency.my"
+          />
+          <div className="help">Shown on your public agent profile and listings.</div>
         </div>
 
         <div className="field">
