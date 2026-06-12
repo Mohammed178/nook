@@ -23,7 +23,9 @@ export const HERO_DECK: [string, string, string] = [
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=640&q=75",
   "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=640&q=75",
 ];
-export const HERO_DECK_PILL = "RM 480/mo · 6 min walk to UM";
+// No fabricated walk-times (compute-don't-claim, 4c-B2) — price matches the
+// real cheapest seed listing within 5 km of UM.
+export const HERO_DECK_PILL = "Rooms near UM from RM 650/mo";
 
 export const BIG_CTA_IMAGE_URL =
   "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1600&q=70";
@@ -49,59 +51,10 @@ export const QUICK_CHIPS: { label: string; href: string }[] = [
   { label: "Furnished", href: "/listings?furnishing=full" },
 ];
 
-export interface UniversityRailItem {
-  universityId: string;
-  displayName: string;
-  photoUrl: string;
-  listingCount: number;
-  fromPriceMonthly: number;
-}
-
-// Unsplash w=410 sized for ~205px CSS card width at 2x
-export const UNIVERSITY_RAIL: UniversityRailItem[] = [
-  {
-    universityId: "um",
-    displayName: "Universiti Malaya",
-    photoUrl: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=410&q=70",
-    listingCount: 2140,
-    fromPriceMonthly: 350,
-  },
-  {
-    universityId: "ukm",
-    displayName: "UKM Bangi",
-    photoUrl: "https://images.unsplash.com/photo-1562774053-701939374585?w=410&q=70",
-    listingCount: 1820,
-    fromPriceMonthly: 280,
-  },
-  {
-    universityId: "sunway",
-    displayName: "Sunway University",
-    photoUrl: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=410&q=70",
-    listingCount: 1450,
-    fromPriceMonthly: 420,
-  },
-  {
-    universityId: "upm",
-    displayName: "UPM Serdang",
-    photoUrl: "https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?w=410&q=70",
-    listingCount: 980,
-    fromPriceMonthly: 320,
-  },
-  {
-    universityId: "monash",
-    displayName: "Monash Sunway",
-    photoUrl: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=410&q=70",
-    listingCount: 740,
-    fromPriceMonthly: 480,
-  },
-  {
-    universityId: "taylors",
-    displayName: "Taylor's",
-    photoUrl: "https://images.unsplash.com/photo-1568667256549-094345857637?w=410&q=70",
-    listingCount: 680,
-    fromPriceMonthly: 460,
-  },
-];
+// The "Browse by university" rail no longer carries static photo/count/price
+// data — components/home/university-rail.tsx derives all of it at read (real
+// Wikimedia campus photos from lib/seed/university-content.ts + counts and
+// from-prices computed from listing coordinates). Compute-don't-claim.
 
 export interface FeaturedAgentExtra {
   /** Agent slug (URL-stable). Keyed by slug, not legacy id, since 3b-B-3. */

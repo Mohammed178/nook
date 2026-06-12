@@ -184,9 +184,9 @@ export default async function UniversityPage({
             </section>
           </div>
 
-          <aside className="uni-rail">
+          <aside className="campus-rail">
             {studentAreas.length > 0 && (
-              <section className="uni-rail-block">
+              <section className="campus-rail-block">
                 <h2>Where students live</h2>
                 <ul className="uni-area-list">
                   {studentAreas.map((a) => (
@@ -202,10 +202,10 @@ export default async function UniversityPage({
               </section>
             )}
 
-            <section className="uni-rail-block">
+            <section className="campus-rail-block">
               <h2>Official site</h2>
               <a
-                className="uni-rail-site"
+                className="campus-rail-site"
                 href={content.website}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -217,7 +217,7 @@ export default async function UniversityPage({
             {near.length > 0 && (
               <Link
                 href={`/listings?university=${uni.id}`}
-                className="btn btn-primary btn-lg uni-rail-cta"
+                className="btn btn-primary btn-lg campus-rail-cta"
               >
                 Browse {near.length} {near.length === 1 ? "room" : "rooms"} near{" "}
                 {uni.shortName}

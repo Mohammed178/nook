@@ -1,9 +1,5 @@
 import type { Area, University } from "@/lib/types";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
-import {
-  UNIVERSITY_RAIL,
-  type UniversityRailItem,
-} from "@/lib/home-content";
 
 // Featured-listings + featured-agents derivation lives in
 // `lib/data/featured.ts` (server-only). Keeping it out of this module avoids
@@ -20,17 +16,9 @@ export function getUniversityById(id: string): University | undefined {
   return UNIVERSITY_BY_ID[id];
 }
 
-export interface UniversityRailEntry extends UniversityRailItem {
-  university: University;
-}
-
-export function getUniversityRail(): UniversityRailEntry[] {
-  return UNIVERSITY_RAIL.flatMap((item) => {
-    const university = UNIVERSITY_BY_ID[item.universityId];
-    if (!university) return [];
-    return [{ ...item, university }];
-  });
-}
+// The university rail derives its items directly in
+// components/home/university-rail.tsx now (real campus photos + computed
+// counts from lib/distance) — the static UNIVERSITY_RAIL seed is gone.
 
 // === Hero search parsers ===
 
