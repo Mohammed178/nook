@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/nook/logo";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { AgentRegisterForm } from "@/components/auth/agent-register-form";
@@ -16,7 +17,7 @@ export default async function AgentRegisterPage() {
     <>
       <div className="auth-topbar">
         <Link href="/" className="logo" style={{ textDecoration: "none" }}>
-          <span className="logo-mark">N</span>
+          <LogoMark />
           <span>nook</span>
         </Link>
         <div className="auth-topbar-right">

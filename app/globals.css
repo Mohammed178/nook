@@ -2,54 +2,56 @@
 
 /* === Nook design tokens === */
 :root {
-  /* Brand: Burnt orange (default; tweaks panel can swap) */
-  --brand-500: #C85A2A;
-  --brand-600: #A8461E;
-  --brand-700: #7E3414;
-  --brand-50:  #FBEDE3;
-  --brand-100: #F3D2BC;
-  --brand-200: #E5A883;
+  /* Brand: Slate navy / steel teal / powder blue on warm white.
+     Palette: #2F4156 · #567C8D · #C8D9E6 · #F5EFEB · #FFFFFF */
+  --brand-500: #2F4156;
+  --brand-600: #263547;
+  --brand-700: #1C2836;
+  --brand-50:  #EDF3F7;
+  --brand-100: #C8D9E6;
+  --brand-200: #9FBCCD;
 
-  /* Accents */
-  --accent-orange:    #C85A2A;
-  --accent-orange-50: #FBEDE3;
-  --accent-orange-600:#A8461E;
-  --accent-blue:    #2F5D7A;
-  --accent-blue-50: #E6EEF3;
-  --accent-yellow:  #D9A441;
-  --accent-yellow-50: #F8EFD9;
-  --accent-green:   #5A7A3A;
-  --accent-green-50: #EEF1E2;
+  /* Accents — steel teal carries info/links; muted warm tones for state */
+  --accent-orange:    #B0683F;
+  --accent-orange-50: #F4E5D9;
+  --accent-orange-600:#915020;
+  --accent-blue:    #567C8D;
+  --accent-blue-50: #E4EDF1;
+  --accent-yellow:  #B07D3F;
+  --accent-yellow-50: #F4EAD9;
+  --accent-green:   #4E7A62;
+  --accent-green-50: #E2EEE7;
   --whatsapp:       #25D366;
   --whatsapp-600:   #1FB855;
 
-  /* Neutrals — warm-tinted ink scale (hue matched to the cream canvas;
-     lightness preserved from the old pure-gray scale, so contrast holds) */
-  --ink-900: #1B1815;
-  --ink-800: #282420;
-  --ink-700: #36312B;
-  --ink-600: #514B43;
-  --ink-500: #6B645A;
-  --ink-400: #9E978D;
-  --ink-300: #D1CCC4;
-  --ink-200: #E9E5DF;
-  --ink-150: #F0ECE6;
-  --ink-100: #F7F4EF;
-  --ink-50:  #FBFAF7;
+  /* Neutrals — slate-tinted ink for text (hue matched to the brand), warm
+     hairlines and washes (hue matched to the canvas). Lightness steps
+     preserved from the old scale, so contrast holds everywhere. */
+  --ink-900: #1F2B39;
+  --ink-800: #2F4156;
+  --ink-700: #3D5063;
+  --ink-600: #54677A;
+  --ink-500: #647989;
+  --ink-400: #94A5B3;
+  --ink-300: #C6CFD6;
+  --ink-200: #DDE4E9;
+  --ink-150: #E8E0D9;
+  --ink-100: #EFE9E4;
+  --ink-50:  #F9F5F2;
   --paper:   #FFFFFF;
-  --canvas:  #FAFAF6;
+  --canvas:  #F5EFEB;
 
   /* Semantic */
-  --success: #5A7A3A;
-  --success-50: #EEF1E2;
-  --success-700: #3F5526;
-  --warning: #C85A2A;
-  --warning-50: #FBEDE3;
-  --warning-700: #8A3A14;
-  --danger: #B23A1F;
-  --danger-50: #F8E2DA;
-  --danger-700: #802410;
-  --info: #2F5D7A;
+  --success: #4E7A62;
+  --success-50: #E2EEE7;
+  --success-700: #35543F;
+  --warning: #B0683F;
+  --warning-50: #F4E5D9;
+  --warning-700: #7A4526;
+  --danger: #B04A3A;
+  --danger-50: #F4DFDB;
+  --danger-700: #7C3024;
+  --info: #567C8D;
 
   /* Type */
   --mono: var(--font-geist-mono), 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -83,8 +85,8 @@
   --s-10: 40px;
   --s-12: 48px;
 
-  /* Shadows — tinted to the warm canvas hue, not pure black */
-  --shadow-ink: 63, 42, 24;
+  /* Shadows — tinted to the slate ink, not pure black */
+  --shadow-ink: 47, 65, 86;
   --shadow-sticky: 0 1px 3px rgba(var(--shadow-ink), 0.10);
   --shadow-card-hover: 0 2px 8px rgba(var(--shadow-ink), 0.10);
   --shadow-sm: 0 1px 3px rgba(var(--shadow-ink), 0.08);
@@ -96,17 +98,6 @@
   --filter-h: 56px;
   --max-w: 1280px;
 
-  --density: 1;
-}
-
-/* Density modes — Tweaks panel sets data-density on <html> */
-html[data-density="compact"] {
-  --s-1: 3px; --s-2: 6px; --s-3: 9px; --s-4: 12px;
-  --s-5: 16px; --s-6: 20px; --s-8: 28px; --s-10: 36px;
-}
-html[data-density="comfortable"] {
-  --s-1: 5px; --s-2: 10px; --s-3: 14px; --s-4: 18px;
-  --s-5: 22px; --s-6: 28px; --s-8: 36px; --s-10: 44px;
 }
 
 /* === Tailwind theme — expose tokens as utilities === */
@@ -191,7 +182,7 @@ img { display: block; max-width: 100%; }
 
 /* Numeric voice — prices, stats, license + phone numbers read as data, in mono */
 .card-price-amt, .price-amt, .kpi-value,
-.stats-strip .stat .v, .lc .price, .bcs-row .v,
+.stats-strip .stat .v, .lc .price,
 .price-divicon, .card-agent-license, .agent-meta-license,
 .phone-reveal-num {
   font-family: var(--mono);
@@ -855,7 +846,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 /* Homepage container + section heads */
 .home-container { max-width: var(--max-w); margin: 0 auto; padding: 56px 24px; }
-.home-container.tight { padding-top: 0; }
+.home-container.tight { padding-top: 16px; }
 .home-sec-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 24px; }
 .home-sec-head h2 { font-size: 28px; letter-spacing: -.015em; font-weight: 700; line-height: 1.2; }
 .home-sec-head .sub { font-size: 14px; color: var(--ink-500); margin-top: 8px; line-height: 1.5; }
@@ -1011,29 +1002,78 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .agent-card .areas { font-size: 11px; color: var(--ink-500); margin-top: 8px; line-height: 1.4; }
 .agent-card .star { color: var(--accent-yellow); }
 
-/* Big CTA — photo band with a warm ink scrim (replaces the flat gradient box) */
+/* Closing band — asymmetric split echoing the hero: solid slate panel left,
+   KL-night photo right with glass stat chips floating over it. */
 .big-cta {
   position: relative; overflow: hidden;
+  display: grid; grid-template-columns: 1.05fr 1fr;
+  background: var(--brand-700);
+  color: #fff; border-radius: var(--r-lg);
+  min-height: 380px;
+  box-shadow: 0 24px 56px -28px rgba(var(--shadow-ink), 0.45);
+}
+.big-cta-content { padding: 52px 48px 52px 52px; align-self: center; }
+.big-cta-kicker {
+  font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand-100); margin-bottom: 14px;
+}
+.big-cta h2 {
+  font-size: clamp(28px, 3.2vw, 40px); letter-spacing: -.015em;
+  font-weight: 800; line-height: 1.1; color: #fff;
+}
+.big-cta p {
+  font-size: 15px; margin-top: 16px; line-height: 1.6; max-width: 46ch;
+  color: rgba(255, 255, 255, 0.85);
+}
+.big-cta .ctas { display: flex; align-items: center; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+/* Both buttons share the exact same box (border included) so they align. */
+.big-cta .btn-on-brand,
+.big-cta .btn-on-brand-ghost {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 12px 22px; font-weight: 700; font-size: var(--t-base);
+  border-radius: var(--r-md); border: 1px solid transparent;
+  text-decoration: none; line-height: 1.2;
+  transition: background 140ms, border-color 140ms, transform 140ms;
+}
+.big-cta .btn-on-brand { background: #F5EFEB; color: var(--brand-700); }
+.big-cta .btn-on-brand:hover { background: #fff; text-decoration: none; }
+.big-cta .btn-on-brand:active { transform: scale(0.98); }
+.big-cta .btn-on-brand-ghost { border-color: rgba(200, 217, 230, 0.5); color: #C8D9E6; }
+.big-cta .btn-on-brand-ghost:hover { background: rgba(200, 217, 230, 0.12); border-color: rgba(200, 217, 230, 0.8); text-decoration: none; }
+.big-cta .btn-on-brand-ghost:active { transform: scale(0.98); }
+
+.big-cta-media {
+  position: relative;
   background:
-    linear-gradient(100deg, rgba(27, 24, 21, 0.92) 0%, rgba(76, 38, 18, 0.82) 55%, rgba(126, 52, 20, 0.70) 100%),
-    var(--big-cta-bg, linear-gradient(135deg, var(--brand-600), var(--brand-700))) center/cover;
-  color: #fff; border-radius: var(--r-lg); padding: 48px;
-  display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: center;
+    linear-gradient(to right, var(--brand-700) 0%, rgba(28, 40, 54, 0.25) 38%, rgba(28, 40, 54, 0.05) 100%),
+    var(--big-cta-bg, var(--brand-600)) center/cover;
 }
-.big-cta h2 { font-size: 32px; letter-spacing: -.015em; font-weight: 800; line-height: 1.15; }
-.big-cta p { font-size: 15px; margin-top: 16px; opacity: 0.94; line-height: 1.6; max-width: 480px; }
-.big-cta .ctas { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
-.big-cta .btn-on-brand { background: #fff; color: var(--brand-700); padding: 12px 20px; font-weight: 700; border-radius: var(--r-sm); text-decoration: none; }
-.big-cta .btn-on-brand:hover { background: var(--ink-100); text-decoration: none; }
-.big-cta .btn-on-brand-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.6); color: #fff; padding: 12px 20px; font-weight: 700; border-radius: var(--r-sm); text-decoration: none; }
-.big-cta .btn-on-brand-ghost:hover { background: rgba(255,255,255,0.12); text-decoration: none; }
+.big-cta-credit {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 10px; color: rgba(255, 255, 255, 0.75); text-decoration: none;
+  background: rgba(18, 27, 38, 0.45); padding: 2px 7px; border-radius: var(--r-xs);
+}
+.big-cta-credit:hover { color: #fff; text-decoration: none; }
+
+/* Stats as floating glass chips — the hero deck's floating-card motif. */
 .big-cta-stats {
-  display: flex; flex-direction: column; gap: 14px; padding: 24px;
-  background: rgba(255,255,255,0.10); border-radius: var(--r-md);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  position: absolute; left: 24px; right: 24px; bottom: 24px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;
 }
-.bcs-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
-.bcs-row .v { font-size: 22px; font-weight: 800; min-width: 60px; }
+.bcs-chip {
+  background: rgba(18, 27, 38, 0.62);
+  border: 1px solid rgba(200, 217, 230, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--r-md); padding: 12px 14px;
+  animation: uni-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 70ms);
+}
+.bcs-chip dd {
+  margin: 0; font-size: 20px; font-weight: 800; color: #fff;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+}
+.bcs-chip dt { font-size: var(--t-xs); color: rgba(255, 255, 255, 0.78); margin-top: 2px; }
 
 /* === Home responsive === */
 @media (max-width: 1024px) {
@@ -1079,13 +1119,11 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .hiw-head { position: static; }
   .hiw-item { padding-left: 64px; padding-bottom: 32px; }
 
-  .big-cta {
-    grid-template-columns: 1fr;
-    padding: 32px 24px;
-    gap: 24px;
-    border-radius: var(--r-md);
-  }
+  .big-cta { grid-template-columns: 1fr; border-radius: var(--r-md); }
+  .big-cta-content { padding: 32px 24px; }
   .big-cta h2 { font-size: 26px; }
+  .big-cta-media { min-height: 300px; }
+  .big-cta-stats { left: 16px; right: 16px; bottom: 16px; }
 }
 
 /* === Phase 2: Listings + Detail page styles === */
@@ -1168,9 +1206,8 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   display: grid; place-items: center;
 }
 
-/* Real Leaflet map host */
-.leaflet-host { width: 100%; height: 100%; }
-.leaflet-host .leaflet-container { width: 100%; height: 100%; background: #ECF0E8; }
+/* Map host (Google Maps via @vis.gl/react-google-maps) */
+.map-host { width: 100%; height: 100%; background: #E7EBE4; }
 .price-divicon {
   background: var(--brand-500); color: #fff;
   font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
@@ -1472,7 +1509,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 .auth-brand {
   background:
-    linear-gradient(180deg, rgba(126, 52, 20, 0.55), rgba(168, 70, 30, 0.4)),
+    linear-gradient(180deg, rgba(47, 65, 86, 0.60), rgba(86, 124, 141, 0.38)),
     url("https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80")
     center / cover;
   color: #fff;
@@ -1700,7 +1737,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   display: grid;
   grid-template-columns: 240px 1fr;
   gap: 32px;
-  padding: var(--s-16) 0 var(--s-16);
+  padding: 40px 0 56px;
   align-items: start;
   min-height: calc(100vh - 80px);
 }
@@ -2492,7 +2529,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   height: 320px; border: 1px solid var(--ink-200);
   border-radius: var(--r-md); overflow: hidden;
 }
-.map-picker-host .leaflet-container { height: 320px; }
+.map-host.map-picker-host { height: 320px; }
 .map-coord-fields { display: flex; gap: var(--s-4); flex-wrap: wrap; }
 .map-coord-fields .field { flex: 1; min-width: 140px; }
 .map-readout {
@@ -2523,7 +2560,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   height: 340px; border: 1px solid var(--ink-200);
   border-radius: var(--r-md); overflow: hidden;
 }
-.detail-map-live .leaflet-container { height: 340px; }
+.detail-map-live > div { height: 340px; }
 .detail-radius-circle { stroke: var(--brand-500); fill: var(--brand-500); }
 .detail-map-empty {
   display: grid; place-items: center;
@@ -2668,7 +2705,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 /* Warm scrim so the monogram sits legibly on any photograph. */
 .uni-tile-photo::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(27, 20, 12, 0.55), rgba(27, 20, 12, 0) 55%);
+  background: linear-gradient(to top, rgba(18, 27, 38, 0.55), rgba(18, 27, 38, 0) 55%);
 }
 .uni-tile-short {
   position: absolute; left: 14px; bottom: 8px; z-index: 1;
@@ -2711,7 +2748,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   position: relative; display: flex; align-items: flex-end;
   min-height: clamp(320px, 44vh, 480px);
   background-image:
-    linear-gradient(to top, var(--canvas) 0%, rgba(27, 20, 12, 0.18) 34%, rgba(27, 20, 12, 0.38) 100%),
+    linear-gradient(to top, var(--canvas) 0%, rgba(18, 27, 38, 0.18) 34%, rgba(18, 27, 38, 0.38) 100%),
     var(--uni-hero-bg);
   background-size: cover; background-position: center;
 }
@@ -2839,6 +2876,36 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uni-tile, .uni-room-rise { animation: none; }
+  .uni-tile, .uni-room-rise, .bcs-chip { animation: none; }
   .uni-tile-link, .uni-area-row { transition: none; }
 }
+
+/* === Map overlay cards (custom popup replacement on Google Maps) === */
+.map-overlay-card {
+  position: relative;
+  transform: translateY(-34px);
+  background: var(--paper);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-modal);
+  width: 240px;
+}
+.map-overlay-card .card.card-map { box-shadow: none !important; border: none; }
+.map-overlay-mini { width: 200px; padding: 12px 14px; }
+.map-overlay-mini a {
+  display: block; font-size: var(--t-sm); font-weight: 600;
+  color: var(--ink-900); text-decoration: none; padding-right: 18px;
+}
+.map-overlay-mini a:hover { color: var(--brand-500); }
+.map-overlay-mini .price {
+  margin-top: 4px; font-size: var(--t-sm); font-weight: 700;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+}
+.map-overlay-close {
+  position: absolute; top: 6px; right: 6px; z-index: 1;
+  width: 22px; height: 22px; border-radius: var(--r-pill);
+  border: 1px solid var(--ink-200); background: var(--paper);
+  color: var(--ink-700); font-size: 14px; line-height: 1;
+  cursor: pointer; display: grid; place-items: center;
+}
+.map-overlay-close:hover { color: var(--ink-900); border-color: var(--ink-400); }

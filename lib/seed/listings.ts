@@ -280,7 +280,11 @@ export const LISTINGS: SeedListing[] = [
     amenities: ["wifi", "shared-kitchen", "parking"],
     description:
       "Male-only single room in a single-storey terrace house in Taman Greenwood, Gombak. The room has a single bed, built-in wardrobe, study desk, ceiling fan, and a window facing the back lane. Tenants share a bathroom with one other student. Utilities, wifi, and Astro included in rent.\n\nIIUM's Gombak gate is roughly 1.7 km — about 22 minutes on foot or a 5-minute Grab (RM 4-5). The free IIUM shuttle picks up at Greenwood Square (3 minutes' walk from the house) every 20 minutes from 7am to 8pm on weekdays. Gombak LRT terminus is 1.2 km away for trips into the city.\n\nThe house is shared with two other IIUM students (Year 2 and Year 4, both male). Common kitchen has a fridge, kettle, rice cooker, and a small dining table. The 99 Speedmart is 220 m down the road, and Restoran Anjung Selera serves nasi lemak from 6am. Quiet residential area with mostly families.",
-    agentId: "agent-arif",
+    // Re-homed from agent-arif: Arif is the rejected-agent exemplar (4a-2),
+    // and a rejected agent can't own a published listing — agents_public
+    // resolves him to null, so the card rendered without contact buttons.
+    // Ben Tan already serves the other IIUM/Gombak listing.
+    agentId: "agent-ben",
     rating: 4.3,
     reviewCount: 9,
     createdAt: "2026-02-28",

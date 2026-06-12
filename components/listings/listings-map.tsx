@@ -1,15 +1,13 @@
 "use client";
 
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useState } from "react";
+import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-} from "react-leaflet";
+  MAPS_API_KEY,
+  MAPS_MAP_ID,
+  PanTo,
+  mapsConfigured,
+} from "@/components/maps/google";
 import { ListingCard } from "@/components/nook/listing-card";
 import type { ListingWithRelations } from "@/lib/types";
 
@@ -22,26 +20,10 @@ interface ListingsMapProps {
   currentQuery?: string;
 }
 
-function priceIcon(price: number, active: boolean): L.DivIcon {
-  const text = `RM ${price}`;
-  const width = Math.ceil(text.length * 7) + 22;
-  const height = 26;
-  return L.divIcon({
-    html: text,
-    className: `price-divicon${active ? " active" : ""}`,
-    iconSize: [width, height],
-    iconAnchor: [width / 2, height],
-  });
-}
-
-function FlyToCenter({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, zoom, { animate: true });
-  }, [map, center, zoom]);
-  return null;
-}
-
+// Google Maps pane of the listings split view. Price-pill markers (the same
+// .price-divicon CSS as before); clicking a pill opens our
+// own overlay card (custom, not the stock InfoWindow) hosting the map-variant
+// ListingCard. The list pane is the accessible alternative to the pins.
 export function ListingsMap({
   items,
   center,
@@ -50,77 +32,89 @@ export function ListingsMap({
   setActiveId,
   currentQuery,
 }: ListingsMapProps) {
-  const popupRefs = useRef<Map<string, L.Popup>>(new Map());
+  const [openId, setOpenId] = useState<string | null>(null);
 
   // lat/lng are nullable since 4b (drafts carry no coordinates). The map only
   // ever receives published listings (RLS hides drafts), so this flatMap guard
-  // is belt-and-braces — a coordinate-less listing simply gets no marker, and
-  // narrows lat/lng to `number` for the Marker position below.
+  // is belt-and-braces — a coordinate-less listing simply gets no marker.
   const markers = useMemo(
     () =>
       items.flatMap((item) => {
         const { lat, lng } = item.listing;
         if (lat == null || lng == null) return [];
-        return [
-          {
-            item,
-            lat,
-            lng,
-            icon: priceIcon(
-              item.listing.priceMonthly,
-              activeId === item.listing.id,
-            ),
-          },
-        ];
+        return [{ item, lat, lng }];
       }),
-    [items, activeId],
+    [items],
   );
 
+  if (!mapsConfigured) {
+    return <div className="map-host" aria-hidden="true" />;
+  }
+
+  const open = markers.find((m) => m.item.listing.id === openId);
+
   return (
-    <div className="leaflet-host">
-      <MapContainer
-        center={center}
-        zoom={zoom}
-        scrollWheelZoom
-        style={{ width: "100%", height: "100%" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <FlyToCenter center={center} zoom={zoom} />
-        {markers.map(({ item, lat, lng, icon }) => (
-          <Marker
-            key={item.listing.id}
-            position={[lat, lng]}
-            icon={icon}
-            eventHandlers={{
-              mouseover: () => setActiveId(item.listing.id),
-              mouseout: () => setActiveId(null),
-              click: (e) => {
-                setActiveId(item.listing.id);
-                e.target.openPopup();
-              },
-            }}
-            ref={(marker) => {
-              if (marker) {
-                const popup = marker.getPopup();
-                if (popup) popupRefs.current.set(item.listing.id, popup);
-              }
-            }}
-          >
-            <Popup className="listings-map-popup">
-              <ListingCard
-                listing={item.listing}
-                agent={item.agent}
-                area={item.area}
-                variant="map"
-                currentQuery={currentQuery}
-              />
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+    <div className="map-host">
+      <APIProvider apiKey={MAPS_API_KEY}>
+        <Map
+          mapId={MAPS_MAP_ID}
+          defaultCenter={{ lat: center[0], lng: center[1] }}
+          defaultZoom={zoom}
+          gestureHandling="greedy"
+          disableDefaultUI
+          zoomControl
+          style={{ width: "100%", height: "100%" }}
+          onClick={() => setOpenId(null)}
+        >
+          <PanTo lat={center[0]} lng={center[1]} zoom={zoom} />
+          {markers.map(({ item, lat, lng }) => {
+            const id = item.listing.id;
+            return (
+              <AdvancedMarker
+                key={id}
+                position={{ lat, lng }}
+                zIndex={activeId === id ? 500 : undefined}
+                onClick={() => {
+                  setActiveId(id);
+                  setOpenId(id === openId ? null : id);
+                }}
+              >
+                <span
+                  className={`price-divicon${activeId === id ? " active" : ""}`}
+                  onMouseEnter={() => setActiveId(id)}
+                  onMouseLeave={() => setActiveId(null)}
+                >
+                  RM {item.listing.priceMonthly}
+                </span>
+              </AdvancedMarker>
+            );
+          })}
+          {open && (
+            <AdvancedMarker
+              position={{ lat: open.lat, lng: open.lng }}
+              zIndex={1000}
+            >
+              <div className="map-overlay-card">
+                <button
+                  type="button"
+                  className="map-overlay-close"
+                  aria-label="Close listing preview"
+                  onClick={() => setOpenId(null)}
+                >
+                  ×
+                </button>
+                <ListingCard
+                  listing={open.item.listing}
+                  agent={open.item.agent}
+                  area={open.item.area}
+                  variant="map"
+                  currentQuery={currentQuery}
+                />
+              </div>
+            </AdvancedMarker>
+          )}
+        </Map>
+      </APIProvider>
     </div>
   );
 }

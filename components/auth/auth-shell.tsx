@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/nook/logo";
 import { Icon } from "@/components/nook/icon";
 
 interface AuthShellProps {
@@ -14,7 +15,7 @@ export function AuthShell({ variant, children }: AuthShellProps) {
       {isLogin ? (
         <aside className="auth-brand">
           <Link href="/" className="logo" style={{ textDecoration: "none" }}>
-            <span className="logo-mark">N</span>
+            <LogoMark variant="inverse" />
             <span>nook</span>
           </Link>
           <div>

@@ -3,9 +3,7 @@ export type ListingStatus = "draft" | "available" | "reserved" | "rented";
 export type AgentStatus = "pending" | "approved" | "rejected";
 export type FurnishingLevel = "unfurnished" | "partial" | "full";
 export type Gender = "male" | "female" | "mixed";
-export type Density = "compact" | "default" | "comfortable";
 export type Locale = "en" | "ms" | "ar";
-export type BrandTone = "olive" | "burnt" | "red";
 
 export interface University {
   id: string;

@@ -7,12 +7,12 @@ import { attachListingRelations } from "@/lib/data/listings-relations";
 
 const COLORS: Record<string, [string, string][]> = {
   Brand: [
-    ["--brand-500", "#C85A2A"],
-    ["--brand-600", "#A8461E"],
-    ["--brand-700", "#7E3414"],
-    ["--brand-50", "#FBEDE3"],
-    ["--brand-100", "#F3D2BC"],
-    ["--brand-200", "#E5A883"],
+    ["--brand-500", "#2F4156"],
+    ["--brand-600", "#263547"],
+    ["--brand-700", "#1C2836"],
+    ["--brand-50", "#EDF3F7"],
+    ["--brand-100", "#C8D9E6"],
+    ["--brand-200", "#9FBCCD"],
   ],
   Accents: [
     ["--accent-olive", "#6B7A3A"],
@@ -98,9 +98,8 @@ export default async function DesignSystemPage() {
             maxWidth: 700,
           }}
         >
-          Tokens, components, and patterns. Source of truth — Geist throughout, burnt-orange
-          brand as primary CTA, modest radii, almost no shadows. Density and brand colour are
-          tweakable from the panel.
+          Tokens, components, and patterns. Source of truth — Geist throughout, slate-navy
+          brand as primary CTA on a warm-white canvas, modest radii, almost no shadows.
         </p>
 
         <Section title="Colour" lab="Brand carries CTA. Accents share semantic meaning. Neutrals carry the layout.">

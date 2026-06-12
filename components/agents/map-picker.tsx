@@ -7,22 +7,22 @@ import { setListingCoordsAction } from "@/app/agents/dashboard/listings/actions"
 
 // Phase 4c-B2 — agent map-picker (edit-page sibling section).
 //
-// Agent-facing → best-effort a11y, but NOT map-only: the leaflet click/drag is
+// Agent-facing → best-effort a11y, but NOT map-only: the map click/drag is
 // a convenience layer over a keyboard-accessible coordinate path. The labelled
 // lat/lng number inputs + the text readout are the source of truth for the
 // chosen point; the map writes into that same state. Setting a location never
 // requires dragging a pin.
 //
-// The leaflet map is loaded with ssr:false (react-leaflet has no SSR) via the
+// The Google map is loaded with ssr:false via the
 // proven dynamic() idiom. This wrapper renders without it, so the inputs and
 // Save button work even before/without the map.
 
 const PickerMap = dynamic(
-  () => import("./map-picker-leaflet").then((m) => m.MapPickerLeaflet),
+  () => import("./map-picker-google").then((m) => m.MapPickerGoogle),
   {
     ssr: false,
     loading: () => (
-      <div className="leaflet-host map-picker-host" aria-hidden="true" />
+      <div className="map-host map-picker-host" aria-hidden="true" />
     ),
   },
 );

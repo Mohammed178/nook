@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 // Phase 4c-B2 — student-facing detail map (replaces the decorative SVG block).
-// Client wrapper that loads the leaflet half ssr:false. The map is read-only,
+// Client wrapper that loads the Google Maps half ssr:false. The map is read-only,
 // so the a11y burden is low — but the map is NOT the only carrier of the
 // distance information: the page renders the campus distance chips as text
 // alongside this map (the text alternative a screen-reader user relies on).
@@ -27,7 +27,7 @@ export interface ListingDetailMapProps {
 }
 
 const DetailMap = dynamic(
-  () => import("./listing-detail-map-leaflet").then((m) => m.ListingDetailMapLeaflet),
+  () => import("./listing-detail-map-google").then((m) => m.ListingDetailMapGoogle),
   {
     ssr: false,
     loading: () => <div className="detail-map-live" aria-hidden="true" />,

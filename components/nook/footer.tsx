@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/nook/logo";
 import { Icon, type IconName } from "@/components/nook/icon";
 
 // Folded in from the old homepage trust strip — same claims, one line each.
@@ -24,7 +25,7 @@ export function Footer() {
         <div className="footer-grid">
           <div>
             <div className="logo" style={{ color: "#fff", marginBottom: 12 }}>
-              <span className="logo-mark">N</span>
+              <LogoMark variant="inverse" />
               <span style={{ color: "#fff" }}>nook</span>
             </div>
             <p

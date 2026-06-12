@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/nook/footer";
-import { TweaksInit } from "@/components/nook/tweaks-init";
-import { TweaksPanel } from "@/components/nook/tweaks-panel";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -32,13 +30,9 @@ export default function RootLayout({
       className={`${geist.variable} ${geistMono.variable} h-full`}
       suppressHydrationWarning
     >
-      <head>
-        <TweaksInit />
-      </head>
       <body className="min-h-full flex flex-col">
         <main className="flex-1">{children}</main>
         <Footer />
-        <TweaksPanel />
       </body>
     </html>
   );

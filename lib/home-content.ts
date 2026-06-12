@@ -27,8 +27,9 @@ export const HERO_DECK: [string, string, string] = [
 // real cheapest seed listing within 5 km of UM.
 export const HERO_DECK_PILL = "Rooms near UM from RM 650/mo";
 
+// Real KL skyline (Wikimedia Commons, hotlink-stable, URL HEAD-verified).
 export const BIG_CTA_IMAGE_URL =
-  "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1600&q=70";
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Kl-skyline-at-night-2022.jpg/1280px-Kl-skyline-at-night-2022.jpg";
 
 export const HERO_HEADLINE = "Find your room near campus, without the runaround.";
 export const HERO_LEDE =

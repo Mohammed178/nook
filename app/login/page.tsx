@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/nook/logo";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
@@ -17,7 +18,7 @@ export default async function LoginPage() {
     <>
       <div className="auth-topbar">
         <Link href="/" className="logo" style={{ textDecoration: "none" }}>
-          <span className="logo-mark">N</span>
+          <LogoMark />
           <span>nook</span>
         </Link>
         <div className="auth-topbar-right">

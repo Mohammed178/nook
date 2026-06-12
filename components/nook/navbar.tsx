@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/nook/logo";
 import { Icon } from "./icon";
 import { NavSearchTrigger } from "./nav-search-trigger";
 import { AccountMenu } from "./account-menu";
@@ -27,7 +28,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
     <header className={`topnav${transparent ? " transparent" : ""}`}>
       <div className="topnav-inner">
         <Link href="/" className="logo" style={{ textDecoration: "none" }}>
-          <span className="logo-mark">N</span>
+          <LogoMark />
           <span>nook</span>
         </Link>
         <nav className="nav-links">
