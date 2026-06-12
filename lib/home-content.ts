@@ -17,12 +17,28 @@ export const BIG_CTA_STATS: HomeStat[] = [
   { value: "RM 0", label: "commission per rental" },
 ];
 
-export const HERO_IMAGE_URL =
-  "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1920&q=80";
+// Split-hero photo deck (3 stacked cards, right column)
+export const HERO_DECK: [string, string, string] = [
+  "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=900&q=75",
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=640&q=75",
+  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=640&q=75",
+];
+export const HERO_DECK_PILL = "RM 480/mo · 6 min walk to UM";
+
+export const BIG_CTA_IMAGE_URL =
+  "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1600&q=70";
 
 export const HERO_HEADLINE = "Find your room near campus, without the runaround.";
 export const HERO_LEDE =
   "12,000+ verified rooms across the Klang Valley. Photo-first, agent-vetted, students only. Move in by next semester.";
+
+// Cycled by the hero search input's typewriter placeholder
+export const HERO_SEARCH_HINTS = [
+  "UM, UKM, Bangsar…",
+  "Near Sunway, under RM 600…",
+  "Taylor's, female-only…",
+  "Cyberjaya, move in June…",
+];
 
 export const QUICK_CHIPS: { label: string; href: string }[] = [
   { label: "Near UM", href: "/listings?universityId=um" },

@@ -2,6 +2,31 @@ import Link from "next/link";
 import { getUniversityRail } from "@/lib/queries";
 import { formatPrice } from "@/lib/utils";
 
+function UniCard({
+  item,
+  ariaHidden,
+}: {
+  item: ReturnType<typeof getUniversityRail>[number];
+  ariaHidden?: boolean;
+}) {
+  return (
+    <Link
+      href={`/listings?universityId=${item.universityId}`}
+      className="uni-card"
+      aria-hidden={ariaHidden}
+      tabIndex={ariaHidden ? -1 : undefined}
+    >
+      <div className="photo" style={{ backgroundImage: `url(${item.photoUrl})` }}>
+        <span className="name">{item.displayName}</span>
+      </div>
+      <div className="body">
+        <div className="count">{item.listingCount.toLocaleString()} rooms</div>
+        <div className="price">From {formatPrice(item.fromPriceMonthly)} /mo</div>
+      </div>
+    </Link>
+  );
+}
+
 export function UniversityRail() {
   const items = getUniversityRail();
   return (
@@ -13,25 +38,17 @@ export function UniversityRail() {
         </div>
         <Link href="/universities" className="more">All universities →</Link>
       </div>
+      {/* Marquee: list rendered twice; CSS slides the track -50% on a loop.
+          The duplicate set is aria-hidden and unfocusable. */}
       <div className="uni-rail">
-        {items.map((item) => (
-          <Link
-            key={item.universityId}
-            href={`/listings?universityId=${item.universityId}`}
-            className="uni-card"
-          >
-            <div
-              className="photo"
-              style={{ backgroundImage: `url(${item.photoUrl})` }}
-            >
-              <span className="name">{item.displayName}</span>
-            </div>
-            <div className="body">
-              <div className="count">{item.listingCount.toLocaleString()} rooms</div>
-              <div className="price">From {formatPrice(item.fromPriceMonthly)} /mo</div>
-            </div>
-          </Link>
-        ))}
+        <div className="uni-track">
+          {items.map((item) => (
+            <UniCard key={item.universityId} item={item} />
+          ))}
+          {items.map((item) => (
+            <UniCard key={`dup-${item.universityId}`} item={item} ariaHidden />
+          ))}
+        </div>
       </div>
     </section>
   );

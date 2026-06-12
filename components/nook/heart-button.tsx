@@ -36,6 +36,9 @@ export function HeartButton({
   onToggled,
 }: HeartButtonProps) {
   const [saved, setSaved] = useState<boolean>(initialSaved);
+  // True only after the user saves in this session — gates the pop animation
+  // so initially-saved hearts don't all fire on page load.
+  const [justSaved, setJustSaved] = useState(false);
   const [optimisticSaved, applyOptimistic] = useOptimistic<boolean, boolean>(
     saved,
     (_, next) => next,
@@ -141,6 +144,7 @@ export function HeartButton({
     }
 
     const next = !saved;
+    setJustSaved(next);
     startTransition(async () => {
       applyOptimistic(next);
       onToggled?.(next);
@@ -156,7 +160,9 @@ export function HeartButton({
   }
 
   const filled = optimisticSaved;
-  const btnClass = `heart-btn heart-btn-${variant}${filled ? " is-saved" : ""}`;
+  const btnClass = `heart-btn heart-btn-${variant}${filled ? " is-saved" : ""}${
+    filled && justSaved ? " just-saved" : ""
+  }`;
 
   const tooltipNode =
     tooltipPos && mounted

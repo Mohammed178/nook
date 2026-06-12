@@ -22,14 +22,14 @@ const COLORS: Record<string, [string, string][]> = {
     ["--whatsapp", "#25D366"],
   ],
   Neutrals: [
-    ["--ink-900", "#1A1A1A"],
-    ["--ink-700", "#333333"],
-    ["--ink-500", "#666666"],
-    ["--ink-400", "#999999"],
-    ["--ink-300", "#CCCCCC"],
-    ["--ink-200", "#E5E5E5"],
-    ["--ink-100", "#F5F5F5"],
-    ["--ink-50", "#FAFAFA"],
+    ["--ink-900", "#1B1815"],
+    ["--ink-700", "#36312B"],
+    ["--ink-500", "#6B645A"],
+    ["--ink-400", "#9E978D"],
+    ["--ink-300", "#D1CCC4"],
+    ["--ink-200", "#E9E5DF"],
+    ["--ink-100", "#F7F4EF"],
+    ["--ink-50", "#FBFAF7"],
     ["--paper", "#FFFFFF"],
   ],
   Semantic: [
@@ -98,7 +98,7 @@ export default async function DesignSystemPage() {
             maxWidth: 700,
           }}
         >
-          Tokens, components, and patterns. Source of truth — Inter throughout, burnt-orange
+          Tokens, components, and patterns. Source of truth — Geist throughout, burnt-orange
           brand as primary CTA, modest radii, almost no shadows. Density and brand colour are
           tweakable from the panel.
         </p>
@@ -154,7 +154,7 @@ export default async function DesignSystemPage() {
 
         <Section
           title="Typography"
-          lab="Inter, weights 400 / 500 / 600 / 700. Tabular-nums on prices, license numbers, statistics."
+          lab="Geist, weights 400 / 500 / 600 / 700. Geist Mono + tabular-nums on prices, license numbers, statistics."
         >
           <div className="panel" style={panelStyle}>
             {TYPE.map(([name, size, use]) => {
