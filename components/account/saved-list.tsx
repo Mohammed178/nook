@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useOptimistic, useState, useTransition } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
 import type { ListingWithRelations } from "@/lib/types";
@@ -23,6 +24,7 @@ export function SavedList({ initial }: SavedListProps) {
     state.filter((i) => i.listing.id !== removeId),
   );
   const [, startTransition] = useTransition();
+  const reduceMotion = useReducedMotion();
 
   function handleToggled(listingId: string, saved: boolean) {
     if (saved) return;
@@ -58,21 +60,33 @@ export function SavedList({ initial }: SavedListProps) {
         </div>
       ) : (
         <ul className="saved-list">
-          {optimisticItems.map((item) => (
-            <li key={item.listing.id} className="saved-list-item">
-              <ListingCard
-                listing={item.listing}
-                agent={item.agent}
-                area={item.area}
-                variant="horizontal"
-                initialSaved
-                signedIn
-                onHeartToggled={(saved) =>
-                  handleToggled(item.listing.id, saved)
+          {/* Unsaving collapses the row (height + fade) instead of blinking out */}
+          <AnimatePresence initial={false}>
+            {optimisticItems.map((item) => (
+              <motion.li
+                key={item.listing.id}
+                className="saved-list-item"
+                exit={
+                  reduceMotion
+                    ? { opacity: 0 }
+                    : { opacity: 0, height: 0, marginBottom: 0, overflow: "hidden" }
                 }
-              />
-            </li>
-          ))}
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ListingCard
+                  listing={item.listing}
+                  agent={item.agent}
+                  area={item.area}
+                  variant="horizontal"
+                  initialSaved
+                  signedIn
+                  onHeartToggled={(saved) =>
+                    handleToggled(item.listing.id, saved)
+                  }
+                />
+              </motion.li>
+            ))}
+          </AnimatePresence>
         </ul>
       )}
     </>

@@ -24,6 +24,8 @@ interface SearchFormProps {
   onSubmitNavigate?: () => void;
   areas: Area[];
   universities: University[];
+  /** When given (hero), the where-input placeholder typewrites through these. */
+  placeholderHints?: string[];
 }
 
 function filterUniversities(
@@ -45,6 +47,7 @@ export function SearchForm({
   onSubmitNavigate,
   areas,
   universities,
+  placeholderHints,
 }: SearchFormProps) {
   const router = useRouter();
   const [where, setWhere] = useState("");
@@ -60,6 +63,49 @@ export function SearchForm({
   const [rawHighlight, setHighlightIdx] = useState(0);
   const whereCellRef = useRef<HTMLDivElement>(null);
   const whereInputRef = useRef<HTMLInputElement>(null);
+
+  // Typewriter placeholder. Paused (via ref, no effect restarts) while the
+  // user is typing or the suggest list is open; disabled for reduced motion.
+  const [hint, setHint] = useState(placeholderHints?.[0] ?? "UM, UKM, Bangsar…");
+  const hintPausedRef = useRef(false);
+
+  useEffect(() => {
+    hintPausedRef.current = showSuggest || where !== "";
+  }, [showSuggest, where]);
+
+  useEffect(() => {
+    if (!placeholderHints || placeholderHints.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let idx = 0;
+    let len = placeholderHints[0].length;
+    let deleting = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const step = () => {
+      if (hintPausedRef.current) {
+        timer = setTimeout(step, 1500);
+        return;
+      }
+      const full = placeholderHints[idx];
+      if (!deleting && len >= full.length) {
+        deleting = true;
+        timer = setTimeout(step, 2600); // hold the finished hint
+        return;
+      }
+      len += deleting ? -1 : 1;
+      if (deleting && len <= 0) {
+        deleting = false;
+        len = 0;
+        idx = (idx + 1) % placeholderHints.length;
+      }
+      setHint(placeholderHints[idx].slice(0, len));
+      timer = setTimeout(step, deleting ? 30 : 60);
+    };
+
+    timer = setTimeout(step, 2400);
+    return () => clearTimeout(timer);
+  }, [placeholderHints]);
 
   const suggestions = useMemo(
     () => filterUniversities(universities, where),
@@ -153,7 +199,7 @@ export function SearchForm({
             <input
               ref={whereInputRef}
               className="sp-input"
-              placeholder="UM, UKM, Bangsar…"
+              placeholder={placeholderHints ? hint : "UM, UKM, Bangsar…"}
               value={where}
               onChange={(e) => {
                 setWhere(e.target.value);

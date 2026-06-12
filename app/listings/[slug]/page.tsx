@@ -399,6 +399,7 @@ export default async function ListingDetailPage({
                     className="btn btn-whatsapp"
                     style={{ flex: 1 }}
                   >
+                    <span className="wa-live-dot" aria-hidden="true" />
                     <Icon name="whatsapp" size={16} /> WhatsApp
                   </a>
                   <a
@@ -408,6 +409,10 @@ export default async function ListingDetailPage({
                   >
                     <Icon name="phone" size={16} /> Call
                   </a>
+                </div>
+                <div className="reveal-hint">
+                  <Icon name="chat" size={12} /> Most agents reply within 4
+                  hours on WhatsApp
                 </div>
               </div>
 
