@@ -96,6 +96,16 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
               <Icon name="grid" size={14} /> Agent dashboard
             </Link>
           ) : null}
+          {agentStatus === "pending" || agentStatus === "rejected" ? (
+            <Link
+              href="/agents/pending"
+              className="account-menu-item"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+            >
+              <Icon name="shield" size={14} /> Application status
+            </Link>
+          ) : null}
           <div className="account-menu-divider" />
           <form action={signOutAction}>
             <button

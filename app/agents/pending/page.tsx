@@ -30,25 +30,24 @@ export default async function AgentPendingPage() {
   const submitted = formatSubmitted(agent.submittedAt!);
 
   return (
-    <div className="auth-shell auth-shell-login">
-      <main className="auth-form">
+    <div className="auth-shell auth-status-shell">
+      <main className="auth-form auth-status">
         <Link href="/" className="auth-back">
           <Icon name="arrow-left" size={14} strokeWidth={1.7} />
           Back to nook.my
         </Link>
 
-        <div className="agent-status-head">
-          <span className={`pill ${rejected ? "pill-rejected" : "pill-pending"}`}>
-            {rejected ? "Application rejected" : "Under review"}
-          </span>
-          <div className="auth-sub" style={{ marginTop: 8 }}>
-            Submitted {submitted}
-          </div>
-        </div>
+        <span className="auth-kicker">Agent application</span>
+        <span
+          className={`pill ${rejected ? "pill-rejected" : "pill-pending"} auth-status-pill`}
+        >
+          {rejected ? "Application rejected" : "Under review"}
+        </span>
 
         {rejected ? (
           <>
             <h2>Application rejected</h2>
+            <p className="auth-status-meta">Submitted {submitted}</p>
             <p>
               Your application was rejected.
               {agent.statusReason ? ` Reason: ${agent.statusReason}.` : ""}
@@ -61,6 +60,7 @@ export default async function AgentPendingPage() {
         ) : (
           <>
             <h2>Under review</h2>
+            <p className="auth-status-meta">Submitted {submitted}</p>
             <p>
               Your application was submitted on {submitted}. We&apos;ll email{" "}
               {agent.email} when verification is complete.
@@ -68,8 +68,8 @@ export default async function AgentPendingPage() {
           </>
         )}
 
-        <form action={signOutAction} style={{ marginTop: 24 }}>
-          <button type="submit" className="auth-bottom-link" style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+        <form action={signOutAction} className="auth-status-logout">
+          <button type="submit" className="auth-status-logout-btn">
             Log out
           </button>
         </form>

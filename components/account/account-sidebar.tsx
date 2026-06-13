@@ -41,6 +41,7 @@ export function AccountSidebar({
 }: AccountSidebarProps) {
   const pathname = usePathname();
   const isApprovedAgent = agentStatus === "approved";
+  const isPendingAgent = agentStatus === "pending" || agentStatus === "rejected";
 
   return (
     <aside className="account-sidebar" aria-label="Account navigation">
@@ -56,6 +57,10 @@ export function AccountSidebar({
           {isApprovedAgent ? (
             <div className="account-sidebar-role">
               Agent{agencyName ? ` · ${agencyName}` : ""}
+            </div>
+          ) : isPendingAgent ? (
+            <div className="account-sidebar-role">
+              {agentStatus === "rejected" ? "Application rejected" : "Agent · under review"}
             </div>
           ) : null}
         </div>
@@ -74,6 +79,20 @@ export function AccountSidebar({
             >
               <Icon name="grid" size={16} />
               <span>Agent dashboard</span>
+            </Link>
+          </li>
+        ) : null}
+        {isPendingAgent ? (
+          <li>
+            <Link
+              href="/agents/pending"
+              className={`account-nav-item${
+                pathname === "/agents/pending" ? " active" : ""
+              }`}
+              aria-current={pathname === "/agents/pending" ? "page" : undefined}
+            >
+              <Icon name="shield" size={16} />
+              <span>Application status</span>
             </Link>
           </li>
         ) : null}

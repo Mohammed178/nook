@@ -230,7 +230,30 @@ img { display: block; max-width: 100%; }
 .pill-rejected { background: var(--danger-50); color: var(--danger-700); }
 
 /* Agent application-status header (/agents/pending) */
-.agent-status-head { margin-bottom: 16px; }
+/* Agent application status (/agents/pending) — centered single column, not the
+   split login shell (which left an empty right track). */
+.auth-status-shell { place-items: center; padding: 40px 24px; }
+.auth-status {
+  width: 100%; max-width: 480px; margin: 0 auto;
+  justify-content: flex-start;
+  padding: clamp(40px, 6vw, 64px);
+  background: var(--paper);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-lg);
+}
+.auth-status-pill { align-self: flex-start; margin-bottom: 16px; }
+.auth-status-meta {
+  font-size: var(--t-sm); color: var(--ink-500);
+  margin-bottom: 18px; font-variant-numeric: tabular-nums;
+}
+.auth-status p { color: var(--ink-700); line-height: 1.6; margin-bottom: 14px; max-width: 52ch; }
+.auth-status p:last-of-type { margin-bottom: 0; }
+.auth-status-logout { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--ink-150); }
+.auth-status-logout-btn {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; font-size: var(--t-sm); font-weight: 600; color: var(--brand-500);
+}
+.auth-status-logout-btn:hover { text-decoration: underline; }
 
 /* === Inputs === */
 .input, .select {
