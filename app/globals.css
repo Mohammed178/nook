@@ -2995,6 +2995,118 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .uni-tile-link, .uni-area-row { transition: none; }
 }
 
+/* === Areas (reuses the .uni-* mosaic/hero/facts primitives; only the */
+/* analytical surfaces below are area-specific) ============================ */
+
+/* At-a-glance board: borderless comparison strip, busiest areas first. */
+.area-board {
+  margin: 0 0 40px; border-top: 1px solid var(--ink-200);
+}
+.area-board ul { list-style: none; margin: 0; padding: 0; }
+.area-board-head,
+.area-board-row {
+  display: grid; grid-template-columns: 2fr 0.8fr 1fr 1.6fr; gap: 16px;
+  align-items: center;
+}
+.area-board-head {
+  padding: 10px 2px; font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-500);
+  border-bottom: 1px solid var(--ink-200);
+}
+.area-board-head .num { text-align: right; }
+.area-board-row {
+  padding: 13px 2px; border-bottom: 1px solid var(--ink-100);
+}
+.area-board-row .name { font-size: var(--t-base); font-weight: 600; }
+.area-board-row .name .sub {
+  display: block; font-size: var(--t-xs); font-weight: 400; color: var(--ink-500);
+}
+.area-board-row .num {
+  text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 600; color: var(--ink-700);
+}
+.area-board-row .campus {
+  font-size: var(--t-sm); color: var(--ink-500);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hero fallback when Static Maps is unconfigured — slate band, no broken img. */
+.area-hero-flat {
+  background-image: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+}
+.area-hero-flat .uni-hero-crumb,
+.area-hero-flat .uni-hero-crumb a,
+.area-hero-flat h1,
+.area-hero-flat .uni-hero-tags { color: #fff; text-shadow: none; }
+.area-hero-flat .uni-hero-tags .type {
+  background: rgba(255, 255, 255, 0.16); color: #fff;
+}
+
+/* Insights: two-up metric blocks. */
+.area-insights {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 32px;
+  margin: 18px 0 4px;
+}
+.area-metric h3 {
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-500); margin-bottom: 12px;
+}
+.area-bars { display: flex; flex-direction: column; gap: 9px; }
+.area-bar-row {
+  display: grid; grid-template-columns: 8.5em 1fr 1.8em; gap: 10px;
+  align-items: center; font-size: var(--t-sm);
+}
+.area-bar-label { color: var(--ink-700); }
+.area-bar-track {
+  height: 8px; border-radius: 99px; background: var(--ink-100); overflow: hidden;
+}
+.area-bar-fill {
+  display: block; height: 100%; border-radius: 99px;
+  background: var(--brand-500); min-width: 2px;
+}
+.area-bar-val {
+  text-align: right; font-variant-numeric: tabular-nums;
+  font-weight: 600; color: var(--ink-700);
+}
+.area-keyvals { display: flex; flex-direction: column; gap: 0; margin: 0; }
+.area-keyvals > div {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 9px 0; border-bottom: 1px solid var(--ink-100);
+}
+.area-keyvals > div:last-child { border-bottom: none; }
+.area-keyvals dt { font-size: var(--t-sm); color: var(--ink-500); }
+.area-keyvals dd {
+  margin: 0; font-size: var(--t-sm); font-weight: 600; color: var(--ink-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.area-amenities { margin-top: 26px; }
+.area-amenities h3 {
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-500); margin-bottom: 12px;
+}
+.area-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.area-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 11px; border-radius: 99px;
+  background: var(--brand-100); color: var(--brand-700);
+  font-size: var(--t-sm); font-weight: 500;
+}
+.area-chip .c {
+  font-variant-numeric: tabular-nums; font-weight: 700;
+  color: var(--brand-500);
+}
+
+@media (max-width: 1024px) {
+  .area-insights { gap: 18px 24px; }
+}
+@media (max-width: 720px) {
+  .area-board-head,
+  .area-board-row { grid-template-columns: 1.6fr 0.7fr 1fr; }
+  .area-board-head span:last-child,
+  .area-board-row .campus { display: none; }
+  .area-insights { grid-template-columns: 1fr; }
+}
 /* === Map overlay cards (custom popup replacement on Google Maps) === */
 .map-overlay-card {
   position: relative;
