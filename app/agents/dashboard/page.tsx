@@ -38,13 +38,15 @@ function ListingRow({
   listing,
   areaName,
   archived,
+  index,
 }: {
   listing: Listing;
   areaName: string;
   archived: boolean;
+  index: number;
 }) {
   return (
-    <li className="listing-row">
+    <li className="listing-row" style={{ "--i": index } as React.CSSProperties}>
       <div className="listing-row-main">
         <div className="listing-row-head">
           <span className="listing-row-title">{listing.title}</span>
@@ -93,7 +95,10 @@ export default async function DashboardPage() {
   return (
     <div className="dashboard-page">
       <header className="account-content-head">
-        <h1>My listings</h1>
+        <div className="account-content-head-titles">
+          <span className="account-content-kicker">Agent dashboard</span>
+          <h1>My listings</h1>
+        </div>
         <Link
           href="/agents/dashboard/listings/new"
           className="btn btn-primary btn-sm"
@@ -113,12 +118,13 @@ export default async function DashboardPage() {
           </p>
         ) : (
           <ul className="listing-list">
-            {live.map((l) => (
+            {live.map((l, i) => (
               <ListingRow
                 key={l.id}
                 listing={l}
                 areaName={areaName(l.areaId)}
                 archived={false}
+                index={i}
               />
             ))}
           </ul>
@@ -135,12 +141,13 @@ export default async function DashboardPage() {
             any time.
           </p>
           <ul className="listing-list">
-            {archived.map((l) => (
+            {archived.map((l, i) => (
               <ListingRow
                 key={l.id}
                 listing={l}
                 areaName={areaName(l.areaId)}
                 archived
+                index={i}
               />
             ))}
           </ul>

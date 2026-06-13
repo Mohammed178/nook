@@ -1,3 +1,4 @@
+import { Icon } from "@/components/nook/icon";
 import { listPendingAgents } from "./_data";
 import { approveAgentAction, rejectAgentAction } from "./actions";
 
@@ -17,6 +18,7 @@ export default async function AdminAgentsPage() {
   return (
     <div>
       <div className="account-page-head">
+        <span className="account-page-kicker">Trust &amp; safety</span>
         <h1>Pending agents</h1>
         <p className="account-page-sub">
           {agents.length === 0
@@ -25,7 +27,17 @@ export default async function AdminAgentsPage() {
         </p>
       </div>
 
-      {agents.length > 0 && (
+      {agents.length === 0 ? (
+        <div className="saved-empty">
+          <span className="saved-empty-icon" aria-hidden="true">
+            <Icon name="check" size={28} />
+          </span>
+          <h2>Queue clear</h2>
+          <p>
+            No agent applications waiting. New submissions land here for review.
+          </p>
+        </div>
+      ) : (
         <div className="admin-queue-wrap">
           <table className="admin-queue-table">
             <thead>
@@ -53,7 +65,7 @@ export default async function AdminAgentsPage() {
                   <td className="admin-queue-actions">
                     <form action={approveAgentAction}>
                       <input type="hidden" name="agentId" value={agent.id} />
-                      <button type="submit" className="btn btn-sm btn-primary">
+                      <button type="submit" className="btn btn-sm btn-approve">
                         Approve
                       </button>
                     </form>
@@ -68,7 +80,7 @@ export default async function AdminAgentsPage() {
                         aria-label="Rejection reason"
                         className="admin-reject-reason"
                       />
-                      <button type="submit" className="btn btn-sm btn-ghost">
+                      <button type="submit" className="btn btn-sm btn-reject">
                         Reject
                       </button>
                     </form>

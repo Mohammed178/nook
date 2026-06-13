@@ -36,6 +36,7 @@ const ACCOUNT_NAV: NavItem[] = [
 interface DashboardSidebarProps {
   displayName: string;
   email: string;
+  agencyName?: string;
 }
 
 function initials(name: string): string {
@@ -62,7 +63,11 @@ function renderNavItem(item: NavItem, pathname: string) {
   );
 }
 
-export function DashboardSidebar({ displayName, email }: DashboardSidebarProps) {
+export function DashboardSidebar({
+  displayName,
+  email,
+  agencyName,
+}: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -75,6 +80,9 @@ export function DashboardSidebar({ displayName, email }: DashboardSidebarProps) 
           <div className="account-sidebar-name">{displayName}</div>
           <div className="account-sidebar-email" title={email}>
             {email}
+          </div>
+          <div className="account-sidebar-role">
+            Agent{agencyName ? ` · ${agencyName}` : ""}
           </div>
         </div>
       </header>

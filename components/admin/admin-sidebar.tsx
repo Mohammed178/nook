@@ -45,6 +45,7 @@ export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
           <div className="account-sidebar-email" title={email}>
             {email}
           </div>
+          <div className="account-sidebar-role">Admin · Trust &amp; safety</div>
         </div>
       </header>
       <ul className="account-nav">

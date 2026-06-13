@@ -51,6 +51,16 @@
   --danger: #B04A3A;
   --danger-50: #F4DFDB;
   --danger-700: #7C3024;
+
+  /* Bright status — high-visibility pills + approve/reject actions. Vivid on
+     purpose (overrides the slate-muted semantics) so live/closed states and
+     moderation actions read at a glance. */
+  --status-green: #16A34A;
+  --status-green-700: #15803D;
+  --status-green-50: #DCFCE7;
+  --status-red: #DC2626;
+  --status-red-700: #B91C1C;
+  --status-red-50: #FEE2E2;
   --info: #567C8D;
 
   /* Type */
@@ -208,6 +218,10 @@ img { display: block; max-width: 100%; }
 .btn-call:hover { background: var(--ink-800); }
 .btn-ghost { color: var(--ink-700); }
 .btn-ghost:hover { background: var(--ink-100); }
+.btn-approve { background: var(--status-green); color: #fff; border-color: var(--status-green); }
+.btn-approve:hover { background: var(--status-green-700); border-color: var(--status-green-700); }
+.btn-reject { background: var(--paper); color: var(--status-red); border-color: var(--status-red); }
+.btn-reject:hover { background: var(--status-red-50); border-color: var(--status-red-700); color: var(--status-red-700); }
 .btn-lg { padding: 12px 24px; font-size: var(--t-md); }
 .btn-sm { padding: 6px 12px; font-size: var(--t-sm); }
 .btn-icon { width: 32px; height: 32px; padding: 0; background: var(--paper); border-color: var(--ink-300); color: var(--ink-700); }
@@ -1997,6 +2011,8 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   vertical-align: middle;
 }
 .admin-queue-table tr:last-child td { border-bottom: 0; }
+.admin-queue-table tbody tr { transition: background 120ms; }
+.admin-queue-table tbody tr:hover { background: var(--ink-50); }
 .admin-queue-table td.tabular { font-variant-numeric: tabular-nums; }
 .admin-queue-actions {
   display: flex;
@@ -2716,9 +2732,9 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   background: currentColor; flex-shrink: 0;
 }
 .pill-status-draft     { background: var(--ink-100); color: var(--ink-700); }
-.pill-status-available { background: var(--success-50); color: var(--success-700); }
+.pill-status-available { background: var(--status-green); color: #fff; }
 .pill-status-reserved  { background: var(--warning-50); color: var(--warning-700); }
-.pill-status-rented    { background: var(--ink-100); color: var(--ink-500); }
+.pill-status-rented    { background: var(--status-red); color: #fff; }
 
 /* Listing form — checkbox groups + textarea + field-level error */
 .textarea {
@@ -3323,4 +3339,54 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .acct-stats { grid-template-columns: 1fr; }
   .acct-stat { border-left: 0; border-top: 1px solid var(--ink-150); }
   .acct-stat:first-child { border-top: 0; }
+}
+
+/* ============================================================
+   Agent dashboard — editorial bodies (My listings + create/edit form).
+   Shares the account shell + sidebar; this is the content-area treatment:
+   kicker heads, listing rows that lift + cascade in, and the listing form
+   as a single editorial card with a responsive two-column field grid.
+   ============================================================ */
+
+/* Content head: kicker + clamp headline, hairline rule, action on the right */
+.account-content-head {
+  align-items: flex-end;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ink-150);
+}
+.account-content-head-titles { min-width: 0; }
+.account-content-kicker {
+  display: block;
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand-500); margin-bottom: 10px;
+}
+.account-content-head h1 {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.06; margin: 0;
+}
+
+/* Section titles: kicker-style labels */
+.dashboard-section-title {
+  font-size: var(--t-xs); letter-spacing: 0.08em; color: var(--ink-500);
+}
+
+/* Listing rows: richer card, lift on hover, staggered load-in */
+.listing-row {
+  padding: 18px 20px;
+  border-color: var(--ink-200);
+  transition: border-color 160ms, box-shadow 160ms, transform 160ms;
+  animation: uni-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+.listing-row:hover {
+  border-color: var(--ink-300);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -14px rgba(63, 42, 24, 0.22);
+}
+.listing-row-title { font-size: var(--t-base); letter-spacing: -0.005em; }
+.listing-row-meta { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  .listing-row { animation: none; transition: border-color 160ms; }
+  .listing-row:hover { transform: none; box-shadow: none; }
 }

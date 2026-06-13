@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nook — Verified student rentals in the Klang Valley",
+  title: "Nook: Verified student rentals in the Klang Valley",
   description:
     "Find verified student rooms, studios and apartments near UM, UKM, UPM, UiTM, MMU, Sunway and more.",
 };

@@ -44,7 +44,11 @@ export default async function DashboardLayout({
     <>
       <Navbar />
       <div className="container account-shell">
-        <DashboardSidebar displayName={user.displayName} email={user.email} />
+        <DashboardSidebar
+          displayName={user.displayName}
+          email={user.email}
+          agencyName={agent.agency ?? undefined}
+        />
         <main className="account-content">{children}</main>
       </div>
     </>

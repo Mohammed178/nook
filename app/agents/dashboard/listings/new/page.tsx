@@ -12,7 +12,10 @@ export default async function NewListingPage() {
   return (
     <div className="dashboard-page dashboard-form-page">
       <header className="account-content-head">
-        <h1>New listing</h1>
+        <div className="account-content-head-titles">
+          <span className="account-content-kicker">Agent dashboard</span>
+          <h1>New listing</h1>
+        </div>
         <Link href="/agents/dashboard" className="btn btn-ghost btn-sm">
           Back to listings
         </Link>
