@@ -31,6 +31,7 @@ export function RegisterForm() {
 
   return (
     <>
+      <span className="auth-kicker">Get started</span>
       <h2>Create your student account</h2>
       <p className="auth-sub">
         Save rooms, message agents, and get alerts when something near your campus drops in
@@ -147,7 +148,13 @@ export function RegisterForm() {
       </form>
 
       <div className="auth-bottom">
-        Already have an account? <Link href="/login">Sign in</Link>
+        <span>
+          Already have an account? <Link href="/login">Sign in</Link>
+        </span>
+        <span>
+          Want to list a property?{" "}
+          <Link href="/agents/register">Register as an agent</Link>
+        </span>
       </div>
     </>
   );

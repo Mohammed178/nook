@@ -33,6 +33,7 @@ export function LoginForm() {
 
   return (
     <>
+      <span className="auth-kicker">Welcome back</span>
       <h2>Sign in</h2>
       <p className="auth-sub">
         Pick up where you left off — saved rooms, agent threads, and your shortlist.
@@ -91,7 +92,13 @@ export function LoginForm() {
       </form>
 
       <div className="auth-bottom">
-        New to Nook? <Link href="/register">Create a student account</Link>
+        <span>
+          New to Nook? <Link href="/register">Create a student account</Link>
+        </span>
+        <span>
+          Want to list a property?{" "}
+          <Link href="/agents/register">Register as an agent</Link>
+        </span>
       </div>
     </>
   );

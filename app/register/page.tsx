@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { LogoMark } from "@/components/nook/logo";
 import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { RegisterForm } from "@/components/auth/register-form";
@@ -14,26 +12,8 @@ export default async function RegisterPage() {
   if (user) redirect("/account");
 
   return (
-    <>
-      <div className="auth-topbar">
-        <Link href="/" className="logo" style={{ textDecoration: "none" }}>
-          <LogoMark />
-          <span>nook</span>
-        </Link>
-        <div className="auth-topbar-right">
-          Already have an account?{" "}
-          <Link href="/login" className="auth-topbar-link">
-            Sign in
-          </Link>
-          {"  ·  "}Want to list a property?{" "}
-          <Link href="/agents/register" className="auth-topbar-link">
-            Register as an agent
-          </Link>
-        </div>
-      </div>
-      <AuthShell variant="register">
-        <RegisterForm />
-      </AuthShell>
-    </>
+    <AuthShell variant="register">
+      <RegisterForm />
+    </AuthShell>
   );
 }

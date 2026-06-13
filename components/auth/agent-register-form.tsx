@@ -29,6 +29,7 @@ export function AgentRegisterForm() {
 
   return (
     <>
+      <span className="auth-kicker">For agents</span>
       <h2>Register your agency</h2>
       <p className="auth-sub">
         List student rentals on Nook. We verify every agent against the BOVAEP
@@ -190,7 +191,13 @@ export function AgentRegisterForm() {
       </form>
 
       <div className="auth-bottom">
-        Already registered? <Link href="/login">Sign in</Link>
+        <span>
+          Already registered? <Link href="/login">Sign in</Link>
+        </span>
+        <span>
+          Looking for a room?{" "}
+          <Link href="/register">Create a student account</Link>
+        </span>
       </div>
     </>
   );
