@@ -21,6 +21,7 @@ export function RecentList({ items, savedIds, signedIn }: RecentListProps) {
   return (
     <>
       <header className="account-page-head">
+        <span className="account-page-kicker">Your account</span>
         <h1>Recent</h1>
         <p className="account-page-sub">
           {count === 0
@@ -42,8 +43,12 @@ export function RecentList({ items, savedIds, signedIn }: RecentListProps) {
         </div>
       ) : (
         <ul className="saved-list">
-          {items.map((item) => (
-            <li key={item.listing.id} className="saved-list-item">
+          {items.map((item, i) => (
+            <li
+              key={item.listing.id}
+              className="saved-list-item"
+              style={{ "--i": i } as React.CSSProperties}
+            >
               <ListingCard
                 listing={item.listing}
                 agent={item.agent}

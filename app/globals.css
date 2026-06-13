@@ -1857,6 +1857,15 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   margin: 6px 4px;
   list-style: none;
 }
+.account-nav-label {
+  list-style: none;
+  padding: 10px 12px 4px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
 
 .account-content { min-width: 0; }
 .account-page-head {
@@ -2909,3 +2918,319 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   cursor: pointer; display: grid; place-items: center;
 }
 .map-overlay-close:hover { color: var(--ink-900); border-color: var(--ink-400); }
+
+/* ============================================================
+   Account section — editorial reskin (Overview / Profile / Saved /
+   Recent / Searches). Same trusted-notice-board DNA as /universities:
+   cream canvas, hairline structure, clay as the single voice, tabular
+   numerics. Asymmetric rail + headline-led heads; motion is
+   transform/opacity only, fully disabled under reduced-motion.
+   Overrides the earlier account / profile / search base where it
+   sits later in the cascade.
+   ============================================================ */
+
+/* --- Shell: slightly wider rail, more air --- */
+.account-shell {
+  grid-template-columns: 256px 1fr;
+  gap: 44px;
+  padding: 44px 0 72px;
+}
+
+/* --- Sidebar becomes an editorial identity rail --- */
+.account-sidebar {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+.account-sidebar-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0 4px 20px;
+  border-bottom: 1px solid var(--ink-200);
+  margin-bottom: 14px;
+}
+.account-sidebar-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: var(--t-lg);
+  letter-spacing: -0.01em;
+  background: var(--brand-50);
+  color: var(--brand-700);
+  box-shadow: inset 0 0 0 1px var(--brand-100, rgba(200, 90, 42, 0.18));
+}
+.account-sidebar-name {
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: normal;
+}
+.account-sidebar-role {
+  margin-top: 6px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-500);
+}
+.account-nav-item {
+  position: relative;
+  padding: 11px 12px 11px 14px;
+  border-radius: var(--r-md);
+  transition: background 140ms, color 140ms, padding-left 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.account-nav-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 20px;
+  border-radius: var(--r-pill);
+  background: var(--brand-500);
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.account-nav-item:hover:not(.disabled) { padding-left: 18px; }
+.account-nav-item.active {
+  background: var(--brand-50);
+  color: var(--brand-700);
+}
+.account-nav-item.active::before { transform: translateY(-50%) scaleY(1); }
+@media (prefers-reduced-motion: reduce) {
+  .account-nav-item { transition: background 140ms, color 140ms; }
+  .account-nav-item:hover:not(.disabled) { padding-left: 14px; }
+  .account-nav-item::before { transition: none; }
+}
+
+/* --- Shared page head: kicker + headline (Saved / Recent / Searches / Profile) --- */
+.account-page-head {
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ink-150);
+}
+.account-page-head .kicker,
+.account-page-kicker {
+  display: block;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-500);
+  margin-bottom: 10px;
+}
+.account-page-head h1 {
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  margin-bottom: 8px;
+}
+.account-page-sub {
+  color: var(--ink-500);
+  font-size: var(--t-base);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Empty states: borderless, left-aligned, hairline-framed (not dashed box) --- */
+.saved-empty {
+  align-items: flex-start;
+  text-align: left;
+  gap: 12px;
+  padding: 34px 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--ink-200);
+  border-bottom: 1px solid var(--ink-200);
+  border-radius: 0;
+}
+.saved-empty-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--brand-50);
+  color: var(--brand-500);
+  margin-bottom: 4px;
+}
+.saved-empty h2 { font-size: var(--t-xl); font-weight: 700; letter-spacing: -0.01em; }
+.saved-empty p { max-width: 46ch; line-height: 1.55; }
+
+/* --- List load cascade (Saved / Recent / Searches) reuses uni-rise --- */
+.saved-list-item,
+.searches-list .search-row {
+  animation: uni-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .saved-list-item,
+  .searches-list .search-row { animation: none; }
+}
+
+/* ============================================================
+   /account — Overview landing
+   ============================================================ */
+.acct-overview { display: flex; flex-direction: column; gap: 56px; padding-top: 8px; }
+
+.acct-hero {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 56px;
+  align-items: end;
+  padding-bottom: 44px;
+  border-bottom: 1px solid var(--ink-200);
+}
+.acct-hero .kicker {
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand-500); margin-bottom: 16px;
+}
+.acct-hero h1 {
+  font-size: clamp(30px, 4vw, 48px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.08;
+}
+.acct-hero h1 .accent { color: var(--brand-500); }
+.acct-hero .dek {
+  font-size: var(--t-base); color: var(--ink-500); line-height: 1.6;
+  max-width: 40ch; justify-self: end; padding-bottom: 6px;
+}
+
+/* Profile-completeness meter */
+.acct-meter { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.acct-meter-top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: var(--t-sm); color: var(--ink-700);
+}
+.acct-meter-pct { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink-900); }
+.acct-meter-track {
+  height: 6px; border-radius: var(--r-pill); background: var(--ink-150); overflow: hidden;
+}
+.acct-meter-fill {
+  height: 100%; border-radius: var(--r-pill); background: var(--brand-500);
+  width: var(--pct, 0%);
+  transform-origin: left center;
+  animation: acct-meter-grow 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes acct-meter-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.acct-meter-link { font-size: var(--t-sm); font-weight: 600; color: var(--brand-500); text-decoration: none; }
+.acct-meter-link:hover { text-decoration: underline; }
+.acct-meter-link { margin-top: 2px; }
+
+/* Stat grid — asymmetric: three counts as tabular headline numbers */
+.acct-stats {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border: 1px solid var(--ink-200); border-radius: var(--r-lg); overflow: hidden;
+  background: var(--paper);
+}
+.acct-stat {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 34px 32px; text-decoration: none; color: inherit;
+  border-left: 1px solid var(--ink-150);
+  transition: background 140ms;
+  animation: uni-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.acct-stat:first-child { border-left: 0; }
+.acct-stat:hover { background: var(--brand-50); text-decoration: none; }
+.acct-stat-num {
+  font-size: clamp(30px, 3.6vw, 44px); font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1; color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.acct-stat:hover .acct-stat-num { color: var(--brand-700); }
+.acct-stat-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: var(--t-sm); font-weight: 600; color: var(--ink-700);
+}
+.acct-stat-label .ico { color: var(--ink-400); }
+.acct-stat:hover .acct-stat-label .ico { color: var(--brand-500); }
+@media (prefers-reduced-motion: reduce) {
+  .acct-stat, .acct-meter-fill { animation: none; }
+  .acct-meter-fill { transform: none; }
+}
+
+/* Quick links row */
+.acct-quick { display: flex; flex-direction: column; gap: 20px; }
+.acct-quick h2 {
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-500);
+}
+.acct-quick-row { display: flex; flex-wrap: wrap; gap: 14px; }
+
+/* ============================================================
+   Profile — editorial card sections
+   ============================================================ */
+.profile-form { max-width: 720px; gap: 22px; }
+.profile-section {
+  gap: var(--s-4);
+  padding: 22px 24px;
+  background: var(--paper);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-lg);
+}
+.profile-legend {
+  letter-spacing: 0.08em;
+  color: var(--brand-500);
+  margin-bottom: 2px;
+}
+.profile-form-actions {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 4px;
+}
+
+/* ============================================================
+   Saved searches — editorial cards
+   ============================================================ */
+.search-row {
+  gap: 12px;
+  padding: 22px 24px;
+  border-color: var(--ink-200);
+}
+.search-row:hover { border-color: var(--ink-300); }
+.search-row-name {
+  font-size: var(--t-xl);
+  letter-spacing: -0.01em;
+}
+.search-row-meta {
+  display: flex; align-items: baseline; gap: 6px;
+  padding-top: 4px;
+}
+.search-row-meta strong {
+  font-size: var(--t-lg); font-weight: 700; color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.search-row-actions { padding-top: 6px; }
+
+/* ============================================================
+   Account responsive collapse
+   ============================================================ */
+@media (max-width: 900px) {
+  .account-shell {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 0 56px;
+  }
+  .account-sidebar { position: static; }
+  .account-sidebar-head {
+    flex-direction: row;
+    align-items: center;
+    padding-bottom: 16px;
+  }
+  .account-sidebar-avatar { width: 44px; height: 44px; font-size: var(--t-base); }
+  .account-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .account-nav-item::before { display: none; }
+  .account-nav-divider,
+  .account-nav-label { display: none; }
+  .account-nav-item:hover:not(.disabled) { padding-left: 12px; }
+  .acct-hero { grid-template-columns: 1fr; gap: 28px; align-items: start; }
+  .acct-hero .dek { justify-self: start; }
+}
+@media (max-width: 560px) {
+  .acct-stats { grid-template-columns: 1fr; }
+  .acct-stat { border-left: 0; border-top: 1px solid var(--ink-150); }
+  .acct-stat:first-child { border-top: 0; }
+}

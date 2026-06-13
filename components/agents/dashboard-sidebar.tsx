@@ -13,11 +13,24 @@ interface NavItem {
   href: string;
   label: string;
   icon: IconName;
+  /** Exact-match only (default false → active on any deeper path). */
+  exact?: boolean;
 }
 
-const NAV: NavItem[] = [
-  { href: "/agents/dashboard", label: "My listings", icon: "list" },
-  { href: "/agents/dashboard/listings/new", label: "New listing", icon: "bookmark" },
+// Dashboard-scoped sections.
+const DASHBOARD_NAV: NavItem[] = [
+  { href: "/agents/dashboard", label: "My listings", icon: "list", exact: true },
+  { href: "/agents/dashboard/listings/new", label: "New listing", icon: "bookmark", exact: true },
+];
+
+// Account-scoped sections — the same set the account sidebar shows, so an agent
+// on the dashboard is never siloed and can reach every option in one click.
+const ACCOUNT_NAV: NavItem[] = [
+  { href: "/account", label: "Overview", icon: "grid", exact: true },
+  { href: "/account/profile", label: "Profile", icon: "user" },
+  { href: "/account/saved", label: "Saved listings", icon: "heart" },
+  { href: "/account/recent", label: "Recent", icon: "calendar" },
+  { href: "/account/searches", label: "Saved searches", icon: "search" },
 ];
 
 interface DashboardSidebarProps {
@@ -29,6 +42,24 @@ function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean).slice(0, 2);
   if (parts.length === 0) return "?";
   return parts.map((p) => p[0]?.toUpperCase() ?? "").join("");
+}
+
+function renderNavItem(item: NavItem, pathname: string) {
+  const active = item.exact
+    ? pathname === item.href
+    : pathname === item.href || pathname.startsWith(item.href + "/");
+  return (
+    <li key={item.href}>
+      <Link
+        href={item.href}
+        className={`account-nav-item${active ? " active" : ""}`}
+        aria-current={active ? "page" : undefined}
+      >
+        <Icon name={item.icon} size={16} />
+        <span>{item.label}</span>
+      </Link>
+    </li>
+  );
 }
 
 export function DashboardSidebar({ displayName, email }: DashboardSidebarProps) {
@@ -48,23 +79,17 @@ export function DashboardSidebar({ displayName, email }: DashboardSidebarProps) 
         </div>
       </header>
       <ul className="account-nav">
-        {NAV.map((item) => {
-          // Exact match only: "My listings" must not stay active on the New
-          // listing route (which is a deeper path under /agents/dashboard).
-          const active = pathname === item.href;
-          return (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`account-nav-item${active ? " active" : ""}`}
-                aria-current={active ? "page" : undefined}
-              >
-                <Icon name={item.icon} size={16} />
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          );
-        })}
+        <li className="account-nav-label" aria-hidden="true">
+          Dashboard
+        </li>
+        {DASHBOARD_NAV.map((item) => renderNavItem(item, pathname))}
+
+        <li className="account-nav-divider" aria-hidden="true" />
+        <li className="account-nav-label" aria-hidden="true">
+          Account
+        </li>
+        {ACCOUNT_NAV.map((item) => renderNavItem(item, pathname))}
+
         <li className="account-nav-divider" aria-hidden="true" />
         <li>
           <form action={signOutAction}>

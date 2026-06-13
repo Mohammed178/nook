@@ -120,6 +120,7 @@ export function SavedSearchesList({ initial }: SavedSearchesListProps) {
   return (
     <>
       <header className="account-page-head">
+        <span className="account-page-kicker">Your account</span>
         <h1>Saved searches</h1>
         <p className="account-page-sub">
           {count === 0
@@ -147,9 +148,10 @@ export function SavedSearchesList({ initial }: SavedSearchesListProps) {
         </div>
       ) : (
         <ul className="searches-list">
-          {optimisticItems.map((row) => (
+          {optimisticItems.map((row, i) => (
             <SavedSearchRowView
               key={row.id}
+              index={i}
               row={row}
               editing={editingId === row.id}
               confirmingDelete={confirmingDeleteId === row.id}
@@ -172,6 +174,7 @@ export function SavedSearchesList({ initial }: SavedSearchesListProps) {
 
 interface SavedSearchRowViewProps {
   row: SavedSearchRow;
+  index: number;
   editing: boolean;
   confirmingDelete: boolean;
   onEdit: () => void;
@@ -184,6 +187,7 @@ interface SavedSearchRowViewProps {
 
 function SavedSearchRowView({
   row,
+  index,
   editing,
   confirmingDelete,
   onEdit,
@@ -205,7 +209,7 @@ function SavedSearchRowView({
   }, [confirmingDelete]);
 
   return (
-    <li className="search-row">
+    <li className="search-row" style={{ "--i": index } as React.CSSProperties}>
       <div className="search-row-head">
         {editing ? (
           <form

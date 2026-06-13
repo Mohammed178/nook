@@ -39,6 +39,7 @@ export function SavedList({ initial }: SavedListProps) {
   return (
     <>
       <header className="account-page-head">
+        <span className="account-page-kicker">Your account</span>
         <h1>Saved listings</h1>
         <p className="account-page-sub">
           {count === 0
@@ -62,10 +63,11 @@ export function SavedList({ initial }: SavedListProps) {
         <ul className="saved-list">
           {/* Unsaving collapses the row (height + fade) instead of blinking out */}
           <AnimatePresence initial={false}>
-            {optimisticItems.map((item) => (
+            {optimisticItems.map((item, i) => (
               <motion.li
                 key={item.listing.id}
                 className="saved-list-item"
+                style={{ "--i": i } as React.CSSProperties}
                 exit={
                   reduceMotion
                     ? { opacity: 0 }
