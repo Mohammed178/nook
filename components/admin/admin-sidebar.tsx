@@ -7,7 +7,7 @@ import { signOutAction } from "@/app/account/actions";
 
 // Forked from account-sidebar (Q5): account-sidebar hardcodes the /account NAV
 // and is not parameterised. This reuses the .account-sidebar / .account-nav*
-// CSS classes (structural vertical-nav primitives) — zero new sidebar CSS.
+// CSS classes (structural vertical-nav primitives), zero new sidebar CSS.
 // MVP NAV is a single item; the array stays so adding admin sections later is a
 // one-line change.
 interface NavItem {

@@ -14,7 +14,7 @@ interface RailItem {
   fromPrice: number | null;
 }
 
-// Wikimedia thumb URLs embed the width — request a rail-sized derivative
+// Wikimedia thumb URLs embed the width, request a rail-sized derivative
 // instead of shipping the 1280px hero asset to a 210px card. Only the listed
 // thumb buckets exist (250/330/500/960/1280…); off-list widths return 400.
 function railPhoto(url: string): string {
@@ -56,7 +56,7 @@ function UniCard({
 
 export async function UniversityRail() {
   // Compute-don't-claim: counts and from-prices are derived from listing
-  // coordinates at read — the same numbers the /universities pages show.
+  // coordinates at read, the same numbers the /universities pages show.
   // Photos are the real campus photographs from the guide content.
   const listings = await getAllListings();
   const items: RailItem[] = UNIVERSITIES.flatMap((u) => {
@@ -83,7 +83,7 @@ export async function UniversityRail() {
         <div>
           <h2>Browse by university</h2>
           <div className="sub">
-            Real campus photos, real distances — every guide computed from
+            Real campus photos, real distances, every guide computed from
             coordinates.
           </div>
         </div>

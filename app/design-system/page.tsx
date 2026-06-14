@@ -60,7 +60,7 @@ const RADII: [string, string][] = [
 ];
 
 export default async function DesignSystemPage() {
-  // F-P4 — dev-only component showcase. 404 in production so it stays off the anon
+  // F-P4, dev-only component showcase. 404 in production so it stays off the anon
   // surface (no middleware change needed); reachable in dev. Guard runs BEFORE any
   // data load so prod never even queries.
   if (process.env.NODE_ENV === "production") notFound();
@@ -98,7 +98,7 @@ export default async function DesignSystemPage() {
             maxWidth: 700,
           }}
         >
-          Tokens, components, and patterns. Source of truth — Geist throughout, slate-navy
+          Tokens, components, and patterns. Source of truth, Geist throughout, slate-navy
           brand as primary CTA on a warm-white canvas, modest radii, almost no shadows.
         </p>
 
@@ -184,7 +184,7 @@ export default async function DesignSystemPage() {
                     {name}
                   </span>
                   <span style={{ fontSize: size, fontWeight: weight, color: "var(--ink-900)" }}>
-                    RM 1,450 — Cosy studio in Bangsar
+                    RM 1,450, Cosy studio in Bangsar
                   </span>
                   <span
                     style={{
@@ -204,7 +204,7 @@ export default async function DesignSystemPage() {
 
         <Section
           title="Buttons"
-          lab="Primary brand carries the page. WhatsApp green is sacred — never substitute."
+          lab="Primary brand carries the page. WhatsApp green is sacred, never substitute."
         >
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
             <div style={panelStyle}>
@@ -448,7 +448,7 @@ export default async function DesignSystemPage() {
 
         <Section
           title="Radii & elevation"
-          lab="Modest corners. Almost no shadows — borders carry hierarchy."
+          lab="Modest corners. Almost no shadows, borders carry hierarchy."
         >
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
             {RADII.map(([n, v]) => (

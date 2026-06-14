@@ -7,7 +7,7 @@ export const metadata = {
   title: "Admin · Nook",
 };
 
-// Admin gate (L-4a2.2), layer 2 of defence-in-depth. notFound() not redirect() —
+// Admin gate (L-4a2.2), layer 2 of defence-in-depth. notFound() not redirect(),
 // non-admins do not learn that /admin exists. Middleware (layer 1) already keeps
 // non-admins out; this is the airbag if middleware is ever bypassed.
 export default async function AdminLayout({

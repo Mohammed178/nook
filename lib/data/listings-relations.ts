@@ -10,7 +10,7 @@ import { getAllAreas, getAreaByUuid } from "@/lib/data/areas";
  *
  * Post-3b-B-3: Listing.areaId / Listing.agentId carry the area/agent UUID
  * (FK to areas.id / agents.id, migration 0009). Resolution is a direct
- * id-keyed Map lookup — no legacy-id bridge.
+ * id-keyed Map lookup, no legacy-id bridge.
  */
 export async function attachListingRelations(
   listings: Listing[],

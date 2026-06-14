@@ -1,13 +1,13 @@
 // Phase 3b-B-1 acceptance test (A1–A3). A4 (build + import-hygiene grep + lint
 // delta) runs outside this script.
-// Anon-key only — no service-role key.
+// Anon-key only, no service-role key.
 //
 // Covers:
-//   A1 — idempotency (hash includes updated_at so a no-change upsert that
+//   A1, idempotency (hash includes updated_at so a no-change upsert that
 //        silently churns the row would show drift)
-//   A2 — shape parity vs seed lst-001 (every field except id), run against the
+//   A2, shape parity vs seed lst-001 (every field except id), run against the
 //        shared row-mapper output, plus UUID-derivation cross-check
-//   A3 — RLS: anon SELECT returns the full expected count; anon
+//   A3, RLS: anon SELECT returns the full expected count; anon
 //        INSERT / UPDATE / DELETE denied
 //
 // Pre-req: run `npm run seed:3bb1` ONCE before this script (service-role key).
@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { LISTINGS } from "../lib/seed/listings.ts";
 // A2 oracle: the same pure row-mapper the app helpers use. Asserts on the
-// Listing shape the app consumes, not the raw column — any mapper drift
+// Listing shape the app consumes, not the raw column, any mapper drift
 // (e.g. id wired to slug instead of uuid, rating left as a string) is caught.
 import { LISTING_COLS, rowToListing } from "../lib/data/_row-mappers.ts";
 
@@ -53,19 +53,19 @@ const idMap = JSON.parse(readFileSync(resolve(here, ".id-map-3bb1.json"), "utf8"
 const NS = idMap.namespace;
 
 // ============================================================
-// A1 — idempotency
+// A1, idempotency
 // Hash incorporates updated_at so a no-change upsert that silently rewrites
 // rows shows drift. Caller re-runs the seed and re-runs this script; the hash
 // MUST match.
 // ============================================================
-step("A1 — idempotency hash (re-run after re-seeding to compare)");
+step("A1, idempotency hash (re-run after re-seeding to compare)");
 {
   const { data, error } = await sb
     .from("listings")
     .select("id, updated_at")
     .order("id");
   if (error) fail(`listings hash query: ${error.message}`);
-  if (!data || data.length === 0) fail("listings returned 0 rows — seed not applied?");
+  if (!data || data.length === 0) fail("listings returned 0 rows, seed not applied?");
   const concat = data.map((r) => `${r.id}|${r.updated_at}`).join(",");
   let h = 5381;
   for (const c of concat) h = ((h << 5) + h + c.charCodeAt(0)) | 0;
@@ -74,9 +74,9 @@ step("A1 — idempotency hash (re-run after re-seeding to compare)");
 }
 
 // ============================================================
-// A2 — shape parity (every field except id) + UUID derivation check
+// A2, shape parity (every field except id) + UUID derivation check
 // ============================================================
-step("A2 — helper-output shape parity vs seed lst-001 + UUID derivation");
+step("A2, helper-output shape parity vs seed lst-001 + UUID derivation");
 {
   const seed = LISTINGS.find((l) => l.id === "lst-001");
   if (!seed) fail("seed missing lst-001");
@@ -105,10 +105,10 @@ step("A2 — helper-output shape parity vs seed lst-001 + UUID derivation");
   //     DB columns were dropped (0019) and proximity is computed at read, so
   //     rowToListing omits them; the seed retains them only as historical data.
   // These skips are band-aids. A2 compares raw seed-object INPUT against RESOLVED
-  // mapper OUTPUT — a wrong contract for every field the mapper resolves;
+  // mapper OUTPUT, a wrong contract for every field the mapper resolves;
   // `areaId` (slug -> UUID since 0009) still fails here for that reason and is
   // left red intentionally. The real fix is reworking A2's oracle to compare
-  // against expected resolved values — tracked as the A2-rework LC. Without it,
+  // against expected resolved values, tracked as the A2-rework LC. Without it,
   // A2 decays toward all-skips; do not keep adding skips as the only response.
   const A2_SKIP = new Set([
     "id",
@@ -133,11 +133,11 @@ step("A2 — helper-output shape parity vs seed lst-001 + UUID derivation");
 }
 
 // ============================================================
-// A3 — RLS: anon read full count, anon writes denied
+// A3, RLS: anon read full count, anon writes denied
 // ============================================================
-step("A3 — RLS: anon SELECT returns full listing count");
+step("A3, RLS: anon SELECT returns full listing count");
 {
-  // No .limit — fetch all and assert count equals the seeded total (from the
+  // No .limit, fetch all and assert count equals the seeded total (from the
   // id-map, not a hardcoded literal). A policy leaking a subset would fail here.
   const { data, error } = await sb.from("listings").select("id");
   if (error) fail(`anon SELECT listings: ${error.message}`);
@@ -148,7 +148,7 @@ step("A3 — RLS: anon SELECT returns full listing count");
   ok(`anon SELECT listings: ${data.length} rows visible`);
 }
 
-step("A3 — RLS: anon writes denied");
+step("A3, RLS: anon writes denied");
 async function assertDenied(op, action) {
   const { data, error } = await action();
   const rows = data?.length ?? 0;

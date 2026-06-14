@@ -1,7 +1,7 @@
 import type { Review } from "@/lib/types";
 
 export const REVIEWS: Review[] = [
-  // agent-aisha — UM/Bangsar/PJ
+  // agent-aisha, UM/Bangsar/PJ
   {
     id: "rev-aisha-1",
     agentId: "agent-aisha",
@@ -30,7 +30,7 @@ export const REVIEWS: Review[] = [
     date: "2026-02-22",
   },
 
-  // agent-faiz — UKM/UPM/UiTM
+  // agent-faiz, UKM/UPM/UiTM
   {
     id: "rev-faiz-1",
     agentId: "agent-faiz",
@@ -55,18 +55,18 @@ export const REVIEWS: Review[] = [
     reviewerName: "Rashid, UiTM Shah Alam",
     rating: 4,
     comment:
-      "Solid agent for Shah Alam units. Note he's busy on weekends — book viewings on weekdays for a faster reply.",
+      "Solid agent for Shah Alam units. Note he's busy on weekends, book viewings on weekdays for a faster reply.",
     date: "2026-02-28",
   },
 
-  // agent-mei — Sunway/Monash/Taylor's
+  // agent-mei, Sunway/Monash/Taylor's
   {
     id: "rev-mei-1",
     agentId: "agent-mei",
     reviewerName: "Vincent, Sunway University",
     rating: 5,
     comment:
-      "Mei Lin showed me the canopy walk to Sunway during the viewing — the unit really is a 6-minute walk. No exaggeration on the listing.",
+      "Mei Lin showed me the canopy walk to Sunway during the viewing, the unit really is a 6-minute walk. No exaggeration on the listing.",
     date: "2026-04-20",
   },
   {
@@ -88,7 +88,7 @@ export const REVIEWS: Review[] = [
     date: "2026-03-08",
   },
 
-  // agent-priya — Cyberjaya/MMU
+  // agent-priya, Cyberjaya/MMU
   {
     id: "rev-priya-1",
     agentId: "agent-priya",
@@ -113,18 +113,18 @@ export const REVIEWS: Review[] = [
     reviewerName: "Anonymous",
     rating: 4,
     comment:
-      "Good Cyberjaya knowledge. The Cyberia building she suggested is older — fair pricing for what you get.",
+      "Good Cyberjaya knowledge. The Cyberia building she suggested is older, fair pricing for what you get.",
     date: "2026-02-12",
   },
 
-  // agent-ben — Cheras/UCSI/Setapak
+  // agent-ben, Cheras/UCSI/Setapak
   {
     id: "rev-ben-1",
     agentId: "agent-ben",
     reviewerName: "Wei Jian, UCSI Cheras Year 2",
     rating: 5,
     comment:
-      "Walking distance to UCSI like the listing said — 7 minutes via the back lane. Ben pointed out the late-night Mamak too, which I appreciated.",
+      "Walking distance to UCSI like the listing said, 7 minutes via the back lane. Ben pointed out the late-night Mamak too, which I appreciated.",
     date: "2026-04-08",
   },
   {
@@ -142,11 +142,11 @@ export const REVIEWS: Review[] = [
     reviewerName: "Anon",
     rating: 5,
     comment:
-      "Affordable Cheras options. Ben doesn't oversell — he tells you which units are tired and which are freshly repainted.",
+      "Affordable Cheras options. Ben doesn't oversell, he tells you which units are tired and which are freshly repainted.",
     date: "2026-02-18",
   },
 
-  // agent-arif — IIUM/Gombak (unverified)
+  // agent-arif, IIUM/Gombak (unverified)
   {
     id: "rev-arif-1",
     agentId: "agent-arif",
@@ -162,7 +162,7 @@ export const REVIEWS: Review[] = [
     reviewerName: "Anonymous",
     rating: 4,
     comment:
-      "Independent agent — not BOVAEP-listed yet. Worked out fine for me but ask for a written tenancy before paying.",
+      "Independent agent, not BOVAEP-listed yet. Worked out fine for me but ask for a written tenancy before paying.",
     date: "2026-03-05",
   },
   {

@@ -1,14 +1,14 @@
 // Editorial content for the /universities pages. Sibling to universities.ts
-// (which 7 modules import for coordinates/filtering — left untouched).
+// (which 7 modules import for coordinates/filtering, left untouched).
 // Voice per PRODUCT.md: plain, factual, no marketing adjectives, no invented
-// numbers. Transit notes are coarse station names, not fabricated walk-times —
+// numbers. Transit notes are coarse station names, not fabricated walk-times,
 // per-listing proximity is computed from coordinates (lib/distance.ts), never
 // claimed here.
 
 export interface UniversityContent {
   /** Two-to-three plain sentences a student house-hunter actually needs. */
   description: string;
-  /** Nearest rail/BRT stops by name. Coarse on purpose — no walk-time claims. */
+  /** Nearest rail/BRT stops by name. Coarse on purpose, no walk-time claims. */
   transit: string[];
   /** On-campus facts useful when choosing where to live. */
   campusFeatures: string[];
@@ -16,7 +16,7 @@ export interface UniversityContent {
   website: string;
   /** Real campus photograph (Wikimedia Commons, hotlink-stable). */
   photo: string;
-  /** Commons file name backing `photo` — rendered as the attribution link
+  /** Commons file name backing `photo`, rendered as the attribution link
    *  (https://commons.wikimedia.org/wiki/File:{photoFile}). */
   photoFile: string;
 }
@@ -114,7 +114,7 @@ export const UNIVERSITY_CONTENT: Record<string, UniversityContent> = {
   },
   sunway: {
     description:
-      "Sunway University sits inside Bandar Sunway, sharing the township with Sunway Pyramid mall, the medical centre, and the lagoon. Almost everything a student needs is within the township, and elevated canopy walkways connect campus to the mall and BRT. Convenience is priced in — rooms here cost more than the Klang Valley average.",
+      "Sunway University sits inside Bandar Sunway, sharing the township with Sunway Pyramid mall, the medical centre, and the lagoon. Almost everything a student needs is within the township, and elevated canopy walkways connect campus to the mall and BRT. Convenience is priced in, rooms here cost more than the Klang Valley average.",
     transit: [
       "SunU-Monash BRT station (Sunway Line)",
       "Canopy walkway linking campus, Sunway Pyramid, and the BRT",

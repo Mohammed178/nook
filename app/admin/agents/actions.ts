@@ -16,11 +16,11 @@ async function decide(
   status: "approved" | "rejected",
   reason: string,
 ): Promise<void> {
-  // F5 — validate the id is a UUID before any query (a malformed id otherwise
+  // F5, validate the id is a UUID before any query (a malformed id otherwise
   // throws a raw Postgres error at the .eq("id", …) boundary).
   if (!UUID_RE.test(agentId)) throw new Error("Invalid agent id");
 
-  // F2 — a rejection MUST carry a reason. The HTML `required` on the form is
+  // F2, a rejection MUST carry a reason. The HTML `required` on the form is
   // bypassable on a raw POST; this server-side throw is the real gate (LOCK-4.7:
   // rejection email + pending page both surface status_reason).
   const trimmedReason = reason.trim();
@@ -65,11 +65,11 @@ async function decide(
   // 4. Notify only on a real transition (data present). A no-op re-decision on a
   //    stale tab returns no row → no duplicate notification.
   if (data) {
-    // LC-26 — system mail goes to the agent's AUTH/login email, NOT agents.email
+    // LC-26, system mail goes to the agent's AUTH/login email, NOT agents.email
     // (which is the public contact and may be undeliverable, e.g. a seed agent's
     // non-routable +seed address). Resolve the login email from auth.users via the
     // service-role admin API. Best-effort: if the user/email can't be resolved, log
-    // and skip the send — the decision write already succeeded.
+    // and skip the send, the decision write already succeeded.
     const { data: au, error: lookupError } = await admin.auth.admin.getUserById(
       data.user_id,
     );

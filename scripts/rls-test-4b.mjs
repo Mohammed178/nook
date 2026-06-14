@@ -6,7 +6,7 @@
 // users/agents via admin.createUser/deleteUser, exact-count assertions,
 // post-state inspection for using-clause denials, error codes only where the
 // denial genuinely raises (with-check / CHECK → 42501 / 23514), deterministic
-// teardown. Fully self-contained — all agents and listings are ephemeral, so no
+// teardown. Fully self-contained, all agents and listings are ephemeral, so no
 // seed id-map dependency and no seed-row mutation.
 //
 // Pre-req: 0010–0014 applied; seed not required (this test creates its own
@@ -81,7 +81,7 @@ function fullAgentRow({ id, userId, slug, status, deletedAt = null }) {
   };
 }
 
-// Minimal valid listing row — satisfies every NOT NULL column and every 0014
+// Minimal valid listing row, satisfies every NOT NULL column and every 0014
 // CHECK constraint. lat/lng omitted (nullable since 0014). Caller sets agent_id,
 // status, slug, deleted_at as the gate requires.
 function listingRow({ id, agentId, status = "draft", deletedAt = null, slug }) {
@@ -138,7 +138,7 @@ async function makeEphemeralAgent({ status, deletedAt = null }) {
   return { ...u, agentId: id };
 }
 
-// Insert a listing as service-role (bypasses RLS) — used to plant fixtures the
+// Insert a listing as service-role (bypasses RLS), used to plant fixtures the
 // gate then exercises through anon / agent sessions.
 async function plantListing(props) {
   const id = props.id ?? randomUUID();
@@ -211,10 +211,10 @@ async function main() {
   const cA = await signedInClient(agentA.email, agentA.password);
 
   // ============================================================
-  // G1–G6 — INSERT policy
+  // G1–G6, INSERT policy
   // ============================================================
 
-  step("G1 — anon cannot INSERT a listing");
+  step("G1, anon cannot INSERT a listing");
   {
     const id = randomUUID();
     const { error } = await anon
@@ -226,7 +226,7 @@ async function main() {
     ok("anon INSERT denied (42501)");
   }
 
-  step("G2 — authenticated student (no agents row) cannot INSERT");
+  step("G2, authenticated student (no agents row) cannot INSERT");
   {
     const u = await makeEphemeralUser();
     const c = await signedInClient(u.email, u.password);
@@ -239,7 +239,7 @@ async function main() {
     ok("student INSERT denied (42501)");
   }
 
-  step("G3 — pending agent cannot INSERT");
+  step("G3, pending agent cannot INSERT");
   {
     const a = await makeEphemeralAgent({ status: "pending" });
     const c = await signedInClient(a.email, a.password);
@@ -252,7 +252,7 @@ async function main() {
     ok("pending agent INSERT denied (42501)");
   }
 
-  step("G4 — rejected agent cannot INSERT");
+  step("G4, rejected agent cannot INSERT");
   {
     const a = await makeEphemeralAgent({ status: "rejected" });
     const c = await signedInClient(a.email, a.password);
@@ -265,7 +265,7 @@ async function main() {
     ok("rejected agent INSERT denied (42501)");
   }
 
-  step("G5 — approved agent CAN INSERT own draft");
+  step("G5, approved agent CAN INSERT own draft");
   {
     const id = randomUUID();
     const { error } = await cA
@@ -281,7 +281,7 @@ async function main() {
     ok("approved agent inserted own draft; status=draft, agent_id=self");
   }
 
-  step("G6 — approved agent CANNOT INSERT with another agent's agent_id (spoof)");
+  step("G6, approved agent CANNOT INSERT with another agent's agent_id (spoof)");
   {
     const id = randomUUID();
     const { error } = await cA
@@ -296,13 +296,13 @@ async function main() {
   }
 
   // ============================================================
-  // G7–G10 — UPDATE policy
+  // G7–G10, UPDATE policy
   // ============================================================
 
   // agentA's own live listing, used by G7 + G9.
   const aOwn = await plantListing({ agentId: agentA.agentId, status: "draft" });
 
-  step("G7 — approved agent CAN UPDATE their own listing");
+  step("G7, approved agent CAN UPDATE their own listing");
   {
     const { error } = await cA
       .from("listings")
@@ -315,7 +315,7 @@ async function main() {
     ok("approved agent updated own listing; title changed");
   }
 
-  step("G8 — approved agent CANNOT UPDATE another agent's listing (post-state unchanged)");
+  step("G8, approved agent CANNOT UPDATE another agent's listing (post-state unchanged)");
   {
     const bOwn = await plantListing({ agentId: agentB.agentId, status: "draft" });
     const original = await adminField(bOwn, "title");
@@ -326,7 +326,7 @@ async function main() {
     ok("cross-owner UPDATE affected 0 rows; target unchanged");
   }
 
-  step("G9 — approved agent's UPDATE cannot transfer agent_id to another agent");
+  step("G9, approved agent's UPDATE cannot transfer agent_id to another agent");
   {
     const { error } = await cA
       .from("listings")
@@ -340,7 +340,7 @@ async function main() {
     ok("ownership transfer denied (42501); agent_id unchanged");
   }
 
-  step("G10 — soft-deleted agent loses INSERT and UPDATE immediately");
+  step("G10, soft-deleted agent loses INSERT and UPDATE immediately");
   {
     const agentC = await makeEphemeralAgent({ status: "approved" });
     const cC = await signedInClient(agentC.email, agentC.password);
@@ -368,20 +368,20 @@ async function main() {
   }
 
   // ============================================================
-  // D1–D5 — SELECT visibility + status CHECK
+  // D1–D5, SELECT visibility + status CHECK
   // ============================================================
 
   // A draft owned by agentA, for D1 (public hidden) + D2 (owner visible).
   const draftId = await plantListing({ agentId: agentA.agentId, status: "draft" });
 
-  step("D1 — anon/public SELECT does NOT return a draft");
+  step("D1, anon/public SELECT does NOT return a draft");
   {
     const count = await countById(anon, draftId);
     if (count !== 0) fail(`D1 expected 0, got ${count}`);
     ok("draft invisible to anon (0 rows)");
   }
 
-  step("D2 — owning agent SELECT DOES return their own draft");
+  step("D2, owning agent SELECT DOES return their own draft");
   {
     const count = await countById(cA, draftId);
     if (count !== 1) fail(`D2 expected 1, got ${count}`);
@@ -400,7 +400,7 @@ async function main() {
     now: NOW,
   });
 
-  step("D3 — soft-delete hides from public but not from owner");
+  step("D3, soft-delete hides from public but not from owner");
   {
     const pre = await countById(anon, availId);
     if (pre !== 1) fail(`D3 pre: expected anon 1, got ${pre}`);
@@ -416,7 +416,7 @@ async function main() {
     ok("soft-deleted listing hidden from anon (0), visible to owner (1)");
   }
 
-  step("D4 — restore (clear deleted_at) returns a non-draft listing to public");
+  step("D4, restore (clear deleted_at) returns a non-draft listing to public");
   {
     const { error } = await admin
       .from("listings")
@@ -428,7 +428,7 @@ async function main() {
     ok("restored available listing visible to anon again (1 row)");
   }
 
-  step("D5 — invalid status value rejected by CHECK (23514)");
+  step("D5, invalid status value rejected by CHECK (23514)");
   {
     const { error } = await admin
       .from("listings")

@@ -6,9 +6,9 @@ import { Icon, type IconName } from "@/components/nook/icon";
 import { signOutAction } from "@/app/account/actions";
 
 // Mirrors AdminSidebar (itself forked from account-sidebar, Q5): reuses the
-// .account-sidebar / .account-nav* structural CSS primitives — zero new sidebar
+// .account-sidebar / .account-nav* structural CSS primitives, zero new sidebar
 // CSS. The NAV array stays so adding dashboard sections later is a one-line
-// change. "New listing" is a nav item here (not in the navbar — LC-18).
+// change. "New listing" is a nav item here (not in the navbar, LC-18).
 interface NavItem {
   href: string;
   label: string;
@@ -23,7 +23,7 @@ const DASHBOARD_NAV: NavItem[] = [
   { href: "/agents/dashboard/listings/new", label: "New listing", icon: "bookmark", exact: true },
 ];
 
-// Account-scoped sections — the same set the account sidebar shows, so an agent
+// Account-scoped sections, the same set the account sidebar shows, so an agent
 // on the dashboard is never siloed and can reach every option in one click.
 const ACCOUNT_NAV: NavItem[] = [
   { href: "/account", label: "Overview", icon: "grid", exact: true },

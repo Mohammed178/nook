@@ -7,7 +7,7 @@ import type {
 } from "@/lib/types";
 import { haversineKm } from "@/lib/distance";
 
-// Pure analytics for the /areas pages. No Supabase, no server-only — given the
+// Pure analytics for the /areas pages. No Supabase, no server-only, given the
 // already-fetched listings + areas it derives every number the page shows.
 // Compute-don't-claim (4c-B2): counts, prices and campus distances are computed
 // here at read; nothing is a stored or agent-entered tag.
@@ -109,7 +109,7 @@ export function computeAreaStats(
         );
 
   // Nearest campuses by computed straight-line distance from the area centroid.
-  // All campuses ranked, nearest three kept — honest "what's close" without a
+  // All campuses ranked, nearest three kept, honest "what's close" without a
   // curated tag (areas.nearbyUniversityIds stays the editorial association).
   const nearbyCampuses: NearbyCampus[] = universities
     .map((u) => ({

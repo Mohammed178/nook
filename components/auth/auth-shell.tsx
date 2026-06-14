@@ -21,14 +21,14 @@ export function AuthShell({ variant, children }: AuthShellProps) {
           <div>
             <div className="auth-testimonial">
               &ldquo;Found my room near UM in two days. The agent had her BOVAEP licence right
-              on the listing — felt safe enough to put down a deposit.&rdquo;
-              <cite>— Hidayah, Year 3 UM</cite>
+              on the listing, felt safe enough to put down a deposit.&rdquo;
+              <cite>- Hidayah, Year 3 UM</cite>
             </div>
             <div className="auth-lede">
               <h1>Welcome back to&nbsp;Nook.</h1>
               <p>
                 Verified student rentals across the Klang Valley. Saved searches, favourite
-                listings, and direct lines to your agent — all in one place.
+                listings, and direct lines to your agent, all in one place.
               </p>
             </div>
           </div>
@@ -53,7 +53,7 @@ export function AuthShell({ variant, children }: AuthShellProps) {
             <ul className="auth-perks">
               <li>
                 <Icon name="check" size={16} strokeWidth={1.7} />
-                Every agent&apos;s BOVAEP licence shown on every listing — no fake-host scams.
+                Every agent&apos;s BOVAEP licence shown on every listing, no fake-host scams.
               </li>
               <li>
                 <Icon name="heart" size={16} strokeWidth={1.7} />
@@ -61,7 +61,7 @@ export function AuthShell({ variant, children }: AuthShellProps) {
               </li>
               <li>
                 <Icon name="whatsapp" size={16} />
-                WhatsApp + call directly from the listing — no third-party messaging.
+                WhatsApp + call directly from the listing, no third-party messaging.
               </li>
               <li>
                 <Icon name="calendar" size={16} strokeWidth={1.7} />

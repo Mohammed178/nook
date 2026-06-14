@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { setListingCoordsAction } from "@/app/agents/dashboard/listings/actions";
 
-// Phase 4c-B2 — agent map-picker (edit-page sibling section).
+// Phase 4c-B2, agent map-picker (edit-page sibling section).
 //
 // Agent-facing → best-effort a11y, but NOT map-only: the map click/drag is
 // a convenience layer over a keyboard-accessible coordinate path. The labelled
@@ -27,7 +27,7 @@ const PickerMap = dynamic(
   },
 );
 
-// Kuala Lumpur centre — the map's initial view when no coords are set yet.
+// Kuala Lumpur centre, the map's initial view when no coords are set yet.
 const KL_CENTRE: [number, number] = [3.139, 101.6869];
 
 interface MapPickerProps {
@@ -54,7 +54,7 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
   const center: [number, number] = hasPoint ? [lat!, lng!] : KL_CENTRE;
 
   function onPick(nextLat: number, nextLng: number) {
-    // Round to 6 dp (~0.11 m) — enough precision, avoids float noise in inputs.
+    // Round to 6 dp (~0.11 m), enough precision, avoids float noise in inputs.
     setLat(Number(nextLat.toFixed(6)));
     setLng(Number(nextLng.toFixed(6)));
     setMessage(null);

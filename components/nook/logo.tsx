@@ -1,4 +1,4 @@
-// Nook logomark — a doorway arch (the "nook") with a powder-blue lamp dot
+// Nook logomark, a doorway arch (the "nook") with a powder-blue lamp dot
 // inside, doubling as a lowercase "n". Slate-navy tile, warm-white line.
 // `default` sits on light surfaces; `inverse` sits on dark ones (footer,
 // auth panel) by flipping tile and line. The tile colour tracks --brand-500.

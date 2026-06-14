@@ -36,7 +36,7 @@ export function ListingsMap({
 
   // lat/lng are nullable since 4b (drafts carry no coordinates). The map only
   // ever receives published listings (RLS hides drafts), so this flatMap guard
-  // is belt-and-braces — a coordinate-less listing simply gets no marker.
+  // is belt-and-braces, a coordinate-less listing simply gets no marker.
   const markers = useMemo(
     () =>
       items.flatMap((item) => {

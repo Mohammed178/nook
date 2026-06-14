@@ -20,11 +20,11 @@ export function PhoneReveal({ phone }: PhoneRevealProps) {
   const [display, setDisplay] = useState(phone);
 
   // Scramble-settle: digits spin randomly, then lock in left-to-right.
-  // The conversion micro-moment — skipped under reduced motion.
+  // The conversion micro-moment, skipped under reduced motion.
   useEffect(() => {
     if (!revealedAt) return;
     // display is initialised to the real number, so reduced motion just
-    // skips the scramble — nothing to reset.
+    // skips the scramble, nothing to reset.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let frame = 0;
     const chars = phone.split("");

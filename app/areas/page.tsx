@@ -12,11 +12,11 @@ import { formatPrice } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Areas · Nook",
   description:
-    "Every Klang Valley neighbourhood students rent in — live room counts, typical rents, and the campuses each one is closest to, all computed from current listings.",
+    "Every Klang Valley neighbourhood students rent in, live room counts, typical rents, and the campuses each one is closest to, all computed from current listings.",
 };
 
 // Mosaic spans on the 6-column grid (12 areas). Rows resolve to
-// [4+2][3+3][2+2+2][2+2+2][4+2] — the busiest area (stats are count-sorted)
+// [4+2][3+3][2+2+2][2+2+2][4+2], the busiest area (stats are count-sorted)
 // lands on the opening 4-span tile.
 const SPANS = [4, 2, 3, 3, 2, 2, 2, 2, 2, 2, 4, 2];
 
@@ -45,7 +45,7 @@ export default async function AreasPage() {
           <p className="dek">
             {areas.length} Klang Valley areas, {totalRooms} live rooms between
             them. Every count, rent, and campus distance below is computed from
-            current listings — never a claim.
+            current listings, never a claim.
           </p>
         </header>
 
@@ -68,12 +68,12 @@ export default async function AreasPage() {
                   </span>
                   <span className="num">{s.liveCount}</span>
                   <span className="num">
-                    {s.fromPrice != null ? formatPrice(s.fromPrice) : "—"}
+                    {s.fromPrice != null ? formatPrice(s.fromPrice) : "-"}
                   </span>
                   <span className="campus">
                     {nearest
                       ? `${nearest.shortName} · ${nearest.km.toFixed(1)} km`
-                      : "—"}
+                      : "-"}
                   </span>
                 </li>
               );

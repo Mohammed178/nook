@@ -5,7 +5,7 @@ import { useMap } from "@vis.gl/react-google-maps";
 
 // Shared Google Maps plumbing for the four map surfaces. The key/Map ID come
 // from env; when they're absent (fresh clone, CI) every map surface renders
-// its quiet placeholder instead of crashing — the maps are progressive
+// its quiet placeholder instead of crashing, the maps are progressive
 // enhancement, never load-bearing (Bar-4: each map has a text alternative).
 
 export const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";

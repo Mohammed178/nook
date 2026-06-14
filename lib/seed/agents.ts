@@ -3,17 +3,17 @@ import type { Agent } from "@/lib/types";
 // Seed input shape: the domain Agent minus DB-generated / audit fields. `id`
 // here holds the legacy seed id (e.g. "agent-arif"), which scripts/seed-3ba.mjs
 // resolves to a deterministic uuidv5 under the frozen namespace. submitted_at /
-// verified_at / deleted_at / status_reason are NOT carried here — the seed
+// verified_at / deleted_at / status_reason are NOT carried here, the seed
 // script sets verified_at / status_reason at insert time, and submitted_at /
 // deleted_at fall to DB defaults (now() / null). Imported only by scripts/
-// (no app/lib/components reachability — same posture as LC-09 for listings).
+// (no app/lib/components reachability, same posture as LC-09 for listings).
 export type SeedAgent = Omit<
   Agent,
   "submittedAt" | "verifiedAt" | "deletedAt" | "statusReason"
 >;
 
 // Seed slugs are hardcoded to match what scripts/seed-3ba.mjs derives via
-// slugify(name) — agents already in scripts/.id-map-3ba.json. If you rename
+// slugify(name), agents already in scripts/.id-map-3ba.json. If you rename
 // an agent here you MUST re-run seed-3ba and re-derive the id-map; the
 // rls-test asserts these two stay in sync.
 export const AGENTS: SeedAgent[] = [

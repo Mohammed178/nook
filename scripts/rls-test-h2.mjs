@@ -1,10 +1,10 @@
-// Phase H2 — agents read-path redesign RLS test (the gate).
+// Phase H2, agents read-path redesign RLS test (the gate).
 // Verifies migrations 0020 (agents_public view + slug_exists + agents_self_read)
 // and 0021 (drop agents_public_read + revoke anon base SELECT).
 //
 // RUN ORDER MATTERS: this asserts the POST-CUTOVER state, so it must run AFTER
 // both 0020 AND 0021 are applied (§6 runbook step 5). Before 0021, assertion T1
-// (anon base read denied) WILL fail by design — that is the headline fix.
+// (anon base read denied) WILL fail by design, that is the headline fix.
 //
 // Pattern carried from rls-test-4a2: anon + service-role clients, ephemeral users
 // via admin.createUser/deleteUser, exact-set / exact-count / post-state assertions,
@@ -39,7 +39,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 const LINT_SCRIPT = resolve(root, "scripts/lint-service-role-containment.mjs");
 
-// The exact column set the agents_public view must expose — the 15 safe columns,
+// The exact column set the agents_public view must expose, the 15 safe columns,
 // in lockstep with AGENT_PUBLIC_COLS and migration 0020's SELECT list.
 const EXPECTED_PUBLIC_COLS = [
   "id", "slug", "name", "agency", "rating", "review_count",
@@ -151,7 +151,7 @@ async function teardown() {
 
 async function main() {
   // Build the fixture set: one of each status, plus a soft-deleted pending.
-  step("setup — ephemeral approved / pending / rejected / soft-deleted-pending agents");
+  step("setup, ephemeral approved / pending / rejected / soft-deleted-pending agents");
   const approved = await makeEphemeralAgent({ status: "approved" });
   const pending = await makeEphemeralAgent({ status: "pending" });
   const rejected = await makeEphemeralAgent({ status: "rejected" });
@@ -161,14 +161,14 @@ async function main() {
   });
   ok(`approved=${approved.slug} pending=${pending.slug} rejected=${rejected.slug}`);
 
-  // T1 — HEADLINE: anon direct base-table read must be DENIED with an error.
-  step("T1 — anon select=* on base `agents` → permission denied (NOT empty 200)");
+  // T1, HEADLINE: anon direct base-table read must be DENIED with an error.
+  step("T1, anon select=* on base `agents` → permission denied (NOT empty 200)");
   {
     const { data, error } = await anon.from("agents").select("*");
     if (!error) {
       fail(
         `T1 anon base read returned no error (rows=${data?.length ?? 0}). ` +
-          `An empty array is a FAIL — it would mask a failed revoke / lingering grant.`,
+          `An empty array is a FAIL, it would mask a failed revoke / lingering grant.`,
       );
     }
     const denied =
@@ -177,9 +177,9 @@ async function main() {
     ok(`anon base read denied (code=${error.code})`);
   }
 
-  // T2 — anon on agents_public: only approved, exact safe columns, sensitive absent,
+  // T2, anon on agents_public: only approved, exact safe columns, sensitive absent,
   // bovaep_licence present (decision B).
-  step("T2 — anon on `agents_public`: approved-only, exact safe column set, bovaep present");
+  step("T2, anon on `agents_public`: approved-only, exact safe column set, bovaep present");
   {
     const { data: arow, error: ae } = await anon
       .from("agents_public")
@@ -202,9 +202,9 @@ async function main() {
     ok(`exact 15 safe cols; user_id/status_reason/decided_by absent; bovaep_licence present`);
   }
 
-  // T3 — view cannot leak a non-approved row (owner-rights gate). Pending + rejected
+  // T3, view cannot leak a non-approved row (owner-rights gate). Pending + rejected
   // absent both by slug and by id.
-  step("T3 — agents_public hides pending & rejected (owner-rights WHERE is the gate)");
+  step("T3, agents_public hides pending & rejected (owner-rights WHERE is the gate)");
   {
     for (const a of [pending, rejected, softDeletedPending]) {
       const { data: bySlug } = await anon
@@ -222,8 +222,8 @@ async function main() {
     ok("pending, rejected, soft-deleted-pending all absent from agents_public");
   }
 
-  // T4 — authenticated PENDING agent: reads own row (agents_self_read), not others'.
-  step("T4 — authenticated pending agent reads OWN row; cannot read another agent's");
+  // T4, authenticated PENDING agent: reads own row (agents_self_read), not others'.
+  step("T4, authenticated pending agent reads OWN row; cannot read another agent's");
   {
     const c = await signedInClient(pending.email, pending.password);
     const { data: own } = await c
@@ -242,8 +242,8 @@ async function main() {
     ok("own pending row readable; another agent's row → 0 rows");
   }
 
-  // T5 — authenticated APPROVED agent: own row readable + present in agents_public.
-  step("T5 — authenticated approved agent: own row readable + present in agents_public");
+  // T5, authenticated APPROVED agent: own row readable + present in agents_public.
+  step("T5, authenticated approved agent: own row readable + present in agents_public");
   {
     const c = await signedInClient(approved.email, approved.password);
     const { data: own } = await c
@@ -261,9 +261,9 @@ async function main() {
     ok("own row readable; present in agents_public");
   }
 
-  // T6 — admin service-role queue (listPendingAgents logic): exact count = pending
+  // T6, admin service-role queue (listPendingAgents logic): exact count = pending
   // AND deleted_at null. Soft-deleted pending must NOT count.
-  step("T6 — service-role pending-queue count is exact (excludes soft-deleted)");
+  step("T6, service-role pending-queue count is exact (excludes soft-deleted)");
   {
     // Replicates app/admin/agents/_data.ts listPendingAgents query.
     const { data, error } = await admin
@@ -284,10 +284,10 @@ async function main() {
     ok(`queue includes active pending, excludes soft-deleted; ${data.length} total pending`);
   }
 
-  // T7 — slug_exists RPC: true for any-status existing slug, false otherwise; the
+  // T7, slug_exists RPC: true for any-status existing slug, false otherwise; the
   // register collision path catches an invisible pending slug pre-INSERT. Granted
   // to authenticated only.
-  step("T7 — slug_exists: any-status true, miss false, anon denied");
+  step("T7, slug_exists: any-status true, miss false, anon denied");
   {
     const c = await signedInClient(approved.email, approved.password);
     // pending slug is INVISIBLE to the public view, yet slug_exists must see it.
@@ -314,9 +314,9 @@ async function main() {
     ok("true for pending/rejected slugs; false for miss; collision→-2 resolves; anon denied");
   }
 
-  // T8 — H1→H2 seam: the moved app/admin/agents/_data.ts service-role import passes
+  // T8, H1→H2 seam: the moved app/admin/agents/_data.ts service-role import passes
   // the containment lint.
-  step("T8 — lint:service-role-containment passes with app/admin/agents/_data.ts");
+  step("T8, lint:service-role-containment passes with app/admin/agents/_data.ts");
   {
     const res = runScript(LINT_SCRIPT, []);
     if (res.status !== 0) {
@@ -325,7 +325,7 @@ async function main() {
     ok("containment lint exit 0 (service-role import confined to app/admin/)");
   }
 
-  // T9 — LC-26 decision notification resolves the AUTH/login email, not the public
+  // T9, LC-26 decision notification resolves the AUTH/login email, not the public
   // contact column (agents.email). Replicates app/admin/agents/actions.ts decide()
   // resolution path: guarded UPDATE selecting user_id → admin.getUserById → email.
   // Also covers the miss-handling branch (unknown user_id → empty → skip send).
@@ -334,7 +334,7 @@ async function main() {
   // server action, not drivable from this harness; its decoupling is asserted here
   // at the read/resolution layer: login email (auth.users) and contact column
   // (agents.email) are independent and differ for the fixture.
-  step("T9 — decision notify resolves AUTH email (getUserById), not contact column");
+  step("T9, decision notify resolves AUTH email (getUserById), not contact column");
   {
     const subject = await makeEphemeralAgent({ status: "pending" });
     const contactEmail = `${subject.slug}@nook.test`; // fullAgentRow sets this

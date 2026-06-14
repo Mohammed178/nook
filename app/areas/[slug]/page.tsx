@@ -35,7 +35,7 @@ export async function generateMetadata({
   if (!area) return { title: "Area not found · Nook" };
   return {
     title: `Student rooms in ${area.name} · Nook`,
-    description: `Live room counts, typical rents and nearby campuses for ${area.name}, ${area.city} — computed from current Nook listings.`,
+    description: `Live room counts, typical rents and nearby campuses for ${area.name}, ${area.city}, computed from current Nook listings.`,
   };
 }
 
@@ -75,7 +75,7 @@ export default async function AreaPage({
 
   const stats = computeAreaStats(listings, area, UNIVERSITIES);
 
-  // Live listings in this area, cheapest first — backs the rooms grid + map.
+  // Live listings in this area, cheapest first, backs the rooms grid + map.
   const areaListings = listings
     .filter(
       (l) => l.areaId === area.id && l.status !== "draft" && !l.deletedAt,
@@ -295,7 +295,7 @@ export default async function AreaPage({
                 <div className="uni-empty">
                   <p>
                     No rooms are live in {area.name} right now. New listings here
-                    appear the day an agent publishes them — meanwhile the
+                    appear the day an agent publishes them, meanwhile the
                     nearby campuses and the rest of the Klang Valley are a click
                     away.
                   </p>

@@ -9,14 +9,14 @@ import { AGENT_COLS, rowToAgent, type AgentRow } from "@/lib/data/_row-mappers";
 // (createAdminClient), which bypasses RLS: after the 0021 cutover the RLS read
 // client cannot see pending rows (agents_public is approved-only, agents_self_read
 // is own-row only), so the queue must read with service-role. The service-role
-// import is allowed here because this file lives under app/admin/ — the location
+// import is allowed here because this file lives under app/admin/, the location
 // the containment lint (npm run lint:service-role-containment) permits. Selects
 // the full AGENT_COLS (service-role sees every column); decided_by/decided_at are
 // excluded by AGENT_COLS as before (pending rows have both null).
 export async function listPendingAgents(): Promise<Agent[]> {
-  // A-2 — in-function authz re-assert BEFORE the RLS-bypassing service-role client.
+  // A-2, in-function authz re-assert BEFORE the RLS-bypassing service-role client.
   // The layout (app/admin/layout.tsx) is the primary gate; this is the belt that
-  // makes the invariant uniform — no service-role use anywhere without an in-function
+  // makes the invariant uniform, no service-role use anywhere without an in-function
   // admin check (parity with actions.ts:37). Guards against a future ungated caller
   // dumping pending-agent PII. getCurrentUser().isAdmin == lib/auth.ts isAdmin(user).
   const user = await getCurrentUser();

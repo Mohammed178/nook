@@ -27,7 +27,7 @@ export default async function EditListingPage({
   ]);
 
   // Owner-read RLS returns null for a listing the caller does not own (or one
-  // that does not exist) — both collapse to notFound(), so an agent cannot probe
+  // that does not exist), both collapse to notFound(), so an agent cannot probe
   // another agent's listing ids.
   if (!listing) notFound();
 

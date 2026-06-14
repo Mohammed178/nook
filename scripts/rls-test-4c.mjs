@@ -84,7 +84,7 @@ function fullAgentRow({ id, userId, slug, status, deletedAt = null }) {
   };
 }
 
-// A minimal valid DRAFT listing row WITHOUT coordinates (lat/lng omitted —
+// A minimal valid DRAFT listing row WITHOUT coordinates (lat/lng omitted,
 // nullable since 0014). Draft status means neither the photo trigger nor the
 // coords CHECK fire on insert. Used where the gate needs a coordinate-less draft.
 function draftRowNoCoords({ id, agentId }) {
@@ -229,13 +229,13 @@ async function main() {
   const cB = await signedInClient(agentB.email, agentB.password);
 
   // ============================================================
-  // P1–P5 — listing_photos RLS
+  // P1–P5, listing_photos RLS
   // ============================================================
 
   // A draft owned by agentA. P1 adds its first photo; P4/P5 reuse it.
   const draftA = await plantDraft(agentA.agentId);
 
-  step("P1 — owner inserts a photo for their own listing");
+  step("P1, owner inserts a photo for their own listing");
   {
     const { error } = await cA
       .from("listing_photos")
@@ -252,7 +252,7 @@ async function main() {
     ok("owner photo inserted (post-state count 1)");
   }
 
-  step("P2 — non-owner CANNOT insert a photo for another agent's listing");
+  step("P2, non-owner CANNOT insert a photo for another agent's listing");
   {
     const { error } = await cB
       .from("listing_photos")
@@ -280,21 +280,21 @@ async function main() {
     now: NOW,
   });
 
-  step("P3 — public reads photos of an available listing (count ≥ 1)");
+  step("P3, public reads photos of an available listing (count ≥ 1)");
   {
     const count = await countPhotos(anon, availA.listingId);
     if (count < 1) fail(`P3 expected ≥1, got ${count}`);
     ok(`available listing photos visible to anon (${count})`);
   }
 
-  step("P4 — public does NOT see photos of a draft (count 0)");
+  step("P4, public does NOT see photos of a draft (count 0)");
   {
     const count = await countPhotos(anon, draftA);
     if (count !== 0) fail(`P4 expected 0, got ${count}`);
     ok("draft photos invisible to anon (0)");
   }
 
-  step("P5 — owner sees their own draft's photos (count ≥ 1)");
+  step("P5, owner sees their own draft's photos (count ≥ 1)");
   {
     const count = await countPhotos(cA, draftA);
     if (count < 1) fail(`P5 expected ≥1, got ${count}`);
@@ -302,10 +302,10 @@ async function main() {
   }
 
   // ============================================================
-  // P6–P9 — publish preconditions
+  // P6–P9, publish preconditions
   // ============================================================
 
-  step("P6 — own draft with photo + coords publishes to available (post-state read-back)");
+  step("P6, own draft with photo + coords publishes to available (post-state read-back)");
   {
     const id = await plantDraftWithCoords(agentA.agentId);
     await plantPhoto(id, 0);
@@ -322,7 +322,7 @@ async function main() {
     ok("draft with photo + coords published (status available)");
   }
 
-  step("P7 — publish WITHOUT a photo is denied (coords present, NK001)");
+  step("P7, publish WITHOUT a photo is denied (coords present, NK001)");
   {
     const id = await plantDraftWithCoords(agentA.agentId); // coords, no photo
     const { error } = await cA
@@ -338,7 +338,7 @@ async function main() {
     ok("publish without photo denied (NK001); still draft");
   }
 
-  step("P8 — publish WITHOUT coords is denied (photo present, 23514)");
+  step("P8, publish WITHOUT coords is denied (photo present, 23514)");
   {
     const id = await plantDraft(agentA.agentId); // no coords
     await plantPhoto(id, 0); // photo present, so the photo trigger passes
@@ -355,7 +355,7 @@ async function main() {
     ok("publish without coords denied (23514); still draft");
   }
 
-  step("P9 — non-owner CANNOT publish another agent's draft (post-state unchanged)");
+  step("P9, non-owner CANNOT publish another agent's draft (post-state unchanged)");
   {
     const id = await plantDraftWithCoords(agentA.agentId); // publishable by A
     await plantPhoto(id, 0);
@@ -367,10 +367,10 @@ async function main() {
   }
 
   // ============================================================
-  // P10 — last-photo trigger
+  // P10, last-photo trigger
   // ============================================================
 
-  step("P10 — deleting the only photo of an available listing is denied (NK002)");
+  step("P10, deleting the only photo of an available listing is denied (NK002)");
   {
     const a = await plantAvailableListing({
       admin,
@@ -393,10 +393,10 @@ async function main() {
   }
 
   // ============================================================
-  // P11 — cascade delete is NOT wedged by the last-photo trigger
+  // P11, cascade delete is NOT wedged by the last-photo trigger
   // ============================================================
 
-  step("P11 — cascade delete of an available-with-photos listing succeeds (no demote-first)");
+  step("P11, cascade delete of an available-with-photos listing succeeds (no demote-first)");
   {
     const a = await plantAvailableListing({
       admin,
@@ -419,17 +419,17 @@ async function main() {
   }
 
   // ============================================================
-  // P12 — reorder under the deferred unique constraint
+  // P12, reorder under the deferred unique constraint
   // ============================================================
 
-  step("P12 — owner reorders own photos via single upsert (transient collision; read-back)");
+  step("P12, owner reorders own photos via single upsert (transient collision; read-back)");
   {
     const id = await plantDraft(agentA.agentId);
     const p0 = await plantPhoto(id, 0);
     const p1 = await plantPhoto(id, 1);
     const p2 = await plantPhoto(id, 2);
 
-    // Rotation so EVERY row's sort_order changes — forces transient
+    // Rotation so EVERY row's sort_order changes, forces transient
     // (listing_id, sort_order) duplicates mid-statement, which only the
     // DEFERRABLE INITIALLY DEFERRED unique tolerates: target order [p1, p2, p0]
     // → p1:1→0, p2:2→1, p0:0→2.

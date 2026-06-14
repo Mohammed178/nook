@@ -45,7 +45,7 @@ export function draftListingRowWithCoords({ id, agentId, areaUuid, now, slug }) 
 
 // Plants an `available` listing the only way 0015 permits: insert a draft WITH
 // coords, insert one listing_photos row, then flip status to available. All
-// service-role (bypasses RLS, but NOT the triggers/CHECK — which is exactly why
+// service-role (bypasses RLS, but NOT the triggers/CHECK, which is exactly why
 // the order matters). Pushes the listing id into createdListings for teardown;
 // the photo cascade-deletes with the listing.
 //

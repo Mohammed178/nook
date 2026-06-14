@@ -215,7 +215,7 @@ export default async function ListingDetailPage({
             </div>
             <div className="qf">
               <div className="qf-icon"><Icon name="sqft" size={20} /></div>
-              <div className="qf-val">{listing.sizeSqft ?? "—"}</div>
+              <div className="qf-val">{listing.sizeSqft ?? "-"}</div>
               <div className="qf-lab">Sq ft</div>
             </div>
             <div className="qf">
@@ -232,7 +232,7 @@ export default async function ListingDetailPage({
             <div className="qf">
               <div className="qf-icon"><Icon name="school" size={20} /></div>
               <div className="qf-val">
-                {nearest ? `${nearest.km.toFixed(1)} km` : "—"}
+                {nearest ? `${nearest.km.toFixed(1)} km` : "-"}
               </div>
               <div className="qf-lab">to {primaryUni?.shortName ?? "campus"}</div>
             </div>
@@ -318,7 +318,7 @@ export default async function ListingDetailPage({
                     </div>
                     <div className="review-body">{r.comment}</div>
                     <div className="review-foot">
-                      <span>—</span>
+                      <span>-</span>
                       <strong>{r.reviewerName}</strong>
                       <span>·</span>
                       <span>{r.date}</span>

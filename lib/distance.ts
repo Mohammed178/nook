@@ -1,20 +1,20 @@
-// Phase 4c-B2 — compute-don't-claim distance. Single source of all
+// Phase 4c-B2, compute-don't-claim distance. Single source of all
 // listing↔campus proximity math. Pure (no server-only / no Supabase / no
 // next/headers) so server components, the browser map components, and the .mjs
 // rls tests can all import it. Distance is computed at read from the listing's
-// lat/lng + the UNIVERSITY_BY_ID constant — there are no stored distance
+// lat/lng + the UNIVERSITY_BY_ID constant, there are no stored distance
 // columns (0019 dropped them). A DB-side proximity index is future work (LC-06).
 import { UNIVERSITIES, UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 
 // The single tunable "near a campus" threshold, straight-line km. Used by the
 // /listings university filter, similar-listings, and the detail map's campus
-// pins. B2 is one flat radius — no tiered bands.
+// pins. B2 is one flat radius, no tiered bands.
 export const NEAR_CAMPUS_RADIUS_KM = 5;
 
 const EARTH_RADIUS_KM = 6371;
 
 // Great-circle distance between two WGS84 points, km. The one haversine in the
-// codebase — listings-search.ts re-uses this rather than carrying its own.
+// codebase, listings-search.ts re-uses this rather than carrying its own.
 export function haversineKm(
   aLat: number,
   aLng: number,
@@ -60,7 +60,7 @@ export function campusesWithinRadius(
 }
 
 // Is the point within `km` of a specific campus? Backs the /listings university
-// filter — replaces the old "agent tagged this near X" claim with a computed
+// filter, replaces the old "agent tagged this near X" claim with a computed
 // "within 5 km of X". Coordless point or unknown uni → false.
 export function isNearCampus(
   lat: number | null | undefined,

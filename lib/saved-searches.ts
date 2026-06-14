@@ -68,7 +68,7 @@ export async function getSavedSearchesWithCounts(): Promise<SavedSearchRow[]> {
     // F-S1: stored query_params is untrusted jsonb (RLS pins user_id but not the
     // column shape, so a raw self-write can store any object). Canonicalize on
     // read through the same round-trip the write path uses, then derive chips /
-    // matchCount / the client-returned query from the CANONICAL form — never the
+    // matchCount / the client-returned query from the CANONICAL form, never the
     // raw stored value (only canonicalQs was normalized before). A malformed
     // shape (e.g. a non-array `type` that throws in serializeListingSearchParams)
     // must not crash the whole /account/searches render: degrade that one row to

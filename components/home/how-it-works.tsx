@@ -38,7 +38,7 @@ export function HowItWorks() {
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
   // Reliability gate: reveal on scroll-into-view, but a mount fallback flips
-  // it on regardless after a tick — so if the IntersectionObserver never fires
+  // it on regardless after a tick, so if the IntersectionObserver never fires
   // (observed in this Next/Turbopack + motion setup), the text never gets
   // stranded at opacity 0.
   const [forced, setForced] = useState(false);
@@ -79,7 +79,7 @@ export function HowItWorks() {
                   {s.num}
                 </span>
                 <div className="hiw-num">
-                  {s.num} — {s.label}
+                  {s.num}, {s.label}
                 </div>
                 <h3>{s.title}</h3>
                 <p>{s.body}</p>

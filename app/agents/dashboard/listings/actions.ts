@@ -17,7 +17,7 @@ import type { FurnishingLevel, Gender, ListingType } from "@/lib/types";
 
 // Server actions for the agent dashboard. Each parses FormData into a typed
 // ListingInput, then delegates to the RLS-enforced data layer
-// (lib/data/agent-listings.ts). No service-role anywhere — the data layer runs
+// (lib/data/agent-listings.ts). No service-role anywhere, the data layer runs
 // every write through the agent's own session.
 
 const LISTING_TYPES: ListingType[] = ["room", "studio", "apartment", "house"];
@@ -111,7 +111,7 @@ function parseListingForm(
     .map((v) => String(v))
     .filter(Boolean);
 
-  // Optional numerics — only included when provided and non-negative.
+  // Optional numerics, only included when provided and non-negative.
   const deposit = optInt(fd, "deposit");
   if (deposit != null && deposit < 0) fieldErrors.deposit = "Deposit cannot be negative.";
   const sizeSqft = optInt(fd, "sizeSqft");
@@ -179,7 +179,7 @@ export async function updateListingAction(
 }
 
 // Soft-delete / restore are plain form submits (no JS required). They return
-// nothing on success; failure throws so the platform error boundary shows — the
+// nothing on success; failure throws so the platform error boundary shows, the
 // data layer already reports honest not-found/ownership errors, and these are
 // owner-initiated on rows the owner just saw, so failure is genuinely
 // exceptional.
@@ -216,7 +216,7 @@ export interface AddPhotoActionResult extends PhotoActionResult {
 }
 
 // Records an already-uploaded object. alt_text is required (NOT NULL + the a11y
-// contract) — an empty alt is rejected here, not just in the UI.
+// contract), an empty alt is rejected here, not just in the UI.
 export async function addListingPhotoAction(
   listingId: string,
   storagePath: string,
@@ -262,7 +262,7 @@ export async function removeListingPhotoAction(
 // ---------- Location + publish (4c-B2) ----------
 
 // Persists the map-picker's chosen point. Owner-only via the data layer's RLS
-// (no service-role). lat/lng only — never other columns.
+// (no service-role). lat/lng only, never other columns.
 export async function setListingCoordsAction(
   listingId: string,
   lat: number,

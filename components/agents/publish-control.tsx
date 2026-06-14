@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { publishListingAction } from "@/app/agents/dashboard/listings/actions";
 import type { ListingStatus } from "@/lib/types";
 
-// Phase 4c-B2 — the deliberate go-live control on the edit page. Calls
+// Phase 4c-B2, the deliberate go-live control on the edit page. Calls
 // publishListing (draft → available) and surfaces the typed PublishResult: the
 // DB triggers/CHECK are the real gate (a photo must exist, coords must be set),
 // so a click that fails the preconditions comes back with a message pointing at
@@ -39,7 +39,7 @@ export function PublishControl({ listingId, status }: PublishControlProps) {
         setMessage({ kind: "err", text: result.error });
         return;
       }
-      setMessage({ kind: "ok", text: "Published — your listing is now public." });
+      setMessage({ kind: "ok", text: "Published, your listing is now public." });
       router.refresh();
     });
   }

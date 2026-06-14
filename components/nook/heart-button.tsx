@@ -36,7 +36,7 @@ export function HeartButton({
   onToggled,
 }: HeartButtonProps) {
   const [saved, setSaved] = useState<boolean>(initialSaved);
-  // True only after the user saves in this session — gates the pop animation
+  // True only after the user saves in this session, gates the pop animation
   // so initially-saved hearts don't all fire on page load.
   const [justSaved, setJustSaved] = useState(false);
   const [optimisticSaved, applyOptimistic] = useOptimistic<boolean, boolean>(

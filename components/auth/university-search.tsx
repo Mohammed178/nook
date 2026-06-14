@@ -145,7 +145,7 @@ export function UniversitySearch({
       {open && matches.length === 0 ? (
         <ul className="uni-search-menu">
           <li className="uni-search-empty">
-            No matches. Pick the closest one or skip — you can change it later.
+            No matches. Pick the closest one or skip, you can change it later.
           </li>
         </ul>
       ) : null}

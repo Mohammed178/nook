@@ -1,5 +1,5 @@
 // Pure row→domain mappers. No "server-only" / no Supabase client / no
-// next/headers — so rls-test-3ba.mjs (a plain Node script) can exercise the
+// next/headers, so rls-test-3ba.mjs (a plain Node script) can exercise the
 // exact same mapping that the app helpers use. If you change the helpers'
 // output shape, change it here and the test catches drift automatically.
 import type {
@@ -90,7 +90,7 @@ export function rowToAgent(r: AgentRow): Agent {
 
 // Maps an `agents_public` view row to an Agent (Phase H2). status is hardcoded
 // 'approved' (the view is approved-only); submittedAt / verifiedAt / deletedAt /
-// statusReason are absent from the view and left undefined — Agent declares them
+// statusReason are absent from the view and left undefined, Agent declares them
 // optional precisely so a public-sourced agent need not carry them.
 export function rowToPublicAgent(r: AgentPublicRow): Agent {
   return {
@@ -120,14 +120,14 @@ export const AGENT_COLS =
   "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence";
 
 // Public read surface (Phase H2). The `agents_public` view (migration 0020) exposes
-// only these safe columns for approved, non-deleted agents — no user_id, status,
+// only these safe columns for approved, non-deleted agents, no user_id, status,
 // status_reason, submitted_at, verified_at, deleted_at, decided_by, or decided_at.
 // `status` is not selected: the view is approved-only, so rowToPublicAgent hardcodes
 // it. Keep this string in lockstep with the view's SELECT list (see 0020).
 export const AGENT_PUBLIC_COLS =
   "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, years_active, bio, bovaep_licence";
 
-// Row shape returned by the `agents_public` view — the safe-column subset of
+// Row shape returned by the `agents_public` view, the safe-column subset of
 // AgentRow, with no status/audit columns.
 export interface AgentPublicRow {
   id: string;
@@ -155,7 +155,7 @@ export interface ListingPhotoRow {
 }
 
 // Builds the public URL for a listing-photos storage object. Mirrors Supabase's
-// public-object URL format — /storage/v1/object/public/{bucket}/{path} — so it
+// public-object URL format, /storage/v1/object/public/{bucket}/{path}, so it
 // needs no Supabase client (keeps this module pure and usable from .mjs tests).
 // If supabase-js ever changes that format, update here. Paths are uuid-based
 // ({listing_id}/{photo_uuid}.{ext}), so no URL-encoding is required.
@@ -200,7 +200,7 @@ export interface ListingRow {
   listing_photos: ListingPhotoRow[];
   description: string;
   agent_id: string;
-  // numeric(2,1) arrives as a string from supabase-js — coerced below. Nullable
+  // numeric(2,1) arrives as a string from supabase-js, coerced below. Nullable
   // on listings (unlike agents, where rating/review_count are NOT NULL).
   rating: number | string | null;
   review_count: number | null;

@@ -23,7 +23,7 @@ export const HERO_DECK: [string, string, string] = [
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=640&q=75",
   "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=640&q=75",
 ];
-// No fabricated walk-times (compute-don't-claim, 4c-B2) — price matches the
+// No fabricated walk-times (compute-don't-claim, 4c-B2), price matches the
 // real cheapest seed listing within 5 km of UM.
 export const HERO_DECK_PILL = "Rooms near UM from RM 650/mo";
 
@@ -53,7 +53,7 @@ export const QUICK_CHIPS: { label: string; href: string }[] = [
 ];
 
 // The "Browse by university" rail no longer carries static photo/count/price
-// data — components/home/university-rail.tsx derives all of it at read (real
+// data, components/home/university-rail.tsx derives all of it at read (real
 // Wikimedia campus photos from lib/seed/university-content.ts + counts and
 // from-prices computed from listing coordinates). Compute-don't-claim.
 

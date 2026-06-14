@@ -16,7 +16,7 @@ export interface AuthUser {
 
 /**
  * Admin claim check (L-4a2.1). The role lives at app_metadata.role === 'admin'
- * (app_metadata namespace only — the user cannot self-modify it). Pure function,
+ * (app_metadata namespace only, the user cannot self-modify it). Pure function,
  * no client/cookie access, so middleware (which has the JWT-decoded user from
  * updateSession but no cookies() in the getCurrentUser shape) and server actions
  * can both reuse it. Middleware itself checks the claim inline to avoid importing
@@ -50,7 +50,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     (user.email ? user.email.split("@")[0] : "Account");
 
   // One indexed lookup on agents by user_id (RLS read client). Folded into the
-  // existing per-render DB work; reuses the user above — no second auth.getUser().
+  // existing per-render DB work; reuses the user above, no second auth.getUser().
   // undefined for students (no agents row). The JWT-claim optimisation that would
   // remove this query is deferred (LC-18).
   const agent = await getAgentByUserId(user.id);
@@ -59,7 +59,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     id: user.id,
     email: user.email ?? "",
     displayName,
-    // Populated from the auth.getUser() call above — no second round-trip.
+    // Populated from the auth.getUser() call above, no second round-trip.
     isAdmin: isAdmin(user),
     agentStatus: agent?.status,
     agencyName: agent?.agency,

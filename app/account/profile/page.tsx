@@ -27,7 +27,7 @@ export default async function ProfilePage() {
         <span className="account-page-kicker">Your account</span>
         <h1>Profile</h1>
         <p className="account-page-sub">
-          Your details. Email change requires verification — coming later.
+          Your details. Email change requires verification, coming later.
         </p>
       </header>
 

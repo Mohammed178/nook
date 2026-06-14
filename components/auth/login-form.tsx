@@ -36,7 +36,7 @@ export function LoginForm() {
       <span className="auth-kicker">Welcome back</span>
       <h2>Sign in</h2>
       <p className="auth-sub">
-        Pick up where you left off — saved rooms, agent threads, and your shortlist.
+        Pick up where you left off, saved rooms, agent threads, and your shortlist.
       </p>
 
       {error ? <div className="auth-error">{error}</div> : null}

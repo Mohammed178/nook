@@ -14,7 +14,7 @@ import type { ListingPhoto } from "@/lib/data/agent-listings";
 
 // Per-listing photo manager (4c-B1). Two-step write: the browser client uploads
 // the (downscaled) bytes to the listing-photos bucket under the agent's session
-// — storage RLS (0015) enforces ownership — then a server action records the
+// - storage RLS (0015) enforces ownership, then a server action records the
 // listing_photos row. No service-role anywhere.
 //
 // Bucket limits (mime jpeg/png/webp, 5 MiB) are the real enforcement; the client
@@ -191,7 +191,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
 
       {photos.length === 0 ? (
         <p className="help">
-          No photos yet. Add at least one — a listing needs a photo before it can
+          No photos yet. Add at least one, a listing needs a photo before it can
           be published.
         </p>
       ) : (
@@ -272,7 +272,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
             aria-describedby="pm-alt-help"
           />
           <div className="help" id="pm-alt-help">
-            Required — used by screen readers and shown if the image fails to load.
+            Required, used by screen readers and shown if the image fails to load.
           </div>
         </div>
 

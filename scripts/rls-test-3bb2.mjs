@@ -3,19 +3,19 @@
 // FK to listings(id) ON DELETE CASCADE, existing RLS policies survived the
 // in-place ALTER, and the LC-07 legacy fallback / dead code is gone.
 //
-//   A1 — schema/state stability (behavioural, Q1 option b — no pg dep):
+//   A1, schema/state stability (behavioural, Q1 option b, no pg dep):
 //        both tables empty (0 rows); listing_id rejects a non-uuid string
 //        (22P02 => column is uuid); proven state hashed, stable across re-runs.
-//   A2 — FK enforcement: insert a listing_id uuid absent from listings => 23503.
-//   A3 — CASCADE: throwaway listing + fav + view; delete listing => rows vanish.
-//   A4 — RLS preserved, anon AND authed paths (catches silent policy loss).
-//   A5 — dead-code grep: listingUuidForLegacyId + bare "lst-" => zero matches.
+//   A2, FK enforcement: insert a listing_id uuid absent from listings => 23503.
+//   A3, CASCADE: throwaway listing + fav + view; delete listing => rows vanish.
+//   A4, RLS preserved, anon AND authed paths (catches silent policy loss).
+//   A5, dead-code grep: listingUuidForLegacyId + bare "lst-" => zero matches.
 //
-// Uses anon key (RLS paths) and service-role key (setup/teardown ONLY — never
+// Uses anon key (RLS paths) and service-role key (setup/teardown ONLY, never
 // app code). Self-provisions two ephemeral auth users, tears them down.
 //
 // Pre-req: apply migrations 0008 + 0009 (post-0009 the probe listing references
-// real area/agent UUIDs — listings.area_id/agent_id are uuid FKs, RESTRICT).
+// real area/agent UUIDs, listings.area_id/agent_id are uuid FKs, RESTRICT).
 // Run: node --experimental-strip-types --env-file=.env.local scripts/rls-test-3bb2.mjs
 // Exit 0 = pass. Exit 1 = first FAIL.
 
@@ -129,9 +129,9 @@ async function teardown() {
 
 async function main() {
   // ----------------------------------------------------------------
-  // Setup — ephemeral users
+  // Setup, ephemeral users
   // ----------------------------------------------------------------
-  step("setup — provision two ephemeral auth users (service-role)");
+  step("setup, provision two ephemeral auth users (service-role)");
   for (const u of [userA, userB]) {
     const { data, error } = await admin.auth.admin.createUser({
       email: u.email,
@@ -144,9 +144,9 @@ async function main() {
   ok(`user A=${userA.id}, user B=${userB.id}`);
 
   // ----------------------------------------------------------------
-  // A1 — schema/state stability (behavioural)
+  // A1, schema/state stability (behavioural)
   // ----------------------------------------------------------------
-  step("A1 — both tables empty + listing_id is uuid (re-run to compare hash)");
+  step("A1, both tables empty + listing_id is uuid (re-run to compare hash)");
   for (const t of ["favourites", "recent_views"]) {
     const { count, error } = await admin
       .from(t)
@@ -161,7 +161,7 @@ async function main() {
       .from(t)
       .insert({ user_id: userA.id, listing_id: NON_UUID })
       .select();
-    if (!error) fail(`${t}.listing_id accepted non-uuid "${NON_UUID}" — still text?`);
+    if (!error) fail(`${t}.listing_id accepted non-uuid "${NON_UUID}", still text?`);
     if (error.code !== "22P02") {
       fail(`${t} non-uuid insert: expected 22P02, got ${error.code} (${error.message})`);
     }
@@ -171,18 +171,18 @@ async function main() {
     `fav:0|recent:0|fav_type:${colProof.favourites}|recent_type:${colProof.recent_views}`,
   );
   ok(`favourites + recent_views: 0 rows, listing_id rejects non-uuid (22P02)`);
-  ok(`A1 state hash ${a1hash} — re-run this script and compare`);
+  ok(`A1 state hash ${a1hash}, re-run this script and compare`);
 
   // ----------------------------------------------------------------
-  // A2 — FK enforcement (absent listing => 23503)
+  // A2, FK enforcement (absent listing => 23503)
   // ----------------------------------------------------------------
-  step("A2 — FK enforcement: listing_id absent from listings is rejected");
+  step("A2, FK enforcement: listing_id absent from listings is rejected");
   for (const t of ["favourites", "recent_views"]) {
     const { error } = await admin
       .from(t)
       .insert({ user_id: userA.id, listing_id: ABSENT_LISTING })
       .select();
-    if (!error) fail(`${t}: insert of absent listing_id succeeded — no FK?`);
+    if (!error) fail(`${t}: insert of absent listing_id succeeded, no FK?`);
     if (error.code !== "23503") {
       fail(`${t}: expected 23503 FK violation, got ${error.code} (${error.message})`);
     }
@@ -190,9 +190,9 @@ async function main() {
   }
 
   // ----------------------------------------------------------------
-  // A3 — CASCADE
+  // A3, CASCADE
   // ----------------------------------------------------------------
-  step("A3 — ON DELETE CASCADE: delete listing removes dependent rows");
+  step("A3, ON DELETE CASCADE: delete listing removes dependent rows");
   {
     const { error: le } = await admin.from("listings").insert(probeListingRow());
     if (le) fail(`seed probe listing: ${le.message}`);
@@ -217,15 +217,15 @@ async function main() {
         .select("*", { count: "exact", head: true })
         .eq("listing_id", PROBE_LISTING);
       if (error) fail(`${t} post-cascade count: ${error.message}`);
-      if (count !== 0) fail(`${t}: ${count} row(s) survived listing delete — no CASCADE`);
+      if (count !== 0) fail(`${t}: ${count} row(s) survived listing delete, no CASCADE`);
       ok(`${t}: dependent rows cascaded away on listing delete`);
     }
   }
 
   // ----------------------------------------------------------------
-  // A4 — RLS preserved (anon + authed)
+  // A4, RLS preserved (anon + authed)
   // ----------------------------------------------------------------
-  step("A4 — RLS preserved: anon blocked, owner sees own, other user does not");
+  step("A4, RLS preserved: anon blocked, owner sees own, other user does not");
   const authedA = createClient(URL, ANON, { auth: { persistSession: false } });
   const authedB = createClient(URL, ANON, { auth: { persistSession: false } });
   {
@@ -282,9 +282,9 @@ async function main() {
   }
 
   // ----------------------------------------------------------------
-  // A5 — dead-code grep (in-script fs scan; no rg/grep dependency)
+  // A5, dead-code grep (in-script fs scan; no rg/grep dependency)
   // ----------------------------------------------------------------
-  step("A5 — dead-code grep: listingUuidForLegacyId + bare lst- => 0 matches");
+  step("A5, dead-code grep: listingUuidForLegacyId + bare lst- => 0 matches");
   {
     const exts = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
     const roots = ["app", "components", "lib"].map((d) => join(root, d));

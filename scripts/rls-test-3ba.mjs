@@ -1,12 +1,12 @@
 // Phase 3b-A acceptance test.
-// Anon-key only — no service-role key.
+// Anon-key only, no service-role key.
 //
 // Covers:
-//   A1 — idempotency (hash includes updated_at so no-change upserts that
+//   A1, idempotency (hash includes updated_at so no-change upserts that
 //        silently churn the row would still show drift)
-//   A2 — shape parity vs the seed objects (excluding id, which is the slug
+//   A2, shape parity vs the seed objects (excluding id, which is the slug
 //        post-migration), plus UUID-derivation cross-check via the id-map
-//   A3 — RLS: anon SELECT works; anon INSERT / UPDATE / DELETE denied
+//   A3, RLS: anon SELECT works; anon INSERT / UPDATE / DELETE denied
 //
 // Pre-req: run `npm run seed:3ba` ONCE before this script (uses service-role
 // key from .env.local). This script then assumes the rows already exist.
@@ -25,7 +25,7 @@ import { AGENTS } from "../lib/seed/agents.ts";
 // themselves can't run from a plain Node script (server-only / next/headers),
 // so we fetch via anon-key Supabase + run the SAME mapper the helpers use.
 // Any drift in mapper output (e.g. id wired to slug instead of uuid) is
-// caught here — the test asserts on the Area/Agent shape the app consumes,
+// caught here, the test asserts on the Area/Agent shape the app consumes,
 // not on the raw column.
 import {
   AREA_COLS,
@@ -61,23 +61,23 @@ const idMap = JSON.parse(readFileSync(resolve(here, ".id-map-3ba.json"), "utf8")
 const NS = idMap.namespace;
 
 // ============================================================
-// A1 — idempotency
+// A1, idempotency
 // Hash incorporates updated_at so a no-change upsert that silently rewrites
 // rows would show drift. Caller re-runs the seed and re-runs this script;
 // the hash MUST match. (We can't re-seed from here because we don't have the
 // service-role key; we hash now, the user re-runs seed and re-runs this and
 // compares.)
 // ============================================================
-step("A1 — idempotency hash (re-run after re-seeding to compare)");
+step("A1, idempotency hash (re-run after re-seeding to compare)");
 async function tableHash(table) {
   const { data, error } = await sb
     .from(table)
     .select("id, updated_at")
     .order("id");
   if (error) fail(`${table} hash query: ${error.message}`);
-  if (!data || data.length === 0) fail(`${table} returned 0 rows — seed not applied?`);
+  if (!data || data.length === 0) fail(`${table} returned 0 rows, seed not applied?`);
   const concat = data.map((r) => `${r.id}|${r.updated_at}`).join(",");
-  // Tiny inline djb2 — node:crypto md5 would work too; we just want a stable digest
+  // Tiny inline djb2, node:crypto md5 would work too; we just want a stable digest
   let h = 5381;
   for (const c of concat) h = ((h << 5) + h + c.charCodeAt(0)) | 0;
   return { rows: data.length, hash: (h >>> 0).toString(16) };
@@ -91,9 +91,9 @@ async function tableHash(table) {
 }
 
 // ============================================================
-// A2 — shape parity (excluding id) + UUID derivation check
+// A2, shape parity (excluding id) + UUID derivation check
 // ============================================================
-step("A2 — helper-output shape parity vs seed + UUID derivation");
+step("A2, helper-output shape parity vs seed + UUID derivation");
 {
   const { data: row, error } = await sb
     .from("areas")
@@ -158,9 +158,9 @@ step("A2 — helper-output shape parity vs seed + UUID derivation");
 }
 
 // ============================================================
-// A3 — RLS: anon read OK, anon writes denied
+// A3, RLS: anon read OK, anon writes denied
 // ============================================================
-step("A3 — RLS: anon SELECT works on areas/agents");
+step("A3, RLS: anon SELECT works on areas/agents");
 {
   // Fetch ALL rows (no .limit) and assert count matches seeded total. A
   // restrictive policy that leaked only a subset would pass a limit(1) check
@@ -179,7 +179,7 @@ step("A3 — RLS: anon SELECT works on areas/agents");
   ok(`anon SELECT agents: ${g.length} rows visible`);
 }
 
-step("A3 — RLS: anon writes denied");
+step("A3, RLS: anon writes denied");
 async function assertDenied(table, op, action) {
   const { data, error } = await action();
   const rows = data?.length ?? 0;

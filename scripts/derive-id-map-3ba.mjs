@@ -1,6 +1,6 @@
 // Pure derivation of scripts/.id-map-3ba.json from lib/seed/{areas,agents}.ts.
 // No DB connection. The full seed (scripts/seed-3ba.mjs) writes the same file
-// using identical derivation logic — single source of truth is the seed script,
+// using identical derivation logic, single source of truth is the seed script,
 // this helper exists so the artifact can be regenerated without service-role
 // credentials (e.g. on CI, or to verify determinism).
 //

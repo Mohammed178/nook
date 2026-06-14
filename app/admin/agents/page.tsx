@@ -55,9 +55,9 @@ export default async function AdminAgentsPage() {
               {agents.map((agent) => (
                 <tr key={agent.id}>
                   <td>{agent.name}</td>
-                  <td>{agent.agency ?? "—"}</td>
-                  <td className="tabular">{agent.bovaepLicence ?? "—"}</td>
-                  <td>{agent.email ?? "—"}</td>
+                  <td>{agent.agency ?? "-"}</td>
+                  <td className="tabular">{agent.bovaepLicence ?? "-"}</td>
+                  <td>{agent.email ?? "-"}</td>
                   <td>{formatSubmitted(agent.submittedAt!)}</td>
                   <td>
                     <span className="pill pill-pending">Pending</span>

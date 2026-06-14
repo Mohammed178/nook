@@ -3,7 +3,7 @@ import { CountUp } from "@/components/motion/count-up";
 import { Magnetic } from "@/components/motion/magnetic";
 import { BIG_CTA_IMAGE_URL, BIG_CTA_STATS } from "@/lib/home-content";
 
-// Closing band: asymmetric split echoing the hero — solid slate content panel
+// Closing band: asymmetric split echoing the hero, solid slate content panel
 // on the left, KL-at-night photograph on the right with the stats floating
 // over it as glass chips (the hero deck's floating-card motif, reprised).
 export function BigCTA() {
@@ -19,7 +19,7 @@ export function BigCTA() {
           </h2>
           <p>
             Reach 40,000+ students looking for a room this month. Verified
-            agents see 3.4× more enquiries. Free for your first 3 listings —
+            agents see 3.4× more enquiries. Free for your first 3 listings,
             no commission, ever.
           </p>
           <div className="ctas">

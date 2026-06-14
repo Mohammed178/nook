@@ -1,4 +1,4 @@
-// H1 item 4 — unit test for safeRedirectPath (open-redirect guard).
+// H1 item 4, unit test for safeRedirectPath (open-redirect guard).
 // Run: node --experimental-strip-types scripts/test-safe-redirect.mjs
 import assert from "node:assert/strict";
 import { safeRedirectPath } from "../lib/safe-redirect.ts";

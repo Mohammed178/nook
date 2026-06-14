@@ -1,16 +1,16 @@
 // Phase F1–F5 agent-flow hardening test.
 // Verifies the DB-layer invariants the agent-flow fixes rely on:
-//   F1  A1 — authenticated raw INSERT naming trust columns -> 42501 (the gate)
-//       A2 — authenticated INSERT of only the 8 granted columns -> trust columns
+//   F1  A1, authenticated raw INSERT naming trust columns -> 42501 (the gate)
+//       A2, authenticated INSERT of only the 8 granted columns -> trust columns
 //            land at their DB defaults (0023), not client values
-//       A3 — admin approve leaves the trust columns at defaults
-//       A4 — authenticated INSERT naming status='approved' -> 42501 (status is
+//       A3, admin approve leaves the trust columns at defaults
+//       A4, authenticated INSERT naming status='approved' -> 42501 (status is
 //            deliberately not granted)
 //   F2  reject persists status_reason; approve clears it to null
 //   F3  two live agents, same bovaep_licence -> 23505; soft-delete the first ->
 //       the licence frees (partial unique index 0025)
 //   F5  approve stamps verified_at; reject leaves it null
-//   F4  DB precondition only — a soft-deleted-approved row stays self-readable and
+//   F4  DB precondition only, a soft-deleted-approved row stays self-readable and
 //       returns deletedAt (the redirect itself is a manual smoke check; the
 //       layout needs the Next runtime, same carve-out as rls-test-4a2 S1/S2/S3)
 //
@@ -19,7 +19,7 @@
 // deterministic teardown.
 //
 // PRE-REQ: migrations 0023 + 0024 (+ 0025 for F3) applied, and the omit-columns
-// register action live. A1/A4 FAIL (no 42501) if 0024 is not yet applied — that
+// register action live. A1/A4 FAIL (no 42501) if 0024 is not yet applied, that
 // is correct: this harness is the post-cutover gate.
 //
 // Run: node --experimental-strip-types --env-file=.env.local scripts/rls-test-agentflow.mjs
@@ -173,19 +173,19 @@ async function teardown() {
 
 async function main() {
   // ── F1 ────────────────────────────────────────────────────────────────────
-  step("A1 — authenticated raw INSERT naming trust columns -> 42501 (THE GATE)");
+  step("A1, authenticated raw INSERT naming trust columns -> 42501 (THE GATE)");
   {
     const u = await makeEphemeralUser();
     const c = await signedInClient(u.email, u.password);
     const row = { ...grantedCols(u.id, uniqueLicence()), rating: 5, review_count: 9999, years_active: 30 };
     const { error } = await c.from("agents").insert(row);
-    if (!error) fail("A1 injection INSERT succeeded — column grant 0024 not in force");
+    if (!error) fail("A1 injection INSERT succeeded, column grant 0024 not in force");
     if (error.code !== "42501")
       fail(`A1 expected 42501 (permission denied), got ${error.code}: ${error.message}`);
     ok(`injection denied with 42501 (${error.code})`);
   }
 
-  step("A2 — authenticated INSERT of the 8 granted columns -> trust cols = DB defaults");
+  step("A2, authenticated INSERT of the 8 granted columns -> trust cols = DB defaults");
   let a2UserId;
   {
     const u = await makeEphemeralUser();
@@ -212,7 +212,7 @@ async function main() {
     ok("trust cols all at DB defaults; status=pending");
   }
 
-  step("A3 — admin approve leaves trust columns at defaults (+ F5 verified_at stamped)");
+  step("A3, admin approve leaves trust columns at defaults (+ F5 verified_at stamped)");
   {
     const { data: row } = await admin.from("agents").select("id").eq("user_id", a2UserId).maybeSingle();
     const seedAdminId = (await admin.auth.admin.listUsers({ page: 1, perPage: 1 })).data.users[0]?.id ?? a2UserId;
@@ -230,18 +230,18 @@ async function main() {
     ok("trust cols unchanged; status=approved; verified_at stamped (F5)");
   }
 
-  step("A4 — authenticated INSERT naming status='approved' -> 42501 (status not granted)");
+  step("A4, authenticated INSERT naming status='approved' -> 42501 (status not granted)");
   {
     const u = await makeEphemeralUser();
     const c = await signedInClient(u.email, u.password);
     const { error } = await c.from("agents").insert({ ...grantedCols(u.id, uniqueLicence()), status: "approved" });
-    if (!error) fail("A4 status='approved' INSERT succeeded — status column should not be granted");
+    if (!error) fail("A4 status='approved' INSERT succeeded, status column should not be granted");
     if (error.code !== "42501") fail(`A4 expected 42501, got ${error.code}: ${error.message}`);
     ok(`status injection denied with 42501 (${error.code})`);
   }
 
   // ── F2 / F5 ─────────────────────────────────────────────────────────────────
-  step("F2 — reject persists status_reason; approve clears it (+ F5 verified_at)");
+  step("F2, reject persists status_reason; approve clears it (+ F5 verified_at)");
   {
     const seedAdminId = (await admin.auth.admin.listUsers({ page: 1, perPage: 1 })).data.users[0]?.id;
     const rej = await makeEphemeralAgentSR({ status: "pending" });
@@ -260,7 +260,7 @@ async function main() {
   }
 
   // ── F3 ──────────────────────────────────────────────────────────────────────
-  step("F3 — duplicate live licence -> 23505; soft-delete frees it");
+  step("F3, duplicate live licence -> 23505; soft-delete frees it");
   {
     const lic = uniqueLicence();
     const first = await makeEphemeralAgentSR({ status: "pending", licence: lic });
@@ -272,7 +272,7 @@ async function main() {
       .insert(fullAgentRow({ id: dupId, userId: u2.id, status: "pending", licence: lic }));
     if (!dupErr) {
       createdAgents.push(dupId);
-      fail("F3 duplicate live licence INSERT succeeded — unique index 0025 not in force");
+      fail("F3 duplicate live licence INSERT succeeded, unique index 0025 not in force");
     }
     if (dupErr.code !== "23505") fail(`F3 expected 23505, got ${dupErr.code}: ${dupErr.message}`);
     ok(`duplicate live licence denied with 23505 (${dupErr.code})`);
@@ -288,7 +288,7 @@ async function main() {
   }
 
   // ── F4 (DB precondition; redirect = manual smoke) ────────────────────────────
-  step("F4 — soft-deleted-approved row stays self-readable and returns deletedAt");
+  step("F4, soft-deleted-approved row stays self-readable and returns deletedAt");
   {
     const sd = await makeEphemeralAgentSR({ status: "approved", deletedAt: new Date().toISOString() });
     const c = await signedInClient(sd.email, sd.password);
@@ -299,7 +299,7 @@ async function main() {
       .maybeSingle();
     if (error || !data) fail(`F4 self-read failed: ${error?.message}`);
     if (data.status !== "approved") fail(`F4 status=${data.status}, expected approved`);
-    if (data.deleted_at === null) fail("F4 deleted_at null — gate could not see the soft-delete");
+    if (data.deleted_at === null) fail("F4 deleted_at null, gate could not see the soft-delete");
     ok("row fetchable; status=approved, deleted_at present (gate has what it needs)");
   }
 

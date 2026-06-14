@@ -47,7 +47,7 @@ export default async function UniversityPage({
   if (!uni || !content) notFound();
 
   // Compute-don't-claim (4c-B2): every number on this page derives from
-  // coordinates at read — room count, from-price, per-listing km. Nothing here
+  // coordinates at read, room count, from-price, per-listing km. Nothing here
   // is an agent-entered claim.
   const [listings, areas] = await Promise.all([getAllListings(), getAllAreas()]);
 
@@ -76,7 +76,7 @@ export default async function UniversityPage({
     priceMonthly: listing.priceMonthly,
   }));
 
-  // Student areas associated with this campus (areas.nearby_university_ids —
+  // Student areas associated with this campus (areas.nearby_university_ids,
   // an area↔campus association, distinct from the dropped listing-level tags).
   const studentAreas = areas.filter((a) => a.nearbyUniversityIds.includes(id));
 

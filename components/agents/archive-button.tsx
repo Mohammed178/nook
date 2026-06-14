@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { softDeleteListingAction } from "@/app/agents/dashboard/listings/actions";
 
 // Two-step archive control. First click reveals an inline confirmation with the
-// honest reversibility copy (L-4b.15 — no exclamation, calm); the confirm button
+// honest reversibility copy (L-4b.15, no exclamation, calm); the confirm button
 // submits the real form to softDeleteListingAction. Accessible: real <button>s,
 // the confirmation region is wired via aria-describedby, focus moves to the
 // confirm action when revealed.

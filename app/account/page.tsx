@@ -7,7 +7,7 @@ export const metadata = {
   title: "Account · Nook",
 };
 
-// Profile fields that count toward completeness. Email is excluded — it is set
+// Profile fields that count toward completeness. Email is excluded, it is set
 // at sign-up and not user-editable here, so it would always read as complete.
 const PROFILE_FIELDS = [
   "display_name",

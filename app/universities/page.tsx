@@ -10,12 +10,12 @@ import { isNearCampus, NEAR_CAMPUS_RADIUS_KM } from "@/lib/distance";
 export const metadata: Metadata = {
   title: "Universities · Nook",
   description:
-    "Student housing guides for ten Klang Valley campuses — transit, neighbourhoods, and verified rooms near each university.",
+    "Student housing guides for ten Klang Valley campuses, transit, neighbourhoods, and verified rooms near each university.",
 };
 
 const formatStudents = new Intl.NumberFormat("en-MY");
 
-// Mosaic spans on the 6-column grid — deliberately uneven so the page reads
+// Mosaic spans on the 6-column grid, deliberately uneven so the page reads
 // as an editorial photo board, not a uniform card row. Index-aligned with
 // UNIVERSITIES order; rows resolve to [4+2][2+2+2][3+3][2+2+2].
 const SPANS = [4, 2, 2, 2, 2, 3, 3, 2, 2, 2];
@@ -43,7 +43,7 @@ export default async function UniversitiesPage() {
           </div>
           <p className="dek">
             Transit, the neighbourhoods students actually rent in, and the
-            verified rooms within {NEAR_CAMPUS_RADIUS_KM} km — every distance
+            verified rooms within {NEAR_CAMPUS_RADIUS_KM} km, every distance
             computed from coordinates, never an agent&apos;s claim.
           </p>
         </header>

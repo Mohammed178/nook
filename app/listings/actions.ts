@@ -46,7 +46,7 @@ export async function toggleFavouriteAction(
       .delete()
       .eq("id", existing.id);
     if (error) {
-      // F-S4: never surface raw Postgres strings to the UI — log + generic message.
+      // F-S4: never surface raw Postgres strings to the UI, log + generic message.
       console.error(
         `[favourite] delete failed for user=${user.id} listing=${listingId}: ${error.message}`,
       );

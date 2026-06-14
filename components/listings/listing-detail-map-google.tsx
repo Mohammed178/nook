@@ -51,7 +51,7 @@ export function ListingDetailMapGoogle({
             <AdvancedMarker
               key={c.id}
               position={{ lat: c.lat, lng: c.lng }}
-              title={`${c.shortName} — ${c.km.toFixed(1)} km`}
+              title={`${c.shortName}, ${c.km.toFixed(1)} km`}
             >
               <span className="map-pin-campus-label">{c.shortName}</span>
             </AdvancedMarker>

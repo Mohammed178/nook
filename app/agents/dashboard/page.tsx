@@ -31,7 +31,7 @@ function StatusPill({ status }: { status: ListingStatus }) {
   );
 }
 
-// Practical density (PRODUCT.md): title, status, price, last updated — the facts
+// Practical density (PRODUCT.md): title, status, price, last updated, the facts
 // an agent needs, not decorative space. Areas are resolved once for the area
 // name; falls back to the stored id if the area is missing.
 function ListingRow({

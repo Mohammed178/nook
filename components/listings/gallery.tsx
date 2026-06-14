@@ -15,7 +15,7 @@ const TILE_COUNT = 5;
 export function Gallery({ photos, title }: GalleryProps) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  // The tile the lightbox was opened from — the shared-element morph runs
+  // The tile the lightbox was opened from, the shared-element morph runs
   // only between that tile and the stage photo. Arrowing to other photos
   // falls back to a plain crossfade.
   const [openedFrom, setOpenedFrom] = useState(0);
@@ -143,7 +143,7 @@ export function Gallery({ photos, title }: GalleryProps) {
               <motion.img
                 key={index}
                 src={photos[index]}
-                alt={`${title} — photo ${index + 1}`}
+                alt={`${title}, photo ${index + 1}`}
                 className="lightbox-img"
                 layoutId={morphId}
                 initial={morphId ? undefined : { opacity: 0 }}

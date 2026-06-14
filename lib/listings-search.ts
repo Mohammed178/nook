@@ -152,7 +152,7 @@ export function preserveQueryString(sp: RawSearchParams): string {
 }
 
 // Straight-line km from a listing to a campus. With an explicit universityId,
-// measures to that campus; otherwise to the listing's nearest campus (4c-B2 —
+// measures to that campus; otherwise to the listing's nearest campus (4c-B2,
 // the old l.nearbyUniversityIds[0] claim is gone, distance is computed from
 // coordinates). lat/lng are nullable (drafts carry none); a coordinate-less
 // listing sorts last. The haversine lives in lib/distance.ts (single source).

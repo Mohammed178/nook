@@ -1,4 +1,4 @@
-// Phase 4a-2 — demote a user from admin (L-4a2.10).
+// Phase 4a-2, demote a user from admin (L-4a2.10).
 // Clears app_metadata.role on the target auth user via the service-role admin
 // API. Idempotent: a no-op (exit 0) if the user is not an admin.
 //
@@ -16,14 +16,14 @@
 // hits GoTrue /user which returns server-fresh app_metadata. Nothing trusts a
 // locally-decoded JWT claim. The live access token still CARRIES role=admin until
 // its TTL (~1h), but no code path reads that decoded claim, so there is no admin
-// access to revoke. This is NOT a session revocation — it relies on getUser
+// access to revoke. This is NOT a session revocation, it relies on getUser
 // freshness. `auth.admin.signOut(jwt)` is not usable here: it needs the target
 // user's live JWT, which this CLI (which only has the user id, looked up by email)
 // does not possess. See LATE_CATCHES: if any gate moves to getSession()/getClaims()
 // (local decode), a demoted admin's stale claim resurfaces for <= token TTL.
 //
 // Exit handling: process.exitCode + return, never process.exit() after a network
-// call — forcing exit mid-socket-close trips a libuv assertion on Windows
+// call, forcing exit mid-socket-close trips a libuv assertion on Windows
 // (UV_HANDLE_CLOSING). See promote-to-admin.mjs.
 
 import { createClient } from "@supabase/supabase-js";
@@ -98,11 +98,11 @@ async function main() {
     return 0;
   }
 
-  // A-1 — last-admin lockout guard. The target IS an admin (checked above), so the
+  // A-1, last-admin lockout guard. The target IS an admin (checked above), so the
   // post-demote admin count = current count - 1. Refuse if that would hit zero (no
   // one could reach /admin; recovery needs a service-role re-promote). "Self" isn't
-  // defined here — the CLI runs as the service-role key-holder with no admin session
-  // identity — so the meaningful guard is "don't drop to zero admins". --force overrides.
+  // defined here, the CLI runs as the service-role key-holder with no admin session
+  // identity, so the meaningful guard is "don't drop to zero admins". --force overrides.
   if (!force) {
     const adminCount = await countAdmins(sb);
     if (adminCount === null) return 1; // count failed → fail closed, do not demote

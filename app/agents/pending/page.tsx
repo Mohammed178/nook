@@ -21,7 +21,7 @@ export default async function AgentPendingPage() {
 
   const agent = await getAgentByUserId(user.id);
   if (!agent) redirect("/"); // student / non-agent
-  if (agent.deletedAt) redirect("/"); // F4 — withdrawn/removed (soft-deleted) → no status page
+  if (agent.deletedAt) redirect("/"); // F4, withdrawn/removed (soft-deleted) → no status page
   if (agent.status === "approved") redirect("/"); // approved → away (no dashboard yet)
 
   const rejected = agent.status === "rejected";

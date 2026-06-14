@@ -10,7 +10,7 @@ interface MagneticProps {
 }
 
 // Magnetic hover: the wrapped element drifts toward the cursor and springs
-// back on leave. Motion values only — no React state per pointer move.
+// back on leave. Motion values only, no React state per pointer move.
 export function Magnetic({ children, strength = 0.22 }: MagneticProps) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);

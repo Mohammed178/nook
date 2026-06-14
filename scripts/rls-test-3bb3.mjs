@@ -2,25 +2,25 @@
 // Verifies migration 0009: listings.area_id / agent_id are now uuid FKs to
 // areas(id) / agents(id) ON DELETE RESTRICT, the row mapper surfaces the UUIDs,
 // the legacy-id bridge is gone, and lib/seed/listings.ts is unreachable from app
-// code (retained as a script-only data source — see LATE_CATCHES LC-09).
+// code (retained as a script-only data source, see LATE_CATCHES LC-09).
 //
-//   A1 — schema/state stability (behavioural, no pg dep): listings = 18 rows;
+//   A1, schema/state stability (behavioural, no pg dep): listings = 18 rows;
 //        area_id / agent_id reject a non-uuid string (22P02 => columns are uuid);
-//        proven state hashed, stable across re-runs (a NEW baseline — it does
+//        proven state hashed, stable across re-runs (a NEW baseline, it does
 //        NOT match the 3b-B-1/3b-B-2 hashes; the column types changed).
-//   A2 — row mapper output: lst-001 maps to areaId = uuid(bangsar),
+//   A2, row mapper output: lst-001 maps to areaId = uuid(bangsar),
 //        agentId = uuid(agent-aisha); both are valid UUIDs, not legacy strings.
-//   A3 — FK enforcement: UPDATE area_id / agent_id to a uuid absent from the
+//   A3, FK enforcement: UPDATE area_id / agent_id to a uuid absent from the
 //        parent table => 23503.
-//   A4 — ON DELETE RESTRICT: deleting an in-use area / agent => 23503 (the
+//   A4, ON DELETE RESTRICT: deleting an in-use area / agent => 23503 (the
 //        delete is actually attempted; failure proves RESTRICT fires).
-//   A5 — dead-code grep + file disposition: legacy-id-bridge gone (refs + file);
+//   A5, dead-code grep + file disposition: legacy-id-bridge gone (refs + file);
 //        @/lib/seed/listings unreachable from app/components/lib; lib/seed/
 //        listings.ts retained on disk; no legacy-prefix tokens in lib/data or
 //        lib/types.ts.
 //
 // Uses the service-role key for setup/proofs ONLY (never app code). No RLS paths
-// here — listings RLS was sealed in 3b-B-1 and is out of scope. The failing
+// here, listings RLS was sealed in 3b-B-1 and is out of scope. The failing
 // UPDATE/DELETE attempts mutate nothing (each is rejected), so no cleanup.
 //
 // Pre-req: apply migration 0009 against the local DB before running.
@@ -82,9 +82,9 @@ const admin = createClient(URL, SRK, {
 
 async function main() {
   // ----------------------------------------------------------------
-  // A1 — schema/state stability (behavioural)
+  // A1, schema/state stability (behavioural)
   // ----------------------------------------------------------------
-  step("A1 — listings = 18 rows + area_id/agent_id are uuid (re-run to compare hash)");
+  step("A1, listings = 18 rows + area_id/agent_id are uuid (re-run to compare hash)");
   const { count, error: ce } = await admin
     .from("listings")
     .select("*", { count: "exact", head: true });
@@ -98,7 +98,7 @@ async function main() {
       .update({ [col]: NON_UUID })
       .eq("slug", LST001_SLUG)
       .select();
-    if (!error) fail(`listings.${col} accepted non-uuid "${NON_UUID}" — still text?`);
+    if (!error) fail(`listings.${col} accepted non-uuid "${NON_UUID}", still text?`);
     if (error.code !== "22P02") {
       fail(`${col} non-uuid update: expected 22P02, got ${error.code} (${error.message})`);
     }
@@ -108,12 +108,12 @@ async function main() {
     `listings:${count}|area_type:${colProof.area_id}|agent_type:${colProof.agent_id}`,
   );
   ok(`listings: 18 rows, area_id/agent_id reject non-uuid (22P02)`);
-  ok(`A1 state hash ${a1hash} — re-run this script and compare (new baseline, != 3bb1/3bb2)`);
+  ok(`A1 state hash ${a1hash}, re-run this script and compare (new baseline, != 3bb1/3bb2)`);
 
   // ----------------------------------------------------------------
-  // A2 — row mapper output sanity
+  // A2, row mapper output sanity
   // ----------------------------------------------------------------
-  step("A2 — rowToListing surfaces area/agent UUIDs for lst-001");
+  step("A2, rowToListing surfaces area/agent UUIDs for lst-001");
   const { data: row, error: re } = await admin
     .from("listings")
     .select(LISTING_COLS)
@@ -129,12 +129,12 @@ async function main() {
   }
   if (!UUID_RE.test(listing.areaId)) fail(`areaId is not a uuid: ${listing.areaId}`);
   if (!UUID_RE.test(listing.agentId)) fail(`agentId is not a uuid: ${listing.agentId}`);
-  ok(`areaId=${listing.areaId} (bangsar), agentId=${listing.agentId} (aisha) — both valid UUIDs`);
+  ok(`areaId=${listing.areaId} (bangsar), agentId=${listing.agentId} (aisha), both valid UUIDs`);
 
   // ----------------------------------------------------------------
-  // A3 — FK enforcement (absent parent => 23503)
+  // A3, FK enforcement (absent parent => 23503)
   // ----------------------------------------------------------------
-  step("A3 — FK enforcement: area_id/agent_id absent from parent is rejected");
+  step("A3, FK enforcement: area_id/agent_id absent from parent is rejected");
   for (const [col, parent] of [
     ["area_id", "areas"],
     ["agent_id", "agents"],
@@ -144,7 +144,7 @@ async function main() {
       .update({ [col]: ABSENT_UUID })
       .eq("slug", LST001_SLUG)
       .select();
-    if (!error) fail(`${col}: update to a uuid absent from ${parent} succeeded — no FK?`);
+    if (!error) fail(`${col}: update to a uuid absent from ${parent} succeeded, no FK?`);
     if (error.code !== "23503") {
       fail(`${col}: expected 23503 FK violation, got ${error.code} (${error.message})`);
     }
@@ -152,16 +152,16 @@ async function main() {
   }
 
   // ----------------------------------------------------------------
-  // A4 — ON DELETE RESTRICT (delete is actually attempted)
+  // A4, ON DELETE RESTRICT (delete is actually attempted)
   // ----------------------------------------------------------------
-  step("A4 — RESTRICT: deleting an in-use area/agent is blocked");
+  step("A4, RESTRICT: deleting an in-use area/agent is blocked");
   {
     const { error: ae } = await admin
       .from("areas")
       .delete()
       .eq("slug", "bangsar")
       .select();
-    if (!ae) fail(`DELETE area 'bangsar' SUCCEEDED — RESTRICT not enforced (DB may be damaged)`);
+    if (!ae) fail(`DELETE area 'bangsar' SUCCEEDED, RESTRICT not enforced (DB may be damaged)`);
     if (ae.code !== "23503") {
       fail(`area delete: expected 23503 RESTRICT, got ${ae.code} (${ae.message})`);
     }
@@ -172,7 +172,7 @@ async function main() {
       .delete()
       .eq("slug", "aisha-rahman")
       .select();
-    if (!ge) fail(`DELETE agent 'aisha-rahman' SUCCEEDED — RESTRICT not enforced (DB may be damaged)`);
+    if (!ge) fail(`DELETE agent 'aisha-rahman' SUCCEEDED, RESTRICT not enforced (DB may be damaged)`);
     if (ge.code !== "23503") {
       fail(`agent delete: expected 23503 RESTRICT, got ${ge.code} (${ge.message})`);
     }
@@ -180,9 +180,9 @@ async function main() {
   }
 
   // ----------------------------------------------------------------
-  // A5 — dead-code grep + file disposition (in-script fs scan)
+  // A5, dead-code grep + file disposition (in-script fs scan)
   // ----------------------------------------------------------------
-  step("A5 — dead-code grep + file disposition");
+  step("A5, dead-code grep + file disposition");
   {
     const exts = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
     const roots = ["app", "components", "lib"].map((d) => join(root, d));
@@ -231,12 +231,12 @@ async function main() {
 
     const seedListingFile = join(root, "lib", "seed", "listings.ts");
     if (!existsSync(seedListingFile)) {
-      fail(`lib/seed/listings.ts missing — it must be retained (LC-09 script-only source)`);
+      fail(`lib/seed/listings.ts missing, it must be retained (LC-09 script-only source)`);
     }
     ok(`lib/seed/listings.ts retained on disk (script-only data source, LC-09)`);
 
     const seedDir = join(root, "lib", "seed");
-    if (!existsSync(seedDir)) fail(`lib/seed/ directory missing — must be kept`);
+    if (!existsSync(seedDir)) fail(`lib/seed/ directory missing, must be kept`);
     ok(`lib/seed/ directory retained (reference data: universities/areas/agents/reviews/nearby)`);
   }
 

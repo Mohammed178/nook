@@ -97,7 +97,7 @@ export default async function ListingsPage({
     getAllAreas(),
     attachListingRelations(listings),
   ]);
-  // Keyed by slug — `params.area` carries the URL value (= area.slug).
+  // Keyed by slug, `params.area` carries the URL value (= area.slug).
   const areaLookup = Object.fromEntries(areas.map((a) => [a.slug, a]));
 
   let mapCenter: [number, number] = KLANG_VALLEY_CENTER;

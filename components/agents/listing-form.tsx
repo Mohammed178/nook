@@ -99,7 +99,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
         setError(result.error);
         return;
       }
-      // On create, go to the edit page — that's where photos are added (4c-B1).
+      // On create, go to the edit page, that's where photos are added (4c-B1).
       // On edit, back to the dashboard list.
       if (!isEdit && result.id) {
         router.push(`/agents/dashboard/listings/${result.id}/edit`);

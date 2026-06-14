@@ -192,5 +192,5 @@ console.log(`  A saved_search intact`);
 
 await a2.sb.auth.signOut();
 
-console.log("\nRLS test PASSED — RLS holds and A's data is intact");
+console.log("\nRLS test PASSED, RLS holds and A's data is intact");
 process.exit(0);

@@ -44,7 +44,7 @@ export async function signUpAgentAction(
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters." };
   }
-  // LC-26 — the public contact email is a SEPARATE field from the login email and
+  // LC-26, the public contact email is a SEPARATE field from the login email and
   // is shown publicly (agents_public). Validate its shape server-side; the form's
   // type="email" is client-only and non-authoritative. Simple email-shape bound,
   // not the bovaep charset.
@@ -54,8 +54,8 @@ export async function signUpAgentAction(
   if (!terms) {
     return { error: "You must agree to the Terms of Service to continue." };
   }
-  // F3 — defense-in-depth licence format check. Length + charset that admits the
-  // BOVAEP "E(n)NNNN" estate-agent number (parentheses required — the seed agents
+  // F3, defense-in-depth licence format check. Length + charset that admits the
+  // BOVAEP "E(n)NNNN" estate-agent number (parentheses required, the seed agents
   // use E(3)2148 etc.) plus other class prefixes. Deliberately not pinned to a
   // single E(n) shape: the unique index (0025) and the manual admin registry check
   // (LOCK-4.6) are the real integrity gates; format is only a sanity bound.
@@ -88,7 +88,7 @@ export async function signUpAgentAction(
   } = await supabase.auth.getUser();
   if (!user) {
     console.error(
-      `[agent-register] no session after signUp — auth auto-confirm may be OFF. ` +
+      `[agent-register] no session after signUp, auth auto-confirm may be OFF. ` +
         `Orphaned auth user email=${email}. Agents row NOT created.`,
     );
     return {
@@ -99,12 +99,12 @@ export async function signUpAgentAction(
 
   const slug = await deriveUniqueSlug(name, supabase);
 
-  // F1 — send ONLY the 8 columns a registrant legitimately sets. The column
+  // F1, send ONLY the 8 columns a registrant legitimately sets. The column
   // INSERT grant (0024) revokes the broad table grant and permits exactly these;
   // status / rating / review_count / response_time_mins / languages / years_active
   // / avatar_url are omitted on purpose and fall to their DB DEFAULTs (0023 /
   // 0010). Naming any of them here would be rejected with 42501 under the column
-  // grant — the omission is load-bearing, not cosmetic. id / submitted_at /
+  // grant, the omission is load-bearing, not cosmetic. id / submitted_at /
   // created_at / updated_at also default in the DB; bio / verified_at stay null.
   const { error: insertError } = await supabase.from("agents").insert({
     user_id: user.id,
@@ -113,7 +113,7 @@ export async function signUpAgentAction(
     agency,
     phone,
     whatsapp,
-    // LC-26 — `agents.email` holds the PUBLIC contact, not the login email. It is
+    // LC-26, `agents.email` holds the PUBLIC contact, not the login email. It is
     // written from the separate contact_email field, decoupled from the signUp
     // (auth) email above. Column rename agents.email → contact_email is deferred
     // (LATE_CATCHES); until then the column name is a temporary misnomer.

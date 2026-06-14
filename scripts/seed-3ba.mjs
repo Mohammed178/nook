@@ -1,5 +1,5 @@
 // Phase 3b-A seed.
-// Reads lib/seed/{areas,agents}.ts (no .mjs mirror — single source of truth),
+// Reads lib/seed/{areas,agents}.ts (no .mjs mirror, single source of truth),
 // derives deterministic UUIDv5 ids + slugs, upserts into Supabase using the
 // service-role key, and writes scripts/.id-map-3ba.json for the in-app bridge.
 //
@@ -16,7 +16,7 @@ import { AREAS } from "../lib/seed/areas.ts";
 import { AGENTS } from "../lib/seed/agents.ts";
 import { slugify } from "../lib/slugify.ts";
 
-// Frozen namespace. DO NOT CHANGE — every id is derived from this constant.
+// Frozen namespace. DO NOT CHANGE, every id is derived from this constant.
 // Hand-edited from a v4 to a v5-shape value; functionally any fixed 128-bit
 // value works as a uuidv5 namespace.
 const NS_NOOK = "b6e7f7a4-9c1e-5c0a-9b3d-3f6f4f7e1c2a";
@@ -30,7 +30,7 @@ for (const [k, v] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: URL, SUPABASE_SE
   }
 }
 
-// Phase 4a-1 seed-only auth constants. Development data — NEVER production.
+// Phase 4a-1 seed-only auth constants. Development data, NEVER production.
 // All seed agents share one deterministic password so the RLS test can sign in
 // as an approved seed agent. Auth login email (agent-{x}+seed@nook.test) is the
 // .test TLD reserved by RFC 6761 for non-routable testing use; it is distinct
@@ -44,7 +44,7 @@ const SEED_VERIFIED_AT = "2026-01-01T00:00:00Z"; // fixed audit timestamp, appro
 // fixed SEED_VERIFIED_AT (agents has no created_at column).
 const ADMIN_EMAIL = "admin+seed@nook.test";
 const ARIF_REJECTION =
-  "Sample rejection — BOVAEP registry could not confirm licence. This is seed data for development.";
+  "Sample rejection, BOVAEP registry could not confirm licence. This is seed data for development.";
 
 function seedEmail(legacyId) {
   // legacyId is already "agent-aisha" etc → "agent-aisha+seed@nook.test"

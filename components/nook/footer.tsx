@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LogoMark } from "@/components/nook/logo";
 import { Icon, type IconName } from "@/components/nook/icon";
 
-// Folded in from the old homepage trust strip — same claims, one line each.
+// Folded in from the old homepage trust strip, same claims, one line each.
 const TRUST_ITEMS: { iconName: IconName; label: string }[] = [
   { iconName: "check", label: "REN/PEA licences checked against BOVAEP" },
   { iconName: "camera", label: "Min. 5 real photos per listing" },

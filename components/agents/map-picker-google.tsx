@@ -15,7 +15,7 @@ import {
 
 // Google Maps half of the map-picker (loaded ssr:false by map-picker.tsx).
 // Click-to-place + a draggable marker. Both report the chosen point back to
-// the parent via onPick — the parent state is the source of truth (the
+// the parent via onPick, the parent state is the source of truth (the
 // labelled lat/lng inputs write the same state), so this is a convenience
 // layer, never the only way to set a location (Bar-4).
 

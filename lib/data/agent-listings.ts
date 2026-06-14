@@ -14,11 +14,11 @@ import type {
   ListingType,
 } from "@/lib/types";
 
-// Phase 4b — agent-owned listing writes + dashboard read.
+// Phase 4b, agent-owned listing writes + dashboard read.
 //
 // Every function here is session-driven: it uses the anon-key client carrying
 // the agent's auth cookies, so RLS (migration 0014) enforces ownership via
-// current_agent_id(). NONE of these use the service-role client — that is
+// current_agent_id(). NONE of these use the service-role client, that is
 // forbidden outside the 4a-2 admin boundary. The RLS write policies are exactly
 // what make service-role unnecessary here.
 //
@@ -29,7 +29,7 @@ import type {
 //   - getAgentListings uses createClient (the read client) because it is called
 //     from a server component, where cookie writes throw. The session still
 //     rides the request cookies, so current_agent_id() resolves the agent
-//     identically — this matches the established authenticated-read pattern
+//     identically, this matches the established authenticated-read pattern
 //     (getAgentByUserId, getCurrentUser). See the Phase A seal note.
 
 export interface ListingInput {
@@ -67,7 +67,7 @@ export type CreateListingResult =
 // action, LOCK-4.3). The RLS-visible pre-check catches collisions against the
 // agent's own rows and any published listing. It CANNOT see another agent's
 // draft (owner-read hides it), and listings.slug is globally UNIQUE regardless
-// of RLS — so a cross-agent draft-slug clash would only surface as a 23505 on
+// of RLS, so a cross-agent draft-slug clash would only surface as a 23505 on
 // insert. createListing handles that case with a uuid-suffix fallback.
 async function deriveListingSlug(title: string, sb: ActionClient): Promise<string> {
   let base = slugify(title);
@@ -85,7 +85,7 @@ async function deriveListingSlug(title: string, sb: ActionClient): Promise<strin
 }
 
 // Maps the editable input to listings columns. lat/lng are deliberately omitted
-// — 4b drafts have no coordinates (nullable since 0014); the 4c map-picker sets
+// - 4b drafts have no coordinates (nullable since 0014); the 4c map-picker sets
 // them at publish (LC-19). photos live in listing_photos now (4c-B1) and are not
 // a listings column; new drafts start photoless and add photos on the edit page.
 function inputToColumns(input: ListingInput) {
@@ -215,7 +215,7 @@ export interface AgentListings {
 
 // The agent's own listings (all statuses, including drafts and soft-deleted),
 // for the dashboard. Direct DB query with an explicit WHERE on agent_id (LC-06
-// fetch-everything seam is NOT extended) — the owner-read RLS policy also
+// fetch-everything seam is NOT extended), the owner-read RLS policy also
 // scopes this to the caller, so the .eq is belt-and-braces and supports the
 // live/archive partition. One query, partitioned in code (OQ-1).
 export async function getAgentListings(): Promise<AgentListings> {
@@ -251,7 +251,7 @@ export async function getAgentListingById(id: string): Promise<Listing | null> {
 }
 
 // ============================================================
-// Phase 4c-A — publish + photo writes (data layer only; UI is Phase B).
+// Phase 4c-A, publish + photo writes (data layer only; UI is Phase B).
 // All createActionClient + RLS-bound, zero service-role. The publish
 // preconditions are DB-enforced (migration 0015): coords CHECK (23514), a
 // photo-presence trigger (NK001), and a last-photo trigger (NK002). These
@@ -294,7 +294,7 @@ export type SetCoordsResult =
 // Sets lat/lng for an owned listing (4c-B2 map-picker). Deliberately NOT folded
 // into updateListing: coordinates come from the picker, a sibling section, not
 // the details form (which still excludes lat/lng, LC-19). This writes ONLY
-// lat/lng — no other column — under the owner-update RLS policy (0014), so it
+// lat/lng, no other column, under the owner-update RLS policy (0014), so it
 // needs no service-role and no new policy. Writing coords to a draft is fine;
 // the available-needs-coords CHECK (0015) only bites at publish.
 export async function setListingCoords(

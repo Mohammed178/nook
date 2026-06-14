@@ -57,7 +57,7 @@ export function UniversityMapGoogle({
             <AdvancedMarker
               key={l.id}
               position={{ lat: l.lat, lng: l.lng }}
-              title={`${l.title} — ${formatPrice(l.priceMonthly)}/mo`}
+              title={`${l.title}, ${formatPrice(l.priceMonthly)}/mo`}
               onClick={() => setOpenId(l.id === openId ? null : l.id)}
             >
               <span className="map-pin-dot" />

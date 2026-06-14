@@ -54,7 +54,7 @@ export async function getAgentByUuid(uuid: string): Promise<Agent | null> {
 
 // Fetch the agents row owned by the calling auth user. Used by /agents/pending
 // and future agent-dashboard pages (4a-2+). Returns the row for any status
-// (pending/approved/rejected) as long as it is not soft-deleted — the public
+// (pending/approved/rejected) as long as it is not soft-deleted, the public
 // SELECT policy (deleted_at is null) lets an authenticated user read their own
 // row regardless of status, so a pending agent can see their own application.
 export async function getAgentByUserId(userId: string): Promise<Agent | null> {

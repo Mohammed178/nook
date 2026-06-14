@@ -1,7 +1,7 @@
 import type { Transition } from "motion/react";
 
 // Single source of spring physics for the app. No linear easing on
-// interactive or entry motion — springs only (see redesign step 2).
+// interactive or entry motion, springs only (see redesign step 2).
 export const spring: Transition = { type: "spring", stiffness: 100, damping: 20 };
 
 // Tighter spring for small UI (pins, hearts, chips) where the soft spring
@@ -16,7 +16,7 @@ export const riseIn = {
 
 /**
  * Per-item waterfall delay. Capped so a 50-item list doesn't keep the last
- * rows invisible for seconds — everything past the cap lands together.
+ * rows invisible for seconds, everything past the cap lands together.
  */
 export function staggerDelay(index: number, step = 0.04, cap = 0.4): number {
   return Math.min(index * step, cap);

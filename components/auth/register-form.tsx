@@ -71,7 +71,7 @@ export function RegisterForm() {
             placeholder="you@uni.edu.my"
           />
           <div className="help">
-            Use your university email if you have one — gets you a student verification
+            Use your university email if you have one, gets you a student verification
             badge.
           </div>
         </div>
@@ -133,7 +133,7 @@ export function RegisterForm() {
           <input type="checkbox" name="terms" required />
           <span>
             I agree to Nook&apos;s <Link href="#">Terms of Service</Link> and{" "}
-            <Link href="#">Privacy Policy</Link>. I understand Nook is a listing platform —
+            <Link href="#">Privacy Policy</Link>. I understand Nook is a listing platform,
             agreements are between me and BOVAEP-licensed agents.
           </span>
         </label>

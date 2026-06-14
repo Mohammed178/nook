@@ -54,7 +54,7 @@ export interface Agent {
   // so a public-sourced agent (rowToPublicAgent) does not carry it. The self/admin
   // paths (rowToAgent, full AGENT_COLS) still populate it. Chosen over a dedicated
   // PublicAgent type, which would retype 6+ files incl the shared
-  // ListingWithRelations and listing-card — wider than this one flag warrants.
+  // ListingWithRelations and listing-card, wider than this one flag warrants.
   submittedAt?: string;
   verifiedAt?: string;
   deletedAt?: string;
@@ -119,7 +119,7 @@ export interface Listing {
   state: string;
   /** Nullable since 4b (migration 0014): drafts are authored without
    * coordinates; the 4c map-picker populates lat/lng at publish (LC-19). Only
-   * private drafts carry null — published listings always have coordinates. */
+   * private drafts carry null, published listings always have coordinates. */
   lat?: number;
   lng?: number;
   /** Seed-only since 4c-B2 (compute-don't-claim). The DB columns
@@ -127,7 +127,7 @@ export interface Listing {
    * (migration 0019); proximity is computed at read from lat/lng + the
    * UNIVERSITY_BY_ID constant (lib/distance.ts). These fields survive only on
    * the seed objects (rls-test A2 parity) and are never emitted by rowToListing.
-   * Vestigial — the A2-oracle rework LC removes the need for them. */
+   * Vestigial, the A2-oracle rework LC removes the need for them. */
   nearbyUniversityIds?: string[];
   walkMinsToCampus?: number;
   metresToCampus?: number;

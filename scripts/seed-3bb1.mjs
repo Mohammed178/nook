@@ -1,5 +1,5 @@
 // Phase 3b-B-1 seed (updated for 3b-B-3).
-// Reads lib/seed/listings.ts (no .mjs mirror — single source of truth),
+// Reads lib/seed/listings.ts (no .mjs mirror, single source of truth),
 // derives deterministic UUIDv5 ids (reusing the 3b-A NS_NOOK namespace), keeps
 // slugs verbatim, resolves photos (galleryFor already runs at module load, so
 // l.photos is the resolved string[]), upserts into Supabase using the
@@ -7,7 +7,7 @@
 //
 // 3b-B-3: area_id / agent_id are now written as UUIDs (read from the committed
 // scripts/.id-map-3ba.json), matching the uuid FK columns introduced by
-// migration 0009. Must be run AFTER 0009 — the uuid columns reject the legacy
+// migration 0009. Must be run AFTER 0009, the uuid columns reject the legacy
 // slug strings this script used to emit.
 //
 // Run: node --experimental-strip-types --env-file=.env.local scripts/seed-3bb1.mjs
@@ -21,12 +21,12 @@ import { createClient } from "@supabase/supabase-js";
 import { v5 as uuidv5 } from "uuid";
 import { LISTINGS } from "../lib/seed/listings.ts";
 
-// Frozen namespace — reused from 3b-A. DO NOT introduce a new one.
+// Frozen namespace, reused from 3b-A. DO NOT introduce a new one.
 const NS_NOOK = "b6e7f7a4-9c1e-5c0a-9b3d-3f6f4f7e1c2a";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-// Committed id-map artifact from 3b-A — single source of truth for the
+// Committed id-map artifact from 3b-A, single source of truth for the
 // legacy-area/agent-id -> UUID translation. Read here (not imported) to stay
 // agnostic of Node's JSON import-attribute support.
 const idMap3ba = JSON.parse(
@@ -64,7 +64,7 @@ const sb = createClient(URL, SRK, { auth: { persistSession: false } });
 
 // Seed every listing as DRAFT first, regardless of its final status. The 0015
 // photo-presence trigger (NK001) fires on the INSERT branch of an upsert with
-// tg_op='INSERT' — so an `available` row cannot be inserted before its
+// tg_op='INSERT', so an `available` row cannot be inserted before its
 // listing_photos rows exist. We insert as draft, add photos, then promote the
 // originally-available rows back (same draft -> photo -> publish order the rls
 // harness uses). promoteRows captures the intended final status per id.
@@ -121,14 +121,14 @@ console.log(`Upserting ${listingRows.length} listings...`);
 // The legacy listings.photos column held external Unsplash URLs. Phase 4c stores
 // photos as bucket objects at {listing_id}/{photo_uuid}.jpg with one
 // listing_photos row each. Download a small demo pool once, then upload a
-// per-listing copy set — the path's first segment must be the listing_id so the
+// per-listing copy set, the path's first segment must be the listing_id so the
 // storage RLS owner-check resolves through the parent listing. Pre-req: 0015's
 // `listing-photos` bucket exists. Deterministic uuids + storage upsert make the
 // whole step idempotent (re-running overwrites in place, no orphan growth).
 //
 // onConflict is the PK `id`, NOT (listing_id, sort_order): that unique is
 // DEFERRABLE INITIALLY DEFERRED (0015) and Postgres rejects a deferrable
-// constraint as an ON CONFLICT arbiter — same reason reorderListingPhotos
+// constraint as an ON CONFLICT arbiter, same reason reorderListingPhotos
 // arbitrates on the PK.
 const DEMO_POOL = [
   "1502672260266-1c1ef2d93688",
@@ -152,7 +152,7 @@ const demoUrl = (id) =>
 
 // Tolerant download: Unsplash ids rot over time, so a single dead id must not
 // fail the whole seed. Skip any that fail, but require a minimum valid set and
-// abort BEFORE any upload if too few survive — so the seed still never
+// abort BEFORE any upload if too few survive, so the seed still never
 // half-populates (the guardrail), it just doesn't depend on all 12 being live.
 const MIN_VALID_IMAGES = 5;
 console.log(`Downloading up to ${DEMO_POOL.length} demo images...`);
@@ -203,7 +203,7 @@ for (let idx = 0; idx < LISTINGS.length; idx++) {
       id: photoUuid,
       listing_id: listingUuid,
       storage_path: path,
-      alt_text: `${l.title} — ${DESCRIPTORS[j % DESCRIPTORS.length]}`,
+      alt_text: `${l.title}, ${DESCRIPTORS[j % DESCRIPTORS.length]}`,
       sort_order: j,
     });
   }
@@ -222,7 +222,7 @@ console.log(`Upserted ${photoRows.length} listing_photos rows.`);
 
 // ---------- promote draft -> final status ----------
 // Now that every listing has photos, flip the originally-available rows back.
-// This UPDATE re-enters available, firing the NK001 trigger — which now passes
+// This UPDATE re-enters available, firing the NK001 trigger, which now passes
 // because the listing_photos rows exist. The coords CHECK also passes (seed
 // available rows carry lat/lng).
 console.log(`Promoting ${promoteRows.length} listings to their final status...`);

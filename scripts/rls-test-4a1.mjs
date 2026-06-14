@@ -1,16 +1,16 @@
 // Phase 4a-1 RLS + schema-invariant test.
 // Verifies migrations 0010 (agents auth columns + RLS) / 0011 (current_agent_id)
 // / 0012 (NOT NULL) and the seed (5 approved + 1 rejected, every row linked to a
-// real auth user). Behavioural assertions only — no information_schema reads.
+// real auth user). Behavioural assertions only, no information_schema reads.
 //
 // Pattern carried from rls-test-3bb2: anon + service-role clients, ephemeral
 // users via admin.createUser/deleteUser, exact-count assertions, specific error
 // codes for denial gates, deterministic teardown.
 //
 // Two phases:
-//   A — assert the pristine seeded DB (counts, FK integrity, seed RPCs) BEFORE
+//   A, assert the pristine seeded DB (counts, FK integrity, seed RPCs) BEFORE
 //       any ephemeral agents row exists (so they don't inflate counts).
-//   B — ephemeral mutations: helper-function null cases, write-policy denials,
+//   B, ephemeral mutations: helper-function null cases, write-policy denials,
 //       schema invariants. Each gate cleans up before the next.
 //
 // Pre-req: 0010 + 0011 applied, `npm run seed:3ba` run, 0012 applied.
@@ -144,10 +144,10 @@ async function teardown() {
 
 async function main() {
   // ================================================================
-  // Phase A — pristine seeded DB (no ephemeral agents row exists yet)
+  // Phase A, pristine seeded DB (no ephemeral agents row exists yet)
   // ================================================================
 
-  step("S6 — seed: exactly 5 approved + 1 rejected agents");
+  step("S6, seed: exactly 5 approved + 1 rejected agents");
   {
     const { count: approved, error: e1 } = await admin
       .from("agents")
@@ -164,7 +164,7 @@ async function main() {
     ok("5 approved, 1 rejected");
   }
 
-  step("S7 — seed: approved have verified_at; rejected/pending have null");
+  step("S7, seed: approved have verified_at; rejected/pending have null");
   {
     const { data: approvedRows, error: ae } = await admin
       .from("agents")
@@ -182,7 +182,7 @@ async function main() {
     ok("verified_at correlates with approved status");
   }
 
-  step("S8 — seed: every agent row has a user_id that resolves in auth.users");
+  step("S8, seed: every agent row has a user_id that resolves in auth.users");
   {
     const { data: rows, error } = await admin.from("agents").select("id, user_id");
     if (error) fail(`S8 select: ${error.message}`);
@@ -195,7 +195,7 @@ async function main() {
     ok("6/6 agents linked to a real auth user");
   }
 
-  step("S1 — anon SELECT returns all 6 non-deleted agents");
+  step("S1, anon SELECT returns all 6 non-deleted agents");
   {
     const { count, error } = await anon
       .from("agents")
@@ -205,7 +205,7 @@ async function main() {
     ok("anon sees 6 rows");
   }
 
-  step("S1b — soft-delete one seed agent → anon sees 5; restore");
+  step("S1b, soft-delete one seed agent → anon sees 5; restore");
   {
     const { error: fe } = await admin
       .from("agents")
@@ -225,14 +225,14 @@ async function main() {
     ok("soft-deleted agent hidden from anon (5), restored");
   }
 
-  step("H1 — current_agent_id() is null for anon");
+  step("H1, current_agent_id() is null for anon");
   {
     const id = await rpcAgentId(anon);
     if (id !== null) fail(`H1 expected null, got ${id}`);
     ok("anon → null");
   }
 
-  step("H5 — current_agent_id() returns the id for an approved seed agent");
+  step("H5, current_agent_id() returns the id for an approved seed agent");
   {
     const c = await signedInClient(seedEmail("agent-aisha"), SEED_PASSWORD);
     const id = await rpcAgentId(c);
@@ -240,7 +240,7 @@ async function main() {
     ok(`approved seed agent → ${id}`);
   }
 
-  step("H7 — current_agent_id() is null for the rejected seed agent (Arif)");
+  step("H7, current_agent_id() is null for the rejected seed agent (Arif)");
   {
     const c = await signedInClient(ARIF_EMAIL, SEED_PASSWORD);
     const id = await rpcAgentId(c);
@@ -249,10 +249,10 @@ async function main() {
   }
 
   // ================================================================
-  // Phase B — ephemeral mutations (each gate self-cleans)
+  // Phase B, ephemeral mutations (each gate self-cleans)
   // ================================================================
 
-  step("H2 — current_agent_id() is null for an authenticated student");
+  step("H2, current_agent_id() is null for an authenticated student");
   {
     const u = await makeEphemeralUser(); // no agents row
     const c = await signedInClient(u.email, u.password);
@@ -261,7 +261,7 @@ async function main() {
     ok("student (no agents row) → null");
   }
 
-  step("H3 — current_agent_id() is null for a pending agent");
+  step("H3, current_agent_id() is null for a pending agent");
   {
     const a = await makeEphemeralAgent({ status: "pending" });
     const c = await signedInClient(a.email, a.password);
@@ -270,7 +270,7 @@ async function main() {
     ok("pending → null");
   }
 
-  step("H4 — current_agent_id() is null for a rejected agent");
+  step("H4, current_agent_id() is null for a rejected agent");
   {
     const a = await makeEphemeralAgent({ status: "rejected" });
     const c = await signedInClient(a.email, a.password);
@@ -279,7 +279,7 @@ async function main() {
     ok("rejected → null");
   }
 
-  step("H6 — current_agent_id() is null for a soft-deleted approved agent");
+  step("H6, current_agent_id() is null for a soft-deleted approved agent");
   {
     const a = await makeEphemeralAgent({ status: "approved", deletedAt: new Date().toISOString() });
     const c = await signedInClient(a.email, a.password);
@@ -288,7 +288,7 @@ async function main() {
     ok("soft-deleted approved → null");
   }
 
-  step("S2 — anon cannot INSERT / UPDATE / DELETE agents");
+  step("S2, anon cannot INSERT / UPDATE / DELETE agents");
   {
     const u = await makeEphemeralUser();
     const { error: insErr } = await anon
@@ -304,7 +304,7 @@ async function main() {
     ok("anon INSERT denied (42501), UPDATE/DELETE affected 0 rows");
   }
 
-  step("S2b — authenticated user cannot INSERT own row as status='approved'");
+  step("S2b, authenticated user cannot INSERT own row as status='approved'");
   {
     const u = await makeEphemeralUser();
     const c = await signedInClient(u.email, u.password);
@@ -317,7 +317,7 @@ async function main() {
     ok("self-insert as approved denied (42501)");
   }
 
-  step("S2c — authenticated user cannot INSERT a row owned by another user_id");
+  step("S2c, authenticated user cannot INSERT a row owned by another user_id");
   {
     const u = await makeEphemeralUser();
     const other = await makeEphemeralUser();
@@ -331,7 +331,7 @@ async function main() {
     ok("insert with another user_id denied (42501)");
   }
 
-  step("S2d — authenticated user inserts own pending row; UPDATE leaves status unchanged");
+  step("S2d, authenticated user inserts own pending row; UPDATE leaves status unchanged");
   {
     const u = await makeEphemeralUser();
     const c = await signedInClient(u.email, u.password);
@@ -351,7 +351,7 @@ async function main() {
     ok("own pending insert succeeded; status unchanged after blocked UPDATE");
   }
 
-  step("S3 — user_id rejects a non-uuid value (22P02)");
+  step("S3, user_id rejects a non-uuid value (22P02)");
   {
     const { error } = await admin
       .from("agents")
@@ -362,7 +362,7 @@ async function main() {
     ok("non-uuid user_id rejected (22P02)");
   }
 
-  step("S4 — duplicate user_id rejected by UNIQUE (23505)");
+  step("S4, duplicate user_id rejected by UNIQUE (23505)");
   {
     const dup = await makeEphemeralUser();
     const id1 = randomUUID();
@@ -380,7 +380,7 @@ async function main() {
     ok("duplicate user_id rejected (23505)");
   }
 
-  step("S5 — status outside the enum rejected by CHECK (23514)");
+  step("S5, status outside the enum rejected by CHECK (23514)");
   {
     const u = await makeEphemeralUser();
     const id = randomUUID();
@@ -392,7 +392,7 @@ async function main() {
     ok("invalid status rejected (23514)");
   }
 
-  step("S9 — ON DELETE RESTRICT blocks deleting an auth user with an agents row");
+  step("S9, ON DELETE RESTRICT blocks deleting an auth user with an agents row");
   {
     const probe = await makeEphemeralUser();
     const pid = randomUUID();

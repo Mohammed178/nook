@@ -9,11 +9,11 @@
 // So this harness asserts the DB-layer invariants the action enforces (the exact
 // guarded UPDATE, the no-UPDATE-policy airbag, the admin claim) plus the scripts
 // and lint. The middleware/layout redirects (S1/S2/S3) are manual smoke checks in
-// the seal operator sequence — they are NOT faked here.
+// the seal operator sequence, they are NOT faked here.
 //
 // Pattern carried from rls-test-4a1: anon + service-role clients, ephemeral users
 // via admin.createUser/deleteUser, exact-count / post-state assertions (no error
-// codes for the no-policy denials — the S2d false-pass lesson), deterministic
+// codes for the no-policy denials, the S2d false-pass lesson), deterministic
 // teardown.
 //
 // Pre-req: 0010-0013 applied, `npm run seed:3ba` run (creates the seed admin).
@@ -168,15 +168,15 @@ async function teardown() {
 }
 
 async function main() {
-  step("S0 — seed admin exists with app_metadata.role='admin'");
+  step("S0, seed admin exists with app_metadata.role='admin'");
   const seedAdmin = await findUserByEmail(ADMIN_EMAIL);
-  if (!seedAdmin) fail(`S0 seed admin ${ADMIN_EMAIL} not found — run npm run seed:3ba`);
+  if (!seedAdmin) fail(`S0 seed admin ${ADMIN_EMAIL} not found, run npm run seed:3ba`);
   if (seedAdmin.app_metadata?.role !== "admin")
     fail(`S0 seed admin role is '${seedAdmin.app_metadata?.role}', expected 'admin'`);
   const adminUid = seedAdmin.id;
   ok(`seed admin present, role=admin (${adminUid})`);
 
-  step("S0b — backfill: 6 decided agents have non-null decision fields, 0 pending do");
+  step("S0b, backfill: 6 decided agents have non-null decision fields, 0 pending do");
   {
     const { data: decided, error: de } = await admin
       .from("agents")
@@ -200,7 +200,7 @@ async function main() {
     ok(`6 decided seed agents populated; ${pending.length} pending agent(s) all null`);
   }
 
-  step("H1 — non-admin cannot effect approve/reject (claim absent + DB airbag)");
+  step("H1, non-admin cannot effect approve/reject (claim absent + DB airbag)");
   {
     const target = await makeEphemeralAgent({ status: "pending" });
     const nonAdmin = await makeEphemeralUser();
@@ -227,7 +227,7 @@ async function main() {
     ok("claim absent; UPDATE affected 0 rows; status still pending, decided_at null");
   }
 
-  step("H2 — admin approve: pending → approved + decision fields populated");
+  step("H2, admin approve: pending → approved + decision fields populated");
   {
     const target = await makeEphemeralAgent({ status: "pending" });
     const at = new Date().toISOString();
@@ -239,7 +239,7 @@ async function main() {
     ok("status approved; decided_by = admin uid; decided_at set");
   }
 
-  step("H3 — admin reject: pending → rejected + decision fields populated");
+  step("H3, admin reject: pending → rejected + decision fields populated");
   {
     const target = await makeEphemeralAgent({ status: "pending" });
     const at = new Date().toISOString();
@@ -251,7 +251,7 @@ async function main() {
     ok("status rejected; decision fields populated");
   }
 
-  step("H4 — re-decide is a no-op (status guard); decided_at unchanged");
+  step("H4, re-decide is a no-op (status guard); decided_at unchanged");
   {
     const target = await makeEphemeralAgent({ status: "pending" });
     const at1 = "2026-03-01T00:00:00.000Z";
@@ -266,13 +266,13 @@ async function main() {
       .eq("id", target.agentId)
       .single();
     // Compare instants, not strings: Postgres serializes timestamptz as
-    // ...+00:00 while JS toISOString() emits ...000Z — same moment, different text.
+    // ...+00:00 while JS toISOString() emits ...000Z, same moment, different text.
     if (new Date(rb.decided_at).getTime() !== new Date(at1).getTime())
       fail(`H4 decided_at changed to '${rb.decided_at}', expected ${at1}`);
     ok("second decide affected 0 rows; decided_at unchanged");
   }
 
-  step("H5 — deciding a soft-deleted agent is a no-op (deleted_at guard)");
+  step("H5, deciding a soft-deleted agent is a no-op (deleted_at guard)");
   {
     const target = await makeEphemeralAgent({ status: "pending", deletedAt: new Date().toISOString() });
     const rows = await guardedDecide({ agentId: target.agentId, status: "approved", decidedBy: adminUid, decidedAt: new Date().toISOString() });
@@ -287,9 +287,9 @@ async function main() {
     ok("0 rows; soft-deleted agent stays pending, decided_at null");
   }
 
-  console.log("\n→ S1/S2/S3 — middleware + layout gating: MANUAL smoke (see seal operator sequence). Not asserted here (no HTTP/RSC harness; no new dependency).");
+  console.log("\n→ S1/S2/S3, middleware + layout gating: MANUAL smoke (see seal operator sequence). Not asserted here (no HTTP/RSC harness; no new dependency).");
 
-  step("S4 — promote-to-admin flips role and is idempotent");
+  step("S4, promote-to-admin flips role and is idempotent");
   {
     const u = await makeEphemeralUser();
     const r1 = runScript(PROMOTE_SCRIPT, [u.email]);
@@ -304,7 +304,7 @@ async function main() {
     ok("role=admin after promote; second run idempotent no-op");
   }
 
-  step("S5 — demote-from-admin clears role and is idempotent");
+  step("S5, demote-from-admin clears role and is idempotent");
   {
     const u = await makeEphemeralUser();
     const p = runScript(PROMOTE_SCRIPT, [u.email]);
@@ -319,7 +319,7 @@ async function main() {
     ok("role cleared after demote; second run idempotent no-op");
   }
 
-  step("S6 — lint:service-role-containment fails on import outside app/admin/");
+  step("S6, lint:service-role-containment fails on import outside app/admin/");
   {
     writeFileSync(
       FIXTURE_PATH,

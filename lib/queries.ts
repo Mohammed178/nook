@@ -3,8 +3,8 @@ import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 
 // Featured-listings + featured-agents derivation lives in
 // `lib/data/featured.ts` (server-only). Keeping it out of this module avoids
-// pulling the areas/agents bridge — and through it the id-map JSON and the
-// seed areas needed for `deriveAreasServed` — into any client bundle that
+// pulling the areas/agents bridge, and through it the id-map JSON and the
+// seed areas needed for `deriveAreasServed`, into any client bundle that
 // imports `parseWhere` / `parseMoveInBy` from here.
 //
 // 3b-B-1: the seed-backed sync `getListingBySlug` moved to the DB-backed
@@ -18,7 +18,7 @@ export function getUniversityById(id: string): University | undefined {
 
 // The university rail derives its items directly in
 // components/home/university-rail.tsx now (real campus photos + computed
-// counts from lib/distance) — the static UNIVERSITY_RAIL seed is gone.
+// counts from lib/distance), the static UNIVERSITY_RAIL seed is gone.
 
 // === Hero search parsers ===
 
@@ -52,7 +52,7 @@ export function parseWhere(
 
   for (const a of areas) {
     if (normalize(a.name) === text || text.includes(normalize(a.name))) {
-      // ParsedWhere.areaId feeds the URL `?area=` param — must be the slug.
+      // ParsedWhere.areaId feeds the URL `?area=` param, must be the slug.
       return { areaId: a.slug };
     }
   }

@@ -23,7 +23,7 @@ import {
 // in-memory applyFilters / applySort do the work. The listings table is
 // seed-sized so this is cheap. If listing count grows large, swap the internals
 // here from "fetch all" to "fetch filtered" WITHOUT touching components or the
-// search-params logic — see LATE_CATCHES LC-06.
+// search-params logic, see LATE_CATCHES LC-06.
 export async function getAllListings(): Promise<Listing[]> {
   const sb = await createClient();
   const { data, error } = await sb.from("listings").select(LISTING_COLS);
@@ -44,7 +44,7 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
 
 // Resolver for favourites / recent_views, which store Listing.id (the UUID).
 // Builds a UUID-keyed map over all listings; returns undefined for an id absent
-// from the table (defensive — callers drop unresolved rows). As of migration
+// from the table (defensive, callers drop unresolved rows). As of migration
 // 0008 the listing_id columns are a UUID FK to listings(id), so stored values
 // are guaranteed to reference a real listing.
 export async function getListingResolver(): Promise<
@@ -76,7 +76,7 @@ export async function getFilteredListings(
 }
 
 // Maps an `?area=` slug to its area UUID. Falls back to the slug itself when no
-// area matches (yields an empty filter result — correct for an unknown area).
+// area matches (yields an empty filter result, correct for an unknown area).
 async function areaSlugToUuid(slug: string): Promise<string> {
   const area = await getAreaBySlug(slug);
   return area?.id ?? slug;

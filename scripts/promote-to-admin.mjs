@@ -1,4 +1,4 @@
-// Phase 4a-2 — promote a user to admin (L-4a2.10).
+// Phase 4a-2, promote a user to admin (L-4a2.10).
 // Sets app_metadata.role = 'admin' on the target auth user via the service-role
 // admin API. Idempotent: a no-op (exit 0) if the user is already admin.
 //
@@ -11,13 +11,13 @@
 // containment lint forbids importing it outside app/admin/. Same pattern as
 // scripts/seed-3ba.mjs.
 //
-// Exit handling: set process.exitCode and return — never process.exit() after a
+// Exit handling: set process.exitCode and return, never process.exit() after a
 // network call. Forcing exit while undici (supabase-js fetch) sockets are mid-close
 // trips a libuv assertion on Windows (UV_HANDLE_CLOSING). Idle sockets drain on
 // their own keep-alive timeout, then the process exits cleanly.
 //
 // Session note (LOCK-4.10): a JWT minted before promotion does not carry the
-// claim until the session refreshes. No forced re-login at MVP — the admin
+// claim until the session refreshes. No forced re-login at MVP, the admin
 // signs out/in (or waits for refresh) to pick up the claim.
 
 import { createClient } from "@supabase/supabase-js";

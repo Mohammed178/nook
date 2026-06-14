@@ -1,11 +1,11 @@
-// Editorial imagery for the /areas pages — the area-level sibling of
+// Editorial imagery for the /areas pages, the area-level sibling of
 // university-content.ts. Photos are real Wikimedia Commons lead images of each
 // neighbourhood (hotlink-stable upload.wikimedia.org URLs, same source and
 // licence model as the campus photos). `photoFile` backs the attribution link
 // (https://commons.wikimedia.org/wiki/File:{photoFile}).
 //
 // Keyed by area SLUG (= area.id in the seed). An area absent from this map
-// (e.g. gombak — no representative free photo exists) renders the warm
+// (e.g. gombak, no representative free photo exists) renders the warm
 // token-band fallback rather than a misleading stock image (PRODUCT.md: never
 // claim or imply what isn't true).
 
