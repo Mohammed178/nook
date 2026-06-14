@@ -11,7 +11,7 @@
   --brand-100: #C8D9E6;
   --brand-200: #9FBCCD;
 
-  /* Accents — steel teal carries info/links; muted warm tones for state */
+  /* Accents, steel teal carries info/links; muted warm tones for state */
   --accent-orange:    #B0683F;
   --accent-orange-50: #F4E5D9;
   --accent-orange-600:#915020;
@@ -24,7 +24,7 @@
   --whatsapp:       #25D366;
   --whatsapp-600:   #1FB855;
 
-  /* Neutrals — slate-tinted ink for text (hue matched to the brand), warm
+  /* Neutrals, slate-tinted ink for text (hue matched to the brand), warm
      hairlines and washes (hue matched to the canvas). Lightness steps
      preserved from the old scale, so contrast holds everywhere. */
   --ink-900: #1F2B39;
@@ -52,7 +52,7 @@
   --danger-50: #F4DFDB;
   --danger-700: #7C3024;
 
-  /* Bright status — high-visibility pills + approve/reject actions. Vivid on
+  /* Bright status, high-visibility pills + approve/reject actions. Vivid on
      purpose (overrides the slate-muted semantics) so live/closed states and
      moderation actions read at a glance. */
   --status-green: #16A34A;
@@ -95,7 +95,7 @@
   --s-10: 40px;
   --s-12: 48px;
 
-  /* Shadows — tinted to the slate ink, not pure black */
+  /* Shadows, tinted to the slate ink, not pure black */
   --shadow-ink: 47, 65, 86;
   --shadow-sticky: 0 1px 3px rgba(var(--shadow-ink), 0.10);
   --shadow-card-hover: 0 2px 8px rgba(var(--shadow-ink), 0.10);
@@ -110,7 +110,7 @@
 
 }
 
-/* === Tailwind theme — expose tokens as utilities === */
+/* === Tailwind theme, expose tokens as utilities === */
 @theme inline {
   --color-brand-50:  var(--brand-50);
   --color-brand-100: var(--brand-100);
@@ -190,7 +190,7 @@ img { display: block; max-width: 100%; }
 .tabular { font-variant-numeric: tabular-nums; }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 
-/* Numeric voice — prices, stats, license + phone numbers read as data, in mono */
+/* Numeric voice, prices, stats, license + phone numbers read as data, in mono */
 .card-price-amt, .price-amt, .kpi-value,
 .stats-strip .stat .v, .lc .price,
 .price-divicon, .card-agent-license, .agent-meta-license,
@@ -244,7 +244,7 @@ img { display: block; max-width: 100%; }
 .pill-rejected { background: var(--danger-50); color: var(--danger-700); }
 
 /* Agent application-status header (/agents/pending) */
-/* Agent application status (/agents/pending) — centered single column, not the
+/* Agent application status (/agents/pending), centered single column, not the
    split login shell (which left an empty right track). */
 .auth-status-shell { place-items: center; padding: 40px 24px; }
 .auth-status {
@@ -330,12 +330,12 @@ img { display: block; max-width: 100%; }
 .nav-link:hover { color: var(--ink-900); text-decoration: none; background: var(--ink-100); }
 .nav-link.active { color: var(--ink-900); }
 .nav-link.active::after {
-  content: ''; position: absolute; left: 12px; right: 12px; bottom: -16px;
-  height: 2px; background: var(--brand-500);
+  content: ''; position: absolute; left: 12px; right: 12px; bottom: 3px;
+  height: 2px; border-radius: 2px; background: var(--brand-500);
 }
 .nav-right { display: flex; align-items: center; gap: 8px; }
 
-/* Condensed search pill — non-home pages only (gated by usePathname in component) */
+/* Condensed search pill, non-home pages only (gated by usePathname in component) */
 .nav-search-pill-wrap { position: relative; flex: 0 1 320px; min-width: 0; }
 .nav-search-pill {
   display: inline-flex; align-items: center; gap: 8px;
@@ -465,7 +465,7 @@ img { display: block; max-width: 100%; }
 /* === Footer === */
 .footer { background: var(--ink-900); color: var(--ink-300); padding: 40px 24px 24px; margin-top: 64px; }
 .footer-inner { max-width: var(--max-w); margin: 0 auto; }
-/* Trust band — folded in from the old homepage trust strip */
+/* Trust band, folded in from the old homepage trust strip */
 .footer-trust {
   display: flex; flex-wrap: wrap; gap: 12px 32px;
   padding-bottom: 28px; margin-bottom: 36px;
@@ -777,7 +777,7 @@ img { display: block; max-width: 100%; }
 html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arabic', system-ui, sans-serif; }
 
 /* === Homepage === */
-/* Split hero — light editorial: copy + search left, photo deck right.
+/* Split hero, light editorial: copy + search left, photo deck right.
    No photo wash, no white-on-image text. */
 .hero {
   position: relative; color: var(--ink-900);
@@ -803,7 +803,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   line-height: 1.6; margin-bottom: 32px;
 }
 
-/* Photo deck (right column) — stacked, slightly rotated, floating */
+/* Photo deck (right column), stacked, slightly rotated, floating */
 .hero-deck {
   position: relative; height: 480px;
   display: block;
@@ -901,7 +901,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .stats-strip .stat .v { font-size: 28px; font-weight: 800; line-height: 1; color: var(--ink-900); font-variant-numeric: tabular-nums; }
 .stats-strip .stat .l { font-size: 12px; color: var(--ink-600); margin-top: 9px; line-height: 1.45; max-width: 24ch; }
 
-/* University rail — kinetic marquee. Track holds the list twice; CSS slides
+/* University rail, kinetic marquee. Track holds the list twice; CSS slides
    it -50% on an infinite loop. Pauses on hover; reduced-motion falls back to
    a plain scrollable row. */
 .uni-rail {
@@ -944,7 +944,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .uni-card .count { font-size: 12px; color: var(--ink-700); font-weight: 600; line-height: 1.3; }
 .uni-card .price { font-size: 11px; color: var(--ink-500); margin-top: 4px; line-height: 1.3; }
 
-/* Featured listings — bento: 1 hero card (2 rows tall) + 2 minis + 1 wide.
+/* Featured listings, bento: 1 hero card (2 rows tall) + 2 minis + 1 wide.
    Exactly 4 items come from FEATURED_LISTINGS_LIMIT. */
 .lc-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; }
 .lc-grid > .lc:first-child { grid-row: 1 / 3; display: flex; flex-direction: column; }
@@ -985,7 +985,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .pill-verified-mini { background: var(--success-50); color: var(--success-700); }
 .pill-today-mini { background: var(--brand-100); color: var(--brand-700); }
 
-/* How it works — asymmetric split: sticky heading left, timeline right.
+/* How it works, asymmetric split: sticky heading left, timeline right.
    The vertical rule draws in on scroll (motion scaleY in the component). */
 .hiw { background: var(--ink-50); border-top: 1px solid var(--ink-200); border-bottom: 1px solid var(--ink-200); }
 .hiw-split { display: grid; grid-template-columns: 1fr 1.5fr; gap: 56px; align-items: start; }
@@ -1039,7 +1039,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .agent-card .areas { font-size: 11px; color: var(--ink-500); margin-top: 8px; line-height: 1.4; }
 .agent-card .star { color: var(--accent-yellow); }
 
-/* Closing band — asymmetric split echoing the hero: solid slate panel left,
+/* Closing band, asymmetric split echoing the hero: solid slate panel left,
    KL-night photo right with glass stat chips floating over it. */
 .big-cta {
   position: relative; overflow: hidden;
@@ -1092,7 +1092,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .big-cta-credit:hover { color: #fff; text-decoration: none; }
 
-/* Stats as floating glass chips — the hero deck's floating-card motif. */
+/* Stats as floating glass chips, the hero deck's floating-card motif. */
 .big-cta-stats {
   position: absolute; left: 24px; right: 24px; bottom: 24px;
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0;
@@ -1231,7 +1231,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 .list-stack { display: flex; flex-direction: column; gap: 12px; }
 
-/* Composed empty state — no dashed placeholder box */
+/* Composed empty state, no dashed placeholder box */
 .empty-state {
   padding: 72px 24px; text-align: center; color: var(--ink-500);
   background: var(--paper); border-radius: var(--r-lg);
@@ -1306,7 +1306,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .sheet { width: 100%; height: 80%; border-radius: 16px 16px 0 0; }
 }
 
-/* Detail page — gallery */
+/* Detail page, gallery */
 .gallery {
   max-width: var(--max-w); margin: 0 auto; padding: 0 24px;
   display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 220px 220px;
@@ -1330,7 +1330,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   box-shadow: 0 2px 6px rgba(var(--shadow-ink), 0.1); cursor: pointer;
 }
 
-/* Detail page — layout */
+/* Detail page, layout */
 .detail-layout {
   max-width: var(--max-w); margin: 24px auto 0; padding: 0 24px;
   display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start;
@@ -1353,7 +1353,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .price-amt { font-size: var(--t-2xl); font-weight: 700; color: var(--brand-500); font-variant-numeric: tabular-nums; }
 .price-amt .per { font-size: var(--t-md); color: var(--ink-500); font-weight: 500; margin-left: 4px; }
 
-/* Quick facts — de-carded: borderless strip, hairline dividers only */
+/* Quick facts, de-carded: borderless strip, hairline dividers only */
 .quick-facts {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
   padding: 18px 0;
@@ -1370,7 +1370,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .description p { font-size: var(--t-base); color: var(--ink-700); line-height: 1.6; margin-bottom: 12px; }
 .read-more { font-size: var(--t-sm); font-weight: 600; color: var(--brand-500); cursor: pointer; background: none; border: none; padding: 0; }
 
-/* Amenities — de-carded: plain 2-col checklist, no boxes */
+/* Amenities, de-carded: plain 2-col checklist, no boxes */
 .amenities { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 32px; }
 .amenity { display: flex; align-items: center; gap: 10px; font-size: var(--t-base); padding: 7px 0; color: var(--ink-800); }
 .amenity .ico { color: var(--success); flex-shrink: 0; }
@@ -1494,7 +1494,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .heads-up strong { display: block; color: var(--ink-900); margin-bottom: 4px; }
 
-/* Lightbox — backdrop is its own element so it can fade independently of the
+/* Lightbox, backdrop is its own element so it can fade independently of the
    photo, which morphs from the clicked gallery tile (shared layoutId) */
 .lightbox {
   position: fixed; inset: 0; z-index: 80;
@@ -1712,7 +1712,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .auth-form form .auth-submit { animation: none; }
 }
 
-/* Responsive collapse — the split shells were single-breakpoint only.
+/* Responsive collapse, the split shells were single-breakpoint only.
    Drop the decorative panels and stack to one readable column. */
 @media (max-width: 860px) {
   .auth-shell-login,
@@ -2455,7 +2455,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .heart-btn:hover { transform: scale(1.04); }
 .heart-btn:active { transform: scale(0.96); }
 .heart-btn.is-saved { color: var(--brand-600); }
-/* Pop on save — .just-saved is added only on interaction, so initially-saved
+/* Pop on save, .just-saved is added only on interaction, so initially-saved
    hearts don't all fire on page load */
 .heart-btn.just-saved svg { animation: heart-pop 380ms cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes heart-pop {
@@ -2593,7 +2593,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 
 /* ============================================================
-   Agent dashboard (Phase 4b) — reuses account-shell / pill / btn / field
+   Agent dashboard (Phase 4b), reuses account-shell / pill / btn / field
    primitives; tokens only, no literal colours.
    ============================================================ */
 .account-content-head {
@@ -2725,7 +2725,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .listing-row-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-/* Status pills — built on base .pill. draft = neutral ink; available =
+/* Status pills, built on base .pill. draft = neutral ink; available =
    success; reserved = warning; rented = muted ink. */
 .pill-dot {
   width: 6px; height: 6px; border-radius: 50%;
@@ -2736,7 +2736,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .pill-status-reserved  { background: var(--warning-50); color: var(--warning-700); }
 .pill-status-rented    { background: var(--status-red); color: #fff; }
 
-/* Listing form — checkbox groups + textarea + field-level error */
+/* Listing form, checkbox groups + textarea + field-level error */
 .textarea {
   width: 100%; padding: 9px 12px; border: 1px solid var(--ink-300);
   border-radius: var(--r-sm); background: var(--paper); color: var(--ink-900);
@@ -2900,7 +2900,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .uni-hero-credit:hover { color: var(--ink-700); text-decoration: none; }
 
-/* --- Detail: borderless facts strip (no cards — hairlines carry it) --- */
+/* --- Detail: borderless facts strip (no cards, hairlines carry it) --- */
 .uni-detail { padding-bottom: 80px; }
 .uni-facts {
   display: flex; margin: 26px 0 36px; padding: 0;
@@ -3030,7 +3030,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   font-variant-numeric: tabular-nums;
 }
 
-/* Hero fallback when Static Maps is unconfigured — slate band, no broken img. */
+/* Hero fallback when Static Maps is unconfigured, slate band, no broken img. */
 .area-hero-flat {
   background-image: linear-gradient(135deg, var(--brand-700), var(--brand-500));
 }
@@ -3107,6 +3107,183 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .area-board-row .campus { display: none; }
   .area-insights { grid-template-columns: 1fr; }
 }
+/* === Essentials: student survival guide === */
+.ess { padding-top: 48px; padding-bottom: 88px; }
+
+.ess-head {
+  display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px;
+  align-items: end; margin-bottom: 26px;
+}
+.ess-head .kicker {
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand-500); margin-bottom: 10px;
+}
+.ess-head h1 {
+  font-size: clamp(32px, 4.5vw, 52px); font-weight: 700;
+  letter-spacing: -0.02em; line-height: 1.04;
+}
+.ess-head .dek {
+  font-size: var(--t-base); color: var(--ink-500); line-height: 1.6;
+  max-width: 46ch; justify-self: end; padding-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sticky anchor nav, sits just under the topnav, scrolls sideways on mobile. */
+.ess-jump {
+  position: sticky; top: var(--nav-h); z-index: 5;
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 12px 0; margin-bottom: 18px;
+  background:
+    linear-gradient(to bottom, var(--canvas) 70%, rgba(245, 239, 235, 0));
+  border-bottom: 1px solid var(--ink-150);
+}
+.ess-jump-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: var(--r-pill);
+  background: var(--paper); border: 1px solid var(--ink-200);
+  font-size: var(--t-sm); font-weight: 600; color: var(--ink-700);
+  text-decoration: none; white-space: nowrap;
+  transition: border-color 140ms, color 140ms, background 140ms, transform 140ms;
+}
+.ess-jump-link:hover {
+  border-color: var(--brand-200); color: var(--brand-600);
+  background: var(--brand-50); text-decoration: none;
+  transform: translateY(-1px);
+}
+.ess-jump-link svg { color: var(--brand-500); }
+
+/* Category block, big faint index number, editorial header, card grid. */
+.ess-cat {
+  margin-top: 40px;
+  animation: uni-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 45ms);
+  scroll-margin-top: calc(var(--nav-h) + 64px);
+}
+.ess-cat-head {
+  display: grid; grid-template-columns: auto 1fr; gap: 20px;
+  align-items: start; margin-bottom: 20px;
+}
+.ess-cat-num {
+  font-size: clamp(34px, 4vw, 52px); font-weight: 800; line-height: 0.9;
+  letter-spacing: -0.03em; color: var(--brand-100);
+  font-variant-numeric: tabular-nums;
+}
+.ess-cat-intro { max-width: 64ch; }
+.ess-cat-intro .kicker {
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand-500); margin-bottom: 8px;
+}
+.ess-cat-intro h2 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: var(--t-2xl); font-weight: 700; letter-spacing: -0.01em;
+}
+.ess-cat-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--r-md);
+  background: var(--brand-50); color: var(--brand-500);
+  border: 1px solid var(--brand-100);
+}
+.ess-cat-intro p {
+  margin-top: 10px; font-size: var(--t-base); color: var(--ink-500);
+  line-height: 1.6;
+}
+
+.ess-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.ess-card { min-width: 0; }
+.ess-card > a,
+.ess-card-static {
+  display: flex; flex-direction: column; height: 100%;
+  background: var(--paper); border: 1px solid var(--ink-200);
+  border-radius: var(--r-md); padding: 16px 16px 0;
+  text-decoration: none; color: inherit;
+  transition: border-color 160ms, box-shadow 160ms, transform 160ms;
+}
+.ess-card > a:hover {
+  border-color: var(--ink-300); text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -14px rgba(47, 65, 86, 0.28);
+}
+.ess-card > a:active { transform: translateY(0) scale(0.995); }
+
+.ess-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 10px; margin-bottom: 7px;
+}
+.ess-card-top h3 {
+  font-size: var(--t-md); font-weight: 600; line-height: 1.25;
+}
+.ess-tag {
+  flex: none; font-size: var(--t-xxs); font-weight: 600; line-height: 1;
+  letter-spacing: 0.02em; text-transform: uppercase;
+  padding: 4px 7px; border-radius: var(--r-xs);
+  background: var(--brand-100); color: var(--brand-700);
+}
+.ess-what {
+  font-size: var(--t-sm); color: var(--ink-600); line-height: 1.55;
+  margin-bottom: 12px;
+}
+.ess-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+  margin-bottom: 12px;
+}
+.ess-price {
+  font-size: var(--t-sm); font-weight: 700; color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.ess-where {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--t-xs); color: var(--ink-500);
+}
+.ess-where svg { color: var(--ink-400); }
+.ess-go {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: auto; padding: 11px 0; gap: 12px;
+  border-top: 1px solid var(--ink-100);
+}
+.ess-host {
+  font-size: var(--t-xs); color: var(--ink-400);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ess-go-cta {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  font-size: var(--t-sm); font-weight: 600; color: var(--brand-500);
+}
+.ess-card > a:hover .ess-go-cta { color: var(--brand-600); }
+.ess-card > a:hover .ess-go-cta svg { transform: translateX(2px); }
+.ess-go-cta svg { transition: transform 160ms; }
+
+.ess-card-static { cursor: default; }
+
+.ess-note {
+  margin-top: 48px; padding: 18px 20px;
+  background: var(--ink-50); border: 1px solid var(--ink-150);
+  border-radius: var(--r-md);
+  font-size: var(--t-sm); color: var(--ink-500); line-height: 1.6;
+  max-width: 70ch;
+}
+.ess-note a { color: var(--brand-500); font-weight: 600; }
+
+@media (max-width: 720px) {
+  .ess-head { grid-template-columns: 1fr; gap: 14px; }
+  .ess-head .dek { justify-self: start; }
+  .ess-cat-head { grid-template-columns: 1fr; gap: 8px; }
+  .ess-cat-num { font-size: 30px; }
+  .ess-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ess-cat { animation: none; }
+  .ess-jump-link,
+  .ess-card > a,
+  .ess-go-cta svg { transition: none; }
+  .ess-card > a:hover { transform: none; }
+}
+
 /* === Map overlay cards (custom popup replacement on Google Maps) === */
 .map-overlay-card {
   position: relative;
@@ -3138,7 +3315,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .map-overlay-close:hover { color: var(--ink-900); border-color: var(--ink-400); }
 
 /* ============================================================
-   Account section — editorial reskin (Overview / Profile / Saved /
+   Account section, editorial reskin (Overview / Profile / Saved /
    Recent / Searches). Same trusted-notice-board DNA as /universities:
    cream canvas, hairline structure, clay as the single voice, tabular
    numerics. Asymmetric rail + headline-led heads; motion is
@@ -3285,7 +3462,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 
 /* ============================================================
-   /account — Overview landing
+   /account, Overview landing
    ============================================================ */
 .acct-overview { display: flex; flex-direction: column; gap: 56px; padding-top: 8px; }
 
@@ -3332,7 +3509,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .acct-meter-link:hover { text-decoration: underline; }
 .acct-meter-link { margin-top: 2px; }
 
-/* Stat grid — asymmetric: three counts as tabular headline numbers */
+/* Stat grid, asymmetric: three counts as tabular headline numbers */
 .acct-stats {
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
@@ -3375,7 +3552,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .acct-quick-row { display: flex; flex-wrap: wrap; gap: 14px; }
 
 /* ============================================================
-   Profile — editorial card sections
+   Profile, editorial card sections
    ============================================================ */
 .profile-form { max-width: 720px; gap: 22px; }
 .profile-section {
@@ -3397,7 +3574,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 
 /* ============================================================
-   Saved searches — editorial cards
+   Saved searches, editorial cards
    ============================================================ */
 .search-row {
   gap: 12px;
@@ -3454,7 +3631,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 
 /* ============================================================
-   Agent dashboard — editorial bodies (My listings + create/edit form).
+   Agent dashboard, editorial bodies (My listings + create/edit form).
    Shares the account shell + sidebar; this is the content-area treatment:
    kicker heads, listing rows that lift + cascade in, and the listing form
    as a single editorial card with a responsive two-column field grid.

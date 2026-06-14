@@ -8,7 +8,14 @@ import { getAllAreas } from "@/lib/data/areas";
 import { UNIVERSITIES } from "@/lib/seed/universities";
 
 interface NavbarProps {
-  active?: "home" | "listings" | "areas" | "universities" | "help" | "admin";
+  active?:
+    | "home"
+    | "listings"
+    | "areas"
+    | "universities"
+    | "essentials"
+    | "help"
+    | "admin";
   transparent?: boolean;
 }
 
@@ -17,6 +24,7 @@ const LINKS: { id: NonNullable<NavbarProps["active"]>; label: string; href: stri
   { id: "listings", label: "Find a room", href: "/listings" },
   { id: "areas", label: "Areas", href: "/areas" },
   { id: "universities", label: "Universities", href: "/universities" },
+  { id: "essentials", label: "Essentials", href: "/essentials" },
   { id: "help", label: "Help", href: "/help" },
   { id: "admin", label: "Admin", href: "/admin/agents" },
 ];
