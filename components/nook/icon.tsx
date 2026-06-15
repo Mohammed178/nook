@@ -47,6 +47,7 @@ import {
   Share2,
   BookmarkPlus,
   List as ListIcon,
+  Menu as MenuIcon,
   type LucideProps,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -103,6 +104,7 @@ export const ICON_NAMES = [
   "check-circle",
   "list",
   "bookmark",
+  "menu",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
@@ -157,6 +159,7 @@ const MAP: Record<Exclude<IconName, "whatsapp" | "heart-fill">, React.ComponentT
   "check-circle": CheckCircle2,
   list: ListIcon,
   bookmark: BookmarkPlus,
+  menu: MenuIcon,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {

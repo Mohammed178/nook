@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/nook/logo";
 import { NavSearchTrigger } from "./nav-search-trigger";
+import { MobileMenu } from "./mobile-menu";
 import { AccountMenu } from "./account-menu";
 import { LanguageSwitcher } from "@/components/nook/language-switcher";
 import { getCurrentUser } from "@/lib/auth";
@@ -37,15 +38,18 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
     { id: "admin", label: dict.nav.admin, href: "/admin/agents" },
   ];
 
+  const visibleLinks = links.filter((l) => l.id !== "admin" || user?.isAdmin);
+
   return (
     <header className={`topnav${transparent ? " transparent" : ""}`}>
       <div className="topnav-inner">
+        <MobileMenu links={visibleLinks} active={active} signedIn={!!user} />
         <Link href="/" className="logo" style={{ textDecoration: "none" }}>
           <LogoMark />
           <span>nook</span>
         </Link>
         <nav className="nav-links">
-          {links.filter((l) => l.id !== "admin" || user?.isAdmin).map((l) => (
+          {visibleLinks.map((l) => (
             <Link
               key={l.id}
               href={l.href}

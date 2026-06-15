@@ -2485,8 +2485,10 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(4px);
+  /* Opaque-enough white instead of backdrop-filter: this pill renders once per
+     card, and a blurred backdrop layer per card janks scrolling on low-end
+     GPUs. The solid wash reads the same over photos. */
+  background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 1px 3px rgba(var(--shadow-ink), 0.12);
 }
 .heart-btn-pill:hover { background: #fff; }
@@ -3785,3 +3787,103 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   color: #fff;
   border-color: var(--ink-700);
 }
+
+/* ============================================================
+   Mobile rendering audit (2026-06-15)
+   Cross-cutting fixes found auditing the mobile layout:
+   mobile nav drawer, horizontal-card stacking, iOS focus-zoom,
+   dynamic viewport height, and safe-area insets for fixed UI.
+   This block sits last so it wins the cascade.
+   ============================================================ */
+
+/* --- Mobile navigation drawer (hamburger) ---
+   The primary nav (.nav-links) is hidden <=768px; this drawer restores it. */
+.nav-menu-trigger { display: none; }
+@media (max-width: 768px) {
+  .nav-menu-trigger {
+    display: inline-grid; place-items: center;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: transparent; color: var(--ink-700);
+    flex-shrink: 0;
+  }
+  .nav-menu-trigger:hover { color: var(--ink-900); background: var(--ink-100); }
+  .topnav.transparent .nav-menu-trigger { color: #fff; }
+}
+.mobile-nav-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(18, 27, 38, 0.45);
+  display: flex; justify-content: flex-start;
+}
+[dir="rtl"] .mobile-nav-backdrop { justify-content: flex-end; }
+.mobile-nav-panel {
+  width: min(320px, 84vw); height: 100%;
+  background: var(--paper);
+  display: flex; flex-direction: column;
+  box-shadow: 8px 0 32px rgba(var(--shadow-ink), 0.20);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: mobile-nav-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[dir="rtl"] .mobile-nav-panel {
+  box-shadow: -8px 0 32px rgba(var(--shadow-ink), 0.20);
+  animation-name: mobile-nav-in-rtl;
+}
+@keyframes mobile-nav-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes mobile-nav-in-rtl { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-panel { animation: none; }
+}
+.mobile-nav-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid var(--ink-200);
+}
+.mobile-nav-list { display: flex; flex-direction: column; padding: 8px; gap: 2px; }
+.mobile-nav-link {
+  display: flex; align-items: center;
+  padding: 13px 14px; border-radius: var(--r-md);
+  font-size: var(--t-md); font-weight: 600; color: var(--ink-800);
+  text-decoration: none;
+}
+.mobile-nav-link:hover { background: var(--ink-100); color: var(--ink-900); text-decoration: none; }
+.mobile-nav-link.active { background: var(--brand-50); color: var(--brand-700); }
+.mobile-nav-foot {
+  margin-top: auto; display: flex; flex-direction: column; gap: 10px;
+  padding: 16px; border-top: 1px solid var(--ink-200);
+}
+
+/* --- Horizontal listing card stacks on phones ---
+   The 280px fixed photo otherwise crushes the body below ~560px. */
+@media (max-width: 560px) {
+  .card-h { flex-direction: column; }
+  .card-h .card-photo { flex: none; width: 100%; aspect-ratio: 16 / 10; }
+  .card-h .card-body { padding: 14px; }
+  .list-pane { padding: 12px 16px 84px; }
+}
+
+/* --- iOS focus-zoom guard ---
+   Safari zooms the page when a focused control's font-size < 16px. Bump form
+   controls to 16px on small screens; desktop keeps the intended smaller scale. */
+@media (max-width: 768px) {
+  .input, .select, .textarea, .sp-input, .sp-input-date,
+  .uni-search-input, .search-rename-input {
+    font-size: 16px;
+  }
+}
+
+/* --- Dynamic viewport height ---
+   100vh on mobile spans behind the retractable address bar, so full-height
+   panels overflow and jump. dvh tracks the actually-visible area. */
+@supports (height: 100dvh) {
+  .auth-shell { min-height: 100dvh; }
+  .map-pane { height: calc(100dvh - var(--nav-h) - var(--filter-h)); }
+  .body-split.show-map .map-pane {
+    height: calc(100dvh - var(--nav-h) - var(--filter-h));
+  }
+}
+
+/* --- Safe-area insets: keep fixed bottom UI clear of the home indicator --- */
+.mobile-cta-bar { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+.bottom-tab {
+  height: calc(56px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.map-toggle-floating { bottom: calc(24px + env(safe-area-inset-bottom)); }

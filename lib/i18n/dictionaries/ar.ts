@@ -42,6 +42,8 @@ const ar: Dictionary = {
     admin: "الإدارة",
     selectLanguage: "اختر اللغة",
     openSearch: "فتح البحث",
+    openMenu: "فتح القائمة",
+    menu: "القائمة",
     searchRoomsPlaceholder: "ابحث عن غرف قرب حرمك الجامعي",
     searchTitle: "بحث",
   },

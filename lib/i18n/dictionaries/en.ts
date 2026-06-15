@@ -45,6 +45,8 @@ const en = {
     admin: "Admin",
     selectLanguage: "Select language",
     openSearch: "Open search",
+    openMenu: "Open menu",
+    menu: "Menu",
     searchRoomsPlaceholder: "Search rooms near your campus",
     searchTitle: "Search",
   },

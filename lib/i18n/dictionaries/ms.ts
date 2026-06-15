@@ -41,6 +41,8 @@ const ms: Dictionary = {
     admin: "Admin",
     selectLanguage: "Pilih bahasa",
     openSearch: "Buka carian",
+    openMenu: "Buka menu",
+    menu: "Menu",
     searchRoomsPlaceholder: "Cari bilik berhampiran kampus anda",
     searchTitle: "Carian",
   },
