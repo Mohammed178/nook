@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/account/profile-form";
+import { getDictionary } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Profile · Nook",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.profile };
+}
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -15,23 +18,26 @@ export default async function ProfilePage() {
     redirect("/login?redirect=/account/profile");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name, email, phone, country, university_id, gender_preference")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, dict] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name, email, phone, country, university_id, gender_preference")
+      .eq("id", user.id)
+      .maybeSingle(),
+    getDictionary(),
+  ]);
+  const a = dict.account;
 
   return (
     <>
       <header className="account-page-head">
-        <span className="account-page-kicker">Your account</span>
-        <h1>Profile</h1>
-        <p className="account-page-sub">
-          Your details. Email change requires verification, coming later.
-        </p>
+        <span className="account-page-kicker">{a.yourAccount}</span>
+        <h1>{a.profileTitle}</h1>
+        <p className="account-page-sub">{a.profileSub}</p>
       </header>
 
       <ProfileForm
+        dict={dict}
         initial={{
           display_name: profile?.display_name ?? "",
           email: profile?.email ?? user.email ?? "",
