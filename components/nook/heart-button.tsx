@@ -4,6 +4,7 @@ import { useEffect, useOptimistic, useRef, useState, useTransition } from "react
 import { createPortal } from "react-dom";
 import { Icon } from "./icon";
 import { toggleFavouriteAction } from "@/app/listings/actions";
+import { useDict } from "@/lib/i18n/context";
 
 export type HeartVariant = "pill" | "icon";
 
@@ -32,9 +33,11 @@ export function HeartButton({
   initialSaved,
   signedIn,
   variant = "pill",
-  ariaLabel = "Save listing",
+  ariaLabel,
   onToggled,
 }: HeartButtonProps) {
+  const h = useDict().heart;
+  const label = ariaLabel ?? h.save;
   const [saved, setSaved] = useState<boolean>(initialSaved);
   // True only after the user saves in this session, gates the pop animation
   // so initially-saved hearts don't all fire on page load.
@@ -175,7 +178,7 @@ export function HeartButton({
               left: tooltipPos.left,
             }}
           >
-            Sign in to save listings
+            {h.signInToSave}
           </span>,
           document.body,
         )
@@ -187,7 +190,7 @@ export function HeartButton({
         ref={buttonRef}
         type="button"
         aria-pressed={filled}
-        aria-label={ariaLabel}
+        aria-label={label}
         className={btnClass}
         onClick={handleClick}
         onBlur={onBlur}

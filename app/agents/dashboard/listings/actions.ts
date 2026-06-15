@@ -14,6 +14,10 @@ import {
   type ListingInput,
 } from "@/lib/data/agent-listings";
 import type { FurnishingLevel, Gender, ListingType } from "@/lib/types";
+import { getDictionary } from "@/lib/i18n/server";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
+
+type Errors = Dictionary["errors"];
 
 // Server actions for the agent dashboard. Each parses FormData into a typed
 // ListingInput, then delegates to the RLS-enforced data layer
@@ -65,46 +69,47 @@ export interface ListingActionResult {
 // intentionally absent (LC-19 / L-4b.8).
 function parseListingForm(
   fd: FormData,
+  e: Errors,
 ): { input: ListingInput } | { fieldErrors: Record<string, string> } {
   const fieldErrors: Record<string, string> = {};
 
   const title = str(fd, "title");
-  if (!title) fieldErrors.title = "Add a title.";
+  if (!title) fieldErrors.title = e.addTitle;
 
   const type = oneOf(str(fd, "type"), LISTING_TYPES);
-  if (!type) fieldErrors.type = "Choose a property type.";
+  if (!type) fieldErrors.type = e.chooseType;
 
   const furnishing = oneOf(str(fd, "furnishing"), FURNISHINGS);
-  if (!furnishing) fieldErrors.furnishing = "Choose a furnishing level.";
+  if (!furnishing) fieldErrors.furnishing = e.chooseFurnishing;
 
   const description = str(fd, "description");
-  if (!description) fieldErrors.description = "Add a description.";
+  if (!description) fieldErrors.description = e.addDescription;
 
   const address = str(fd, "address");
-  if (!address) fieldErrors.address = "Add an address.";
+  if (!address) fieldErrors.address = e.addAddress;
 
   const areaId = str(fd, "areaId");
-  if (!areaId) fieldErrors.areaId = "Choose an area.";
+  if (!areaId) fieldErrors.areaId = e.chooseArea;
 
   const city = str(fd, "city");
-  if (!city) fieldErrors.city = "Add a city.";
+  if (!city) fieldErrors.city = e.addCity;
 
   const state = str(fd, "state");
-  if (!state) fieldErrors.state = "Add a state.";
+  if (!state) fieldErrors.state = e.addState;
 
   const availableFrom = str(fd, "availableFrom");
-  if (!availableFrom) fieldErrors.availableFrom = "Choose an available-from date.";
+  if (!availableFrom) fieldErrors.availableFrom = e.chooseAvailableFrom;
 
   const priceMonthly = reqInt(fd, "priceMonthly");
   if (priceMonthly == null || priceMonthly <= 0) {
-    fieldErrors.priceMonthly = "Add a monthly price above zero.";
+    fieldErrors.priceMonthly = e.addPrice;
   }
 
   const bedrooms = reqInt(fd, "bedrooms");
-  if (bedrooms == null || bedrooms < 0) fieldErrors.bedrooms = "Add the number of bedrooms.";
+  if (bedrooms == null || bedrooms < 0) fieldErrors.bedrooms = e.addBedrooms;
 
   const bathrooms = reqInt(fd, "bathrooms");
-  if (bathrooms == null || bathrooms < 0) fieldErrors.bathrooms = "Add the number of bathrooms.";
+  if (bathrooms == null || bathrooms < 0) fieldErrors.bathrooms = e.addBathrooms;
 
   const amenities = fd
     .getAll("amenities")
@@ -113,12 +118,12 @@ function parseListingForm(
 
   // Optional numerics, only included when provided and non-negative.
   const deposit = optInt(fd, "deposit");
-  if (deposit != null && deposit < 0) fieldErrors.deposit = "Deposit cannot be negative.";
+  if (deposit != null && deposit < 0) fieldErrors.deposit = e.depositNegative;
   const sizeSqft = optInt(fd, "sizeSqft");
-  if (sizeSqft != null && sizeSqft <= 0) fieldErrors.sizeSqft = "Size must be above zero.";
+  if (sizeSqft != null && sizeSqft <= 0) fieldErrors.sizeSqft = e.sizePositive;
   const minStayMonths = optInt(fd, "minStayMonths");
   if (minStayMonths != null && minStayMonths < 0) {
-    fieldErrors.minStayMonths = "Minimum stay cannot be negative.";
+    fieldErrors.minStayMonths = e.minStayNegative;
   }
 
   const genderPreference = oneOf(str(fd, "genderPreference"), GENDERS);
@@ -153,7 +158,8 @@ function parseListingForm(
 export async function createListingAction(
   fd: FormData,
 ): Promise<ListingActionResult> {
-  const parsed = parseListingForm(fd);
+  const e = (await getDictionary()).errors;
+  const parsed = parseListingForm(fd, e);
   if ("fieldErrors" in parsed) return { fieldErrors: parsed.fieldErrors };
 
   const result = await createListing(parsed.input);
@@ -167,8 +173,9 @@ export async function updateListingAction(
   id: string,
   fd: FormData,
 ): Promise<ListingActionResult> {
-  if (!id) return { error: "Missing listing id." };
-  const parsed = parseListingForm(fd);
+  const e = (await getDictionary()).errors;
+  if (!id) return { error: e.missingListingId };
+  const parsed = parseListingForm(fd, e);
   if ("fieldErrors" in parsed) return { fieldErrors: parsed.fieldErrors };
 
   const result = await updateListing(id, parsed.input);
@@ -222,9 +229,10 @@ export async function addListingPhotoAction(
   storagePath: string,
   altText: string,
 ): Promise<AddPhotoActionResult> {
-  if (!listingId || !storagePath) return { error: "Missing photo details." };
+  const dict = await getDictionary();
+  if (!listingId || !storagePath) return { error: dict.errors.missingPhotoDetails };
   const alt = altText.trim();
-  if (!alt) return { error: "Add alt text describing the photo." };
+  if (!alt) return { error: dict.photoManager.addAltText };
 
   const result = await addListingPhoto({ listingId, storagePath, altText: alt });
   if (!result.ok) return { error: result.error };
@@ -241,17 +249,18 @@ export async function removeListingPhotoAction(
   listingId: string,
   photoId: string,
 ): Promise<PhotoActionResult> {
-  if (!photoId) return { error: "Missing photo id." };
+  const e = (await getDictionary()).errors;
+  if (!photoId) return { error: e.missingPhotoId };
 
   const result = await removeListingPhoto(photoId);
   if (!result.ok) {
     if (result.reason === "last_photo") {
-      return { error: "A published listing must keep at least one photo." };
+      return { error: e.lastPhoto };
     }
     if (result.reason === "not_found") {
-      return { error: "Photo not found, or it is not yours to remove." };
+      return { error: e.photoNotFound };
     }
-    return { error: "Could not remove the photo. Try again." };
+    return { error: e.couldNotRemovePhoto };
   }
 
   revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
@@ -268,7 +277,7 @@ export async function setListingCoordsAction(
   lat: number,
   lng: number,
 ): Promise<PhotoActionResult> {
-  if (!listingId) return { error: "Missing listing id." };
+  if (!listingId) return { error: (await getDictionary()).errors.missingListingId };
 
   const result = await setListingCoords(listingId, lat, lng);
   if (!result.ok) return { error: result.error };
@@ -283,7 +292,8 @@ export async function setListingCoordsAction(
 export async function publishListingAction(
   listingId: string,
 ): Promise<PhotoActionResult> {
-  if (!listingId) return { error: "Missing listing id." };
+  const e = (await getDictionary()).errors;
+  if (!listingId) return { error: e.missingListingId };
 
   const result = await publishListing(listingId);
   if (result.ok) {
@@ -293,10 +303,10 @@ export async function publishListingAction(
   }
 
   const messages: Record<string, string> = {
-    needs_photos: "Add at least one photo (Photos section) before publishing.",
-    needs_coords: "Set the listing location (Location section) before publishing.",
-    not_found: "Listing not found, or it is not a draft you own.",
-    error: "Could not publish the listing. Try again.",
+    needs_photos: e.needsPhotos,
+    needs_coords: e.needsCoords,
+    not_found: e.listingNotFoundOwn,
+    error: e.couldNotPublish,
   };
   return { error: messages[result.reason] ?? messages.error };
 }
@@ -306,7 +316,7 @@ export async function reorderListingPhotosAction(
   orderedPhotoIds: string[],
 ): Promise<PhotoActionResult> {
   if (!listingId || orderedPhotoIds.length === 0) {
-    return { error: "Missing reorder details." };
+    return { error: (await getDictionary()).errors.missingReorder };
   }
 
   const result = await reorderListingPhotos(listingId, orderedPhotoIds);

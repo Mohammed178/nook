@@ -8,12 +8,13 @@ import { computeAllAreaStats } from "@/lib/data/area-stats";
 import { UNIVERSITIES } from "@/lib/seed/universities";
 import { AREA_CONTENT } from "@/lib/seed/area-content";
 import { formatPrice } from "@/lib/utils";
+import { getDictionary } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
 
-export const metadata: Metadata = {
-  title: "Areas · Nook",
-  description:
-    "Every Klang Valley neighbourhood students rent in, live room counts, typical rents, and the campuses each one is closest to, all computed from current listings.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.areas };
+}
 
 // Mosaic spans on the 6-column grid (12 areas). Rows resolve to
 // [4+2][3+3][2+2+2][2+2+2][4+2], the busiest area (stats are count-sorted)
@@ -21,10 +22,12 @@ export const metadata: Metadata = {
 const SPANS = [4, 2, 3, 3, 2, 2, 2, 2, 2, 2, 4, 2];
 
 export default async function AreasPage() {
-  const [areas, listings] = await Promise.all([
+  const [areas, listings, dict] = await Promise.all([
     getAllAreas(),
     getAllListings(),
+    getDictionary(),
   ]);
+  const t = dict.areas;
   const stats = computeAllAreaStats(listings, areas, UNIVERSITIES);
   const totalRooms = stats.reduce((n, s) => n + s.liveCount, 0);
 
@@ -35,27 +38,25 @@ export default async function AreasPage() {
       <div className="container uni-index">
         <header className="uni-index-head">
           <div>
-            <div className="kicker">Neighbourhoods</div>
+            <div className="kicker">{t.kicker}</div>
             <h1>
-              Where students
+              {t.headline1}
               <br />
-              actually rent.
+              {t.headline2}
             </h1>
           </div>
           <p className="dek">
-            {areas.length} Klang Valley areas, {totalRooms} live rooms between
-            them. Every count, rent, and campus distance below is computed from
-            current listings, never a claim.
+            {format(t.indexDek, { areas: areas.length, rooms: totalRooms })}
           </p>
         </header>
 
         {/* At-a-glance: the analytical overview, busiest areas first. */}
-        <section className="area-board" aria-label="Areas at a glance">
+        <section className="area-board" aria-label={t.atAGlance}>
           <div className="area-board-head" aria-hidden="true">
-            <span>Area</span>
-            <span className="num">Rooms</span>
-            <span className="num">From</span>
-            <span>Nearest campus</span>
+            <span>{t.colArea}</span>
+            <span className="num">{t.colRooms}</span>
+            <span className="num">{t.colFrom}</span>
+            <span>{t.colNearestCampus}</span>
           </div>
           <ul>
             {stats.map((s) => {
@@ -115,11 +116,17 @@ export default async function AreasPage() {
                     <div className="meta">
                       <span className="v">
                         {s.liveCount === 0
-                          ? "No rooms yet"
-                          : `${s.liveCount} ${s.liveCount === 1 ? "room" : "rooms"}`}
+                          ? t.noRoomsYet
+                          : format(s.liveCount === 1 ? t.roomCount : t.roomsCount, {
+                              count: s.liveCount,
+                            })}
                       </span>
                       {s.fromPrice != null && (
-                        <span className="v">from {formatPrice(s.fromPrice)}</span>
+                        <span className="v">
+                          {format(t.fromPriceShort, {
+                            price: formatPrice(s.fromPrice),
+                          })}
+                        </span>
                       )}
                     </div>
                   </div>

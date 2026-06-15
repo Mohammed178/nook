@@ -7,8 +7,10 @@ import { Icon } from "@/components/nook/icon";
 import { UniversitySearch } from "@/components/auth/university-search";
 import { GenderPicker } from "@/components/account/gender-picker";
 import { signUpAction } from "@/app/register/actions";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function RegisterForm() {
+export function RegisterForm({ dict }: { dict: Dictionary }) {
+  const t = dict.auth;
   const router = useRouter();
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,19 +33,16 @@ export function RegisterForm() {
 
   return (
     <>
-      <span className="auth-kicker">Get started</span>
-      <h2>Create your student account</h2>
-      <p className="auth-sub">
-        Save rooms, message agents, and get alerts when something near your campus drops in
-        price.
-      </p>
+      <span className="auth-kicker">{t.registerKicker}</span>
+      <h2>{t.registerTitle}</h2>
+      <p className="auth-sub">{t.registerSub}</p>
 
       {error ? <div className="auth-error">{error}</div> : null}
 
       <form onSubmit={onSubmit} noValidate>
         <div className="field">
           <label className="label" htmlFor="reg-name">
-            Display name
+            {t.displayName}
           </label>
           <input
             id="reg-name"
@@ -52,60 +51,55 @@ export function RegisterForm() {
             type="text"
             required
             autoComplete="name"
-            placeholder="Hidayah binti Kamarul"
+            placeholder={t.displayNamePlaceholder}
           />
-          <div className="help">Shown to agents when you message them.</div>
+          <div className="help">{t.displayNameHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="reg-email">
-            Email
+            {t.email}
           </label>
           <input
             id="reg-email"
-            className="input"
+            className="input force-ltr"
             name="email"
             type="email"
             required
             autoComplete="email"
-            placeholder="you@uni.edu.my"
+            placeholder={t.emailPlaceholder}
           />
-          <div className="help">
-            Use your university email if you have one, gets you a student verification
-            badge.
-          </div>
+          <div className="help">{t.emailHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="reg-phone">
-            Mobile (Malaysia)
+            {t.mobileMy}
           </label>
           <input
             id="reg-phone"
-            className="input"
+            className="input force-ltr"
             name="phone"
             type="tel"
             autoComplete="tel"
-            placeholder="+60 12 345 6789"
+            placeholder={t.mobilePlaceholder}
           />
         </div>
 
         <div className="field">
-          <label className="label">University</label>
+          <label className="label">{t.university}</label>
           <UniversitySearch name="university_id" />
         </div>
 
         <div className="field">
-          <label className="label">Roommate preference</label>
-          <GenderPicker name="gender_preference" ariaLabel="Roommate preference" />
-          <div className="help">
-            We&apos;ll prefer listings matching this. Change anytime in your profile.
-          </div>
+          <label className="label">{t.roommatePreference}</label>
+          <GenderPicker name="gender_preference" ariaLabel={t.roommatePreference} />
+          <div className="help">{t.roommateHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="reg-password">
-            Password
+            {t.password}
           </label>
           <div className="pw-wrap">
             <input
@@ -116,13 +110,13 @@ export function RegisterForm() {
               required
               minLength={8}
               autoComplete="new-password"
-              placeholder="At least 8 characters"
+              placeholder={t.passwordMinPlaceholder}
             />
             <button
               type="button"
               className="toggle-eye"
               onClick={() => setShowPw((v) => !v)}
-              aria-label={showPw ? "Hide password" : "Show password"}
+              aria-label={showPw ? t.hidePassword : t.showPassword}
             >
               <Icon name={showPw ? "eye-off" : "eye"} size={16} />
             </button>
@@ -132,9 +126,8 @@ export function RegisterForm() {
         <label className="check-row">
           <input type="checkbox" name="terms" required />
           <span>
-            I agree to Nook&apos;s <Link href="#">Terms of Service</Link> and{" "}
-            <Link href="#">Privacy Policy</Link>. I understand Nook is a listing platform,
-            agreements are between me and BOVAEP-licensed agents.
+            {t.termsAgree} <Link href="#">{t.termsOfService}</Link> {t.and}{" "}
+            <Link href="#">{t.privacyPolicy}</Link>{t.termsTail}
           </span>
         </label>
 
@@ -143,17 +136,17 @@ export function RegisterForm() {
           className="btn btn-primary btn-block auth-submit"
           disabled={pending}
         >
-          {pending ? "Creating account…" : "Create account"}
+          {pending ? t.creatingAccount : t.createAccount}
         </button>
       </form>
 
       <div className="auth-bottom">
         <span>
-          Already have an account? <Link href="/login">Sign in</Link>
+          {t.alreadyHaveAccount} <Link href="/login">{t.signIn}</Link>
         </span>
         <span>
-          Want to list a property?{" "}
-          <Link href="/agents/register">Register as an agent</Link>
+          {t.wantToList}{" "}
+          <Link href="/agents/register">{t.registerAsAgent}</Link>
         </span>
       </div>
     </>

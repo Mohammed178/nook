@@ -1,29 +1,45 @@
+import type { Metadata } from "next";
 import { Icon } from "@/components/nook/icon";
 import { listPendingAgents } from "./_data";
 import { approveAgentAction, rejectAgentAction } from "./actions";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
+import { format, LOCALE_DATE_TAG, type Locale } from "@/lib/i18n/config";
 
-export const metadata = {
-  title: "Pending agents · Nook",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.pendingAgents };
+}
 
-function formatSubmitted(iso: string): string {
+function formatSubmitted(iso: string, locale: Locale): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat("en-MY", { dateStyle: "medium" }).format(d);
+  return new Intl.DateTimeFormat(LOCALE_DATE_TAG[locale], {
+    dateStyle: "medium",
+  }).format(d);
 }
 
 export default async function AdminAgentsPage() {
-  const agents = await listPendingAgents();
+  const [agents, dict, locale] = await Promise.all([
+    listPendingAgents(),
+    getDictionary(),
+    getLocale(),
+  ]);
+  const t = dict.admin;
 
   return (
     <div>
       <div className="account-page-head">
-        <span className="account-page-kicker">Trust &amp; safety</span>
-        <h1>Pending agents</h1>
+        <span className="account-page-kicker">{t.trustSafety}</span>
+        <h1>{t.pendingAgents}</h1>
         <p className="account-page-sub">
           {agents.length === 0
-            ? "No applications waiting."
-            : `${agents.length} ${agents.length === 1 ? "application" : "applications"} awaiting review.`}
+            ? t.noApplications
+            : format(
+                agents.length === 1
+                  ? t.applicationAwaiting
+                  : t.applicationsAwaiting,
+                { count: agents.length },
+              )}
         </p>
       </div>
 
@@ -32,23 +48,21 @@ export default async function AdminAgentsPage() {
           <span className="saved-empty-icon" aria-hidden="true">
             <Icon name="check" size={28} />
           </span>
-          <h2>Queue clear</h2>
-          <p>
-            No agent applications waiting. New submissions land here for review.
-          </p>
+          <h2>{t.queueClear}</h2>
+          <p>{t.queueClearBody}</p>
         </div>
       ) : (
         <div className="admin-queue-wrap">
           <table className="admin-queue-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Agency</th>
-                <th>BOVAEP licence</th>
-                <th>Email</th>
-                <th>Registered</th>
-                <th>Status</th>
-                <th aria-label="Actions" />
+                <th>{t.colName}</th>
+                <th>{t.colAgency}</th>
+                <th>{t.colLicence}</th>
+                <th>{t.colEmail}</th>
+                <th>{t.colRegistered}</th>
+                <th>{t.colStatus}</th>
+                <th aria-label={t.colActions} />
               </tr>
             </thead>
             <tbody>
@@ -58,15 +72,15 @@ export default async function AdminAgentsPage() {
                   <td>{agent.agency ?? "-"}</td>
                   <td className="tabular">{agent.bovaepLicence ?? "-"}</td>
                   <td>{agent.email ?? "-"}</td>
-                  <td>{formatSubmitted(agent.submittedAt!)}</td>
+                  <td>{formatSubmitted(agent.submittedAt!, locale)}</td>
                   <td>
-                    <span className="pill pill-pending">Pending</span>
+                    <span className="pill pill-pending">{t.pending}</span>
                   </td>
                   <td className="admin-queue-actions">
                     <form action={approveAgentAction}>
                       <input type="hidden" name="agentId" value={agent.id} />
                       <button type="submit" className="btn btn-sm btn-approve">
-                        Approve
+                        {t.approve}
                       </button>
                     </form>
                     <form action={rejectAgentAction} className="admin-reject-form">
@@ -76,12 +90,12 @@ export default async function AdminAgentsPage() {
                         name="reason"
                         required
                         maxLength={500}
-                        placeholder="Reason"
-                        aria-label="Rejection reason"
+                        placeholder={t.reasonPlaceholder}
+                        aria-label={t.rejectionReason}
                         className="admin-reject-reason"
                       />
                       <button type="submit" className="btn btn-sm btn-reject">
-                        Reject
+                        {t.reject}
                       </button>
                     </form>
                   </td>

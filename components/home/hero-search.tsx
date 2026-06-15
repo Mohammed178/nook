@@ -4,43 +4,38 @@ import { SearchForm } from "@/components/home/search-form";
 import { HeroDeck } from "@/components/home/hero-deck";
 import { getAllAreas } from "@/lib/data/areas";
 import { UNIVERSITIES } from "@/lib/seed/universities";
-import {
-  HERO_DECK,
-  HERO_DECK_PILL,
-  HERO_HEADLINE,
-  HERO_LEDE,
-  HERO_SEARCH_HINTS,
-  QUICK_CHIPS,
-} from "@/lib/home-content";
+import { HERO_DECK, QUICK_CHIPS } from "@/lib/home-content";
+import { getDictionary } from "@/lib/i18n/server";
 
 export async function HeroSearch() {
-  const areas = await getAllAreas();
+  const [areas, dict] = await Promise.all([getAllAreas(), getDictionary()]);
+  const h = dict.home;
   return (
     <section className="hero">
       <Navbar active="home" />
       <div className="hero-inner">
         <div>
-          <h1>{HERO_HEADLINE}</h1>
-          <p className="lede">{HERO_LEDE}</p>
+          <h1>{h.heroHeadline}</h1>
+          <p className="lede">{h.heroLede}</p>
 
           <SearchForm
             variant="hero"
             areas={areas}
             universities={UNIVERSITIES}
-            placeholderHints={HERO_SEARCH_HINTS}
+            placeholderHints={h.searchHints}
           />
 
           <div className="quick-chips">
-            <span className="qc-label">Popular:</span>
-            {QUICK_CHIPS.map((c) => (
-              <Link key={c.label} href={c.href} className="qc-chip">
-                {c.label}
+            <span className="qc-label">{h.popular}</span>
+            {QUICK_CHIPS.map((c, i) => (
+              <Link key={c.href} href={c.href} className="qc-chip">
+                {h.quickChips[i] ?? c.label}
               </Link>
             ))}
           </div>
         </div>
 
-        <HeroDeck photos={HERO_DECK} pillText={HERO_DECK_PILL} />
+        <HeroDeck photos={HERO_DECK} pillText={h.deckPill} />
       </div>
     </section>
   );

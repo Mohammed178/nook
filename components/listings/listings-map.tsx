@@ -9,6 +9,7 @@ import {
   mapsConfigured,
 } from "@/components/maps/google";
 import { ListingCard } from "@/components/nook/listing-card";
+import { useDict } from "@/lib/i18n/context";
 import type { ListingWithRelations } from "@/lib/types";
 
 interface ListingsMapProps {
@@ -32,6 +33,8 @@ export function ListingsMap({
   setActiveId,
   currentQuery,
 }: ListingsMapProps) {
+  const dict = useDict();
+  const card = dict.card;
   const [openId, setOpenId] = useState<string | null>(null);
 
   // lat/lng are nullable since 4b (drafts carry no coordinates). The map only
@@ -98,7 +101,7 @@ export function ListingsMap({
                 <button
                   type="button"
                   className="map-overlay-close"
-                  aria-label="Close listing preview"
+                  aria-label={dict.maps.closeListingPreview}
                   onClick={() => setOpenId(null)}
                 >
                   ×
@@ -107,6 +110,7 @@ export function ListingsMap({
                   listing={open.item.listing}
                   agent={open.item.agent}
                   area={open.item.area}
+                  card={card}
                   variant="map"
                   currentQuery={currentQuery}
                 />

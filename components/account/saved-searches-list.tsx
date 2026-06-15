@@ -10,24 +10,29 @@ import {
 } from "react";
 import { Icon } from "@/components/nook/icon";
 import { buildListingsHref } from "@/lib/listings-search";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import {
   deleteSavedSearchAction,
   renameSavedSearchAction,
 } from "@/app/account/searches/actions";
 import type { SavedSearchRow } from "@/lib/saved-searches";
 
+type SavedSearchesDict = Dictionary["savedSearches"];
+
 interface SavedSearchesListProps {
   initial: SavedSearchRow[];
 }
 
-function relativeDate(iso: string): string {
+function relativeDate(iso: string, s: SavedSearchesDict): string {
   const then = new Date(iso).getTime();
   const days = Math.floor((Date.now() - then) / 86_400_000);
-  if (days <= 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 30) return `${days} days ago`;
-  if (days < 60) return "a month ago";
-  return `${Math.floor(days / 30)} months ago`;
+  if (days <= 0) return s.today;
+  if (days === 1) return s.yesterday;
+  if (days < 30) return format(s.daysAgo, { n: days });
+  if (days < 60) return s.aMonthAgo;
+  return format(s.monthsAgo, { n: Math.floor(days / 30) });
 }
 
 type Action =
@@ -35,6 +40,8 @@ type Action =
   | { kind: "rename"; id: string; name: string };
 
 export function SavedSearchesList({ initial }: SavedSearchesListProps) {
+  const dict = useDict();
+  const s = dict.savedSearches;
   const [items, setItems] = useState<SavedSearchRow[]>(initial);
   const [optimisticItems, applyOptimistic] = useOptimistic<
     SavedSearchRow[],
@@ -120,12 +127,12 @@ export function SavedSearchesList({ initial }: SavedSearchesListProps) {
   return (
     <>
       <header className="account-page-head">
-        <span className="account-page-kicker">Your account</span>
-        <h1>Saved searches</h1>
+        <span className="account-page-kicker">{dict.accountHome.yourAccount}</span>
+        <h1>{dict.accountNav.savedSearches}</h1>
         <p className="account-page-sub">
           {count === 0
-            ? "No saved searches yet."
-            : `${count} ${count === 1 ? "search" : "searches"}.`}
+            ? s.noneYet
+            : `${format(count === 1 ? s.countSearch : s.countSearches, { count })}.`}
         </p>
       </header>
 
@@ -140,10 +147,10 @@ export function SavedSearchesList({ initial }: SavedSearchesListProps) {
           <span className="saved-empty-icon" aria-hidden="true">
             <Icon name="search" size={28} />
           </span>
-          <h2>No saved searches yet</h2>
-          <p>Hit “Save this search” on the listings page to keep one here.</p>
+          <h2>{s.emptyTitle}</h2>
+          <p>{s.emptyBody}</p>
           <Link href="/listings" className="btn btn-primary">
-            Browse listings
+            {dict.accountHome.browseListings}
           </Link>
         </div>
       ) : (
@@ -153,6 +160,7 @@ export function SavedSearchesList({ initial }: SavedSearchesListProps) {
               key={row.id}
               index={i}
               row={row}
+              s={s}
               editing={editingId === row.id}
               confirmingDelete={confirmingDeleteId === row.id}
               onEdit={() => {
@@ -177,6 +185,7 @@ interface SavedSearchRowViewProps {
   index: number;
   editing: boolean;
   confirmingDelete: boolean;
+  s: SavedSearchesDict;
   onEdit: () => void;
   onCancelEdit: () => void;
   onSubmitName: (name: string) => void;
@@ -190,6 +199,7 @@ function SavedSearchRowView({
   index,
   editing,
   confirmingDelete,
+  s,
   onEdit,
   onCancelEdit,
   onSubmitName,
@@ -197,6 +207,7 @@ function SavedSearchRowView({
   onConfirmDelete,
   onCancelDelete,
 }: SavedSearchRowViewProps) {
+  const common = useDict().common;
   const inputRef = useRef<HTMLInputElement>(null);
   const deleteBtnRef = useRef<HTMLButtonElement>(null);
   const prevConfirmingRef = useRef(confirmingDelete);
@@ -234,14 +245,14 @@ function SavedSearchRowView({
               }}
             />
             <button type="submit" className="btn btn-primary btn-sm">
-              Save
+              {common.save}
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={onCancelEdit}
             >
-              Cancel
+              {common.cancel}
             </button>
           </form>
         ) : (
@@ -258,13 +269,14 @@ function SavedSearchRowView({
           ))}
         </div>
       ) : (
-        <div className="search-chips search-chips-empty">No filters</div>
+        <div className="search-chips search-chips-empty">{s.noFilters}</div>
       )}
 
       <div className="search-row-meta">
-        <strong>{row.matchCount}</strong>{" "}
-        {row.matchCount === 1 ? "match" : "matches"} now · Saved{" "}
-        {relativeDate(row.createdAt)}
+        {format(row.matchCount === 1 ? s.matchNow : s.matchesNow, {
+          count: row.matchCount,
+          when: relativeDate(row.createdAt, s),
+        })}
       </div>
 
       {!editing ? (
@@ -273,15 +285,15 @@ function SavedSearchRowView({
             href={buildListingsHref(row.query)}
             className="btn btn-primary btn-sm"
           >
-            Run search
+            {s.runSearch}
           </Link>
           <button
             type="button"
             className="btn btn-secondary btn-sm"
             onClick={onEdit}
-            aria-label={`Rename ${row.name}`}
+            aria-label={format(s.renameAria, { name: row.name })}
           >
-            Rename
+            {s.rename}
           </button>
           {confirmingDelete ? (
             <>
@@ -289,18 +301,18 @@ function SavedSearchRowView({
                 type="button"
                 className="btn btn-sm search-row-delete-confirm"
                 onClick={onConfirmDelete}
-                aria-label={`Confirm delete ${row.name}`}
+                aria-label={format(s.confirmDeleteAria, { name: row.name })}
                 autoFocus
               >
-                Confirm delete
+                {s.confirmDelete}
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={onCancelDelete}
-                aria-label="Cancel delete"
+                aria-label={s.cancelDelete}
               >
-                Cancel
+                {common.cancel}
               </button>
             </>
           ) : (
@@ -309,9 +321,9 @@ function SavedSearchRowView({
               type="button"
               className="btn btn-ghost btn-sm search-row-delete"
               onClick={onRequestDelete}
-              aria-label={`Delete ${row.name}`}
+              aria-label={format(s.deleteAria, { name: row.name })}
             >
-              Delete
+              {s.delete}
             </button>
           )}
         </div>

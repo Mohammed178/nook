@@ -8,6 +8,7 @@ import {
   mapsConfigured,
 } from "@/components/maps/google";
 import { formatPrice } from "@/lib/utils";
+import { useDict } from "@/lib/i18n/context";
 import type { AreaMapProps } from "./area-map";
 
 // Google Maps half of the area map (loaded ssr:false). A centre pin marks the
@@ -16,6 +17,7 @@ import type { AreaMapProps } from "./area-map";
 // cards are the accessible alternative.
 
 export function AreaMapGoogle({ name, label, lat, lng, listings }: AreaMapProps) {
+  const common = useDict().common;
   const [openId, setOpenId] = useState<string | null>(null);
 
   if (!mapsConfigured) {
@@ -63,7 +65,7 @@ export function AreaMapGoogle({ name, label, lat, lng, listings }: AreaMapProps)
                 <button
                   type="button"
                   className="map-overlay-close"
-                  aria-label="Close"
+                  aria-label={common.close}
                   onClick={() => setOpenId(null)}
                 >
                   ×

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { SearchForm } from "@/components/home/search-form";
+import { useDict } from "@/lib/i18n/context";
 import type { Area, University } from "@/lib/types";
 
 interface NavSearchTriggerProps {
@@ -15,6 +16,7 @@ export function NavSearchTrigger({
   areas,
   universities,
 }: NavSearchTriggerProps) {
+  const dict = useDict();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -65,16 +67,16 @@ export function NavSearchTrigger({
         className="nav-search-pill"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label="Open search"
+        aria-label={dict.nav.openSearch}
       >
-        <span className="ph">Search rooms near your campus</span>
+        <span className="ph">{dict.nav.searchRoomsPlaceholder}</span>
         <span className="nsp-icon">
           <Icon name="search" size={14} strokeWidth={2.4} />
         </span>
       </button>
 
       {open && !isMobile && (
-        <div className="popover nav-search-popover" role="dialog" aria-label="Search">
+        <div className="popover nav-search-popover" role="dialog" aria-label={dict.nav.searchTitle}>
           <SearchForm
               variant="popover"
               onSubmitNavigate={close}
@@ -93,12 +95,12 @@ export function NavSearchTrigger({
         >
           <div className="sheet nav-search-sheet">
             <div className="sheet-head">
-              <h2 style={{ fontSize: "var(--t-lg)", fontWeight: 700 }}>Search</h2>
+              <h2 style={{ fontSize: "var(--t-lg)", fontWeight: 700 }}>{dict.nav.searchTitle}</h2>
               <button
                 type="button"
                 className="btn btn-icon"
                 onClick={close}
-                aria-label="Close"
+                aria-label={dict.common.close}
               >
                 <Icon name="x" size={16} />
               </button>

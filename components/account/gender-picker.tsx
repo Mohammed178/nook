@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const OPTIONS = [
-  { value: "female", label: "Female-only" },
-  { value: "male", label: "Male-only" },
-  { value: "mixed", label: "Mixed" },
-  { value: "", label: "Skip" },
-] as const;
+import { useDict } from "@/lib/i18n/context";
 
 interface GenderPickerProps {
   name: string;
@@ -18,15 +12,26 @@ interface GenderPickerProps {
 export function GenderPicker({
   name,
   defaultValue = "",
-  ariaLabel = "Gender preference",
+  ariaLabel,
 }: GenderPickerProps) {
+  const g = useDict().genderPicker;
+  const options = [
+    { value: "female", label: g.femaleOnly },
+    { value: "male", label: g.maleOnly },
+    { value: "mixed", label: g.mixed },
+    { value: "", label: g.skip },
+  ] as const;
   const [value, setValue] = useState<string>(defaultValue);
 
   return (
     <>
       <input type="hidden" name={name} value={value} />
-      <div className="gender-pills" role="radiogroup" aria-label={ariaLabel}>
-        {OPTIONS.map((opt) => (
+      <div
+        className="gender-pills"
+        role="radiogroup"
+        aria-label={ariaLabel ?? g.ariaLabel}
+      >
+        {options.map((opt) => (
           <button
             key={opt.value || "skip"}
             type="button"

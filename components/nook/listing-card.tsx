@@ -5,6 +5,8 @@ import type { Agent, Area, Listing } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import { nearestCampus } from "@/lib/distance";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
+import { format } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 export type ListingCardVariant =
   | "vertical"
@@ -17,6 +19,7 @@ interface ListingCardProps {
   listing: Listing;
   agent: Agent | null;
   area: Area | null;
+  card: Dictionary["card"];
   variant?: ListingCardVariant;
   href?: string;
   currentQuery?: string;
@@ -39,6 +42,7 @@ export function ListingCard({
   listing,
   agent,
   area,
+  card: c,
   variant = "vertical",
   href,
   currentQuery,
@@ -60,7 +64,10 @@ export function ListingCard({
   // derived from coords. Coordless listing → no label.
   const nearestCmp = nearestCampus(listing.lat, listing.lng);
   const distanceLabel = nearestCmp
-    ? `${nearestCmp.km.toFixed(1)} km from ${UNIVERSITY_BY_ID[nearestCmp.uniId]?.shortName ?? "campus"}`
+    ? format(c.kmFromUni, {
+        km: nearestCmp.km.toFixed(1),
+        uni: UNIVERSITY_BY_ID[nearestCmp.uniId]?.shortName ?? c.campus,
+      })
     : "";
 
   if (variant === "mini") {
@@ -72,7 +79,7 @@ export function ListingCard({
         <div className="card-body">
           <div className="card-price-amt">
             {formatPrice(listing.priceMonthly)}
-            <span className="per">/mo</span>
+            <span className="per">{c.perMonth}</span>
           </div>
           <div className="card-title" style={{ fontSize: "var(--t-sm)" }}>
             {listing.title}
@@ -95,24 +102,24 @@ export function ListingCard({
             {agent?.status === "approved" && (
               <span className="pill-mini pill-verified-mini">
                 <Icon name="check" size={10} />
-                Verified
+                {c.verified}
               </span>
             )}
             {listing.listedToday && (
-              <span className="pill-mini pill-today-mini">Today</span>
+              <span className="pill-mini pill-today-mini">{c.today}</span>
             )}
           </div>
         </div>
         <div className="body">
           <div className="price">
             {formatPrice(listing.priceMonthly)}
-            <span className="per"> /mo</span>
+            <span className="per"> {c.perMonth}</span>
           </div>
           <div className="lc-title">{listing.title}</div>
           <div className="meta">
             <Icon name="pin" size={12} />
             <span>
-              {areaLabel} · {listing.bedrooms} bed · {listing.bathrooms} bath
+              {areaLabel} · {listing.bedrooms} {c.bed} · {listing.bathrooms} {c.bath}
             </span>
           </div>
           {agent && (
@@ -137,14 +144,14 @@ export function ListingCard({
           <div className="badges-tl">
             <span className="pill pill-verified">
               <Icon name="check" size={10} />
-              Verified
+              {c.verified}
             </span>
           </div>
         </div>
         <div className="card-body">
           <div className="card-price-amt">
             {formatPrice(listing.priceMonthly)}
-            <span className="per">/mo</span>
+            <span className="per">{c.perMonth}</span>
           </div>
           <div className="card-title" style={{ fontSize: "var(--t-sm)" }}>
             {listing.title}
@@ -187,7 +194,7 @@ export function ListingCard({
           {agent?.status === "approved" && (
             <span className="pill pill-verified">
               <Icon name="check" size={10} />
-              Verified
+              {c.verified}
             </span>
           )}
         </div>
@@ -205,7 +212,7 @@ export function ListingCard({
         <div className="card-price">
           <div className="card-price-amt">
             {formatPrice(listing.priceMonthly)}
-            <span className="per">/mo</span>
+            <span className="per">{c.perMonth}</span>
           </div>
         </div>
         <div className="card-title">{listing.title}</div>
@@ -217,22 +224,22 @@ export function ListingCard({
         <div className="card-facts">
           <span>
             <Icon name="bed" size={14} />
-            {listing.bedrooms} bed
+            {listing.bedrooms} {c.bed}
           </span>
           <span>
             <Icon name="bath" size={14} />
-            {listing.bathrooms} bath
+            {listing.bathrooms} {c.bath}
           </span>
           {listing.sizeSqft && (
             <span>
               <Icon name="ruler" size={14} />
-              {listing.sizeSqft} sqft
+              {listing.sizeSqft} {c.sqft}
             </span>
           )}
           {listing.furnishing === "full" && (
             <span style={{ color: "var(--success)" }}>
               <Icon name="check" size={14} />
-              Furnished
+              {c.furnished}
             </span>
           )}
         </div>
@@ -249,17 +256,17 @@ export function ListingCard({
                   {agent.agency ? ` · ${agent.agency}` : ""}
                 </div>
                 <div className="card-agent-license tabular">
-                  {agent.status === "approved" ? "BOVAEP verified" : " "}
+                  {agent.status === "approved" ? c.bovaepVerified : " "}
                 </div>
               </div>
               <div className="card-actions">
-                <span className="btn btn-ico wa" title="WhatsApp" aria-hidden="true">
+                <span className="btn btn-ico wa" title={c.whatsapp} aria-hidden="true">
                   <Icon name="whatsapp" size={14} />
                 </span>
-                <span className="btn btn-ico call" title="Call" aria-hidden="true">
+                <span className="btn btn-ico call" title={c.call} aria-hidden="true">
                   <Icon name="phone" size={14} />
                 </span>
-                <span className="btn btn-primary btn-sm">Contact</span>
+                <span className="btn btn-primary btn-sm">{c.contact}</span>
               </div>
             </div>
           </>

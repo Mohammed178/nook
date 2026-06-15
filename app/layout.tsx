@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/nook/footer";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
+import { dirFor } from "@/lib/i18n/config";
+import { I18nProvider } from "@/lib/i18n/context";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -21,18 +24,24 @@ export const metadata: Metadata = {
     "Find verified student rooms, studios and apartments near UM, UKM, UPM, UiTM, MMU, Sunway and more.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+  const dict = await getDictionary(locale);
+
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={dirFor(locale)}
       className={`${geist.variable} ${geistMono.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <I18nProvider dict={dict} locale={locale}>
+          <main className="flex-1">{children}</main>
+          <Footer dict={dict} />
+        </I18nProvider>
       </body>
     </html>
   );

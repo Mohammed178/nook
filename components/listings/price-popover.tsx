@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
 
 interface PricePopoverProps {
   initialMin?: number;
@@ -68,6 +69,8 @@ export function PricePopover({
 }
 
 function PricePanel({ initialMin, initialMax, onApply, onClose }: PanelProps) {
+  const dict = useDict();
+  const l = dict.listings;
   const [min, setMin] = useState(initialMin?.toString() ?? "");
   const [max, setMax] = useState(initialMax?.toString() ?? "");
 
@@ -78,9 +81,9 @@ function PricePanel({ initialMin, initialMax, onApply, onClose }: PanelProps) {
   const rangeInvalid = minN != null && maxN != null && !Number.isNaN(minN) && !Number.isNaN(maxN) && minN > maxN;
   const invalid = minInvalid || maxInvalid || rangeInvalid;
   const error = rangeInvalid
-    ? "Minimum price cannot be larger than the maximum price"
+    ? l.priceRangeError
     : minInvalid || maxInvalid
-      ? "Enter a valid amount"
+      ? l.enterValidAmount
       : null;
 
   function submit(e: FormEvent<HTMLFormElement>) {
@@ -105,12 +108,12 @@ function PricePanel({ initialMin, initialMax, onApply, onClose }: PanelProps) {
     >
           <div className="popover-row">
             <label style={{ fontSize: "var(--t-xs)", color: "var(--ink-700)", flex: 1 }}>
-              Min RM
+              {l.minRM}
               <input
                 type="number"
                 inputMode="numeric"
                 min={0}
-                className="input"
+                className="input force-ltr"
                 value={min}
                 onChange={(e) => setMin(e.target.value)}
                 aria-invalid={minInvalid || rangeInvalid || undefined}
@@ -122,12 +125,12 @@ function PricePanel({ initialMin, initialMax, onApply, onClose }: PanelProps) {
               />
             </label>
             <label style={{ fontSize: "var(--t-xs)", color: "var(--ink-700)", flex: 1 }}>
-              Max RM
+              {l.maxRM}
               <input
                 type="number"
                 inputMode="numeric"
                 min={0}
-                className="input"
+                className="input force-ltr"
                 value={max}
                 onChange={(e) => setMax(e.target.value)}
                 aria-invalid={maxInvalid || rangeInvalid || undefined}
@@ -150,7 +153,7 @@ function PricePanel({ initialMin, initialMax, onApply, onClose }: PanelProps) {
               className="btn btn-secondary btn-sm"
               onClick={clear}
             >
-              Clear
+              {dict.common.clear}
             </button>
             <button
               type="submit"
@@ -158,7 +161,7 @@ function PricePanel({ initialMin, initialMax, onApply, onClose }: PanelProps) {
               disabled={invalid}
               aria-disabled={invalid}
             >
-              Apply
+              {dict.common.apply}
             </button>
           </div>
     </form>

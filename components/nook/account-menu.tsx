@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { signOutAction } from "@/app/account/actions";
+import { useDict } from "@/lib/i18n/context";
 import type { AgentStatus } from "@/lib/types";
 
 interface AccountMenuProps {
@@ -12,6 +13,7 @@ interface AccountMenuProps {
 }
 
 export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
+  const m = useDict().accountMenu;
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +54,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
         <div className="account-menu" role="menu">
           <div className="account-menu-head">
             <div className="account-menu-name">{displayName}</div>
-            <div className="account-menu-sub">Signed in</div>
+            <div className="account-menu-sub">{m.signedIn}</div>
           </div>
           <Link
             href="/account"
@@ -60,7 +62,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
             role="menuitem"
             onClick={() => setOpen(false)}
           >
-            <Icon name="user" size={14} /> Account
+            <Icon name="user" size={14} /> {m.account}
           </Link>
           <Link
             href="/account/saved"
@@ -68,7 +70,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
             role="menuitem"
             onClick={() => setOpen(false)}
           >
-            <Icon name="heart" size={14} /> Saved
+            <Icon name="heart" size={14} /> {m.saved}
           </Link>
           <Link
             href="/account/recent"
@@ -76,7 +78,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
             role="menuitem"
             onClick={() => setOpen(false)}
           >
-            <Icon name="calendar" size={14} /> Recent
+            <Icon name="calendar" size={14} /> {m.recent}
           </Link>
           <Link
             href="/account/searches"
@@ -84,7 +86,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
             role="menuitem"
             onClick={() => setOpen(false)}
           >
-            <Icon name="search" size={14} /> Saved searches
+            <Icon name="search" size={14} /> {m.savedSearches}
           </Link>
           {agentStatus === "approved" ? (
             <Link
@@ -93,7 +95,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
               role="menuitem"
               onClick={() => setOpen(false)}
             >
-              <Icon name="grid" size={14} /> Agent dashboard
+              <Icon name="grid" size={14} /> {m.agentDashboard}
             </Link>
           ) : null}
           {agentStatus === "pending" || agentStatus === "rejected" ? (
@@ -103,7 +105,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
               role="menuitem"
               onClick={() => setOpen(false)}
             >
-              <Icon name="shield" size={14} /> Application status
+              <Icon name="shield" size={14} /> {m.applicationStatus}
             </Link>
           ) : null}
           <div className="account-menu-divider" />
@@ -113,7 +115,7 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
               className="account-menu-item account-menu-item-danger"
               role="menuitem"
             >
-              <Icon name="log-out" size={14} /> Sign out
+              <Icon name="log-out" size={14} /> {m.signOut}
             </button>
           </form>
         </div>

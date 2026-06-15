@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/nook/icon";
 import { signOutAction } from "@/app/account/actions";
+import { useDict } from "@/lib/i18n/context";
 
 // Forked from account-sidebar (Q5): account-sidebar hardcodes the /account NAV
 // and is not parameterised. This reuses the .account-sidebar / .account-nav*
@@ -15,10 +16,6 @@ interface NavItem {
   label: string;
   icon: IconName;
 }
-
-const NAV: NavItem[] = [
-  { href: "/admin/agents", label: "Pending agents", icon: "shield" },
-];
 
 interface AdminSidebarProps {
   displayName: string;
@@ -32,10 +29,16 @@ function initials(name: string): string {
 }
 
 export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
+  const dict = useDict();
+  const a = dict.admin;
   const pathname = usePathname();
 
+  const NAV: NavItem[] = [
+    { href: "/admin/agents", label: a.pendingAgents, icon: "shield" },
+  ];
+
   return (
-    <aside className="account-sidebar" aria-label="Admin navigation">
+    <aside className="account-sidebar" aria-label={a.navAria}>
       <header className="account-sidebar-head">
         <span className="account-sidebar-avatar" aria-hidden="true">
           {initials(displayName)}
@@ -45,7 +48,7 @@ export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
           <div className="account-sidebar-email" title={email}>
             {email}
           </div>
-          <div className="account-sidebar-role">Admin · Trust &amp; safety</div>
+          <div className="account-sidebar-role">{a.role}</div>
         </div>
       </header>
       <ul className="account-nav">
@@ -73,7 +76,7 @@ export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
               className="account-nav-item account-nav-item-danger"
             >
               <Icon name="log-out" size={16} />
-              <span>Sign out</span>
+              <span>{dict.accountNav.signOut}</span>
             </button>
           </form>
         </li>

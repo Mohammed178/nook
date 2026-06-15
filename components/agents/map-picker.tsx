@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { setListingCoordsAction } from "@/app/agents/dashboard/listings/actions";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 
 // Phase 4c-B2, agent map-picker (edit-page sibling section).
 //
@@ -44,6 +46,8 @@ function parseCoord(raw: string): number | null {
 }
 
 export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps) {
+  const dict = useDict();
+  const t = dict.mapPicker;
   const router = useRouter();
   const [lat, setLat] = useState<number | null>(initialLat);
   const [lng, setLng] = useState<number | null>(initialLng);
@@ -62,7 +66,7 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
 
   function onSave() {
     if (lat == null || lng == null) {
-      setMessage({ kind: "err", text: "Pick a point on the map or enter lat/lng first." });
+      setMessage({ kind: "err", text: t.pickFirst });
       return;
     }
     setMessage(null);
@@ -72,28 +76,25 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
         setMessage({ kind: "err", text: result.error });
         return;
       }
-      setMessage({ kind: "ok", text: "Location saved." });
+      setMessage({ kind: "ok", text: t.locationSaved });
       router.refresh();
     });
   }
 
   return (
     <div className="map-picker">
-      <p className="help">
-        Click the map or drag the pin to set the exact location. You can also type
-        the coordinates below. Coordinates are required before you can publish.
-      </p>
+      <p className="help">{t.help}</p>
 
       <PickerMap center={center} marker={hasPoint ? center : null} onPick={onPick} />
 
       <div className="map-coord-fields">
         <div className="field">
           <label className="label" htmlFor="mp-lat">
-            Latitude
+            {t.latitude}
           </label>
           <input
             id="mp-lat"
-            className="input"
+            className="input force-ltr"
             name="lat"
             type="number"
             inputMode="decimal"
@@ -106,11 +107,11 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
         </div>
         <div className="field">
           <label className="label" htmlFor="mp-lng">
-            Longitude
+            {t.longitude}
           </label>
           <input
             id="mp-lng"
-            className="input"
+            className="input force-ltr"
             name="lng"
             type="number"
             inputMode="decimal"
@@ -125,8 +126,8 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
 
       <p className="map-readout">
         {hasPoint
-          ? `Selected: ${lat!.toFixed(6)}, ${lng!.toFixed(6)}`
-          : "No location set yet."}
+          ? format(t.selected, { lat: lat!.toFixed(6), lng: lng!.toFixed(6) })
+          : t.noLocation}
       </p>
 
       {message ? (
@@ -144,7 +145,7 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
         onClick={onSave}
         disabled={pending}
       >
-        {pending ? "Saving…" : "Save location"}
+        {pending ? dict.common.saving : t.saveLocation}
       </button>
     </div>
   );

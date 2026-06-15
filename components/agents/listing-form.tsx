@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Listing } from "@/lib/types";
+import { useDict } from "@/lib/i18n/context";
 import {
   createListingAction,
   updateListingAction,
@@ -16,39 +17,24 @@ import {
 // <label htmlFor>; errors are announced via role="alert" and wired with
 // aria-describedby + aria-invalid; checkbox groups are <fieldset>/<legend>.
 
-const TYPE_OPTIONS = [
-  { value: "room", label: "Room" },
-  { value: "studio", label: "Studio" },
-  { value: "apartment", label: "Apartment" },
-  { value: "house", label: "House" },
-];
-const FURNISHING_OPTIONS = [
-  { value: "unfurnished", label: "Unfurnished" },
-  { value: "partial", label: "Partially furnished" },
-  { value: "full", label: "Fully furnished" },
-];
-const GENDER_OPTIONS = [
-  { value: "", label: "No preference" },
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "mixed", label: "Mixed" },
-];
-
+const TYPE_VALUES = ["room", "studio", "apartment", "house"] as const;
+const FURNISHING_VALUES = ["unfurnished", "partial", "full"] as const;
+const GENDER_VALUES = ["", "male", "female", "mixed"] as const;
 // Amenity tokens drawn from the seed listings. No amenities table exists, so the
 // option list is a small constant (4b scope).
-const AMENITY_OPTIONS: { value: string; label: string }[] = [
-  { value: "wifi", label: "Wifi" },
-  { value: "aircon", label: "Air-conditioning" },
-  { value: "washer", label: "Washer" },
-  { value: "kitchen", label: "Kitchen" },
-  { value: "shared-kitchen", label: "Shared kitchen" },
-  { value: "parking", label: "Parking" },
-  { value: "pool", label: "Pool" },
-  { value: "gym", label: "Gym" },
-  { value: "garden", label: "Garden" },
-  { value: "security", label: "Security" },
-  { value: "concierge", label: "Concierge" },
-];
+const AMENITY_VALUES = [
+  "wifi",
+  "aircon",
+  "washer",
+  "kitchen",
+  "shared-kitchen",
+  "parking",
+  "pool",
+  "gym",
+  "garden",
+  "security",
+  "concierge",
+] as const;
 
 interface ListingFormProps {
   areas: Area[];
@@ -76,6 +62,8 @@ function aria(id: string, fieldErrors: Record<string, string>) {
 }
 
 export function ListingForm({ areas, listing }: ListingFormProps) {
+  const dict = useDict();
+  const f = dict.listingForm;
   const router = useRouter();
   const isEdit = Boolean(listing);
   const [error, setError] = useState<string | null>(null);
@@ -123,7 +111,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-title">
-          Title
+          {f.title}
         </label>
         <input
           id="lf-title"
@@ -139,7 +127,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-type">
-          Property type
+          {f.propertyType}
         </label>
         <select
           id="lf-type"
@@ -150,11 +138,11 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           {...aria("type", fieldErrors)}
         >
           <option value="" disabled>
-            Choose a type
+            {f.chooseType}
           </option>
-          {TYPE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+          {TYPE_VALUES.map((v) => (
+            <option key={v} value={v}>
+              {dict.listings.types[v]}
             </option>
           ))}
         </select>
@@ -163,7 +151,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-description">
-          Description
+          {f.description}
         </label>
         <textarea
           id="lf-description"
@@ -179,7 +167,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-price">
-          Monthly price (RM)
+          {f.monthlyPrice}
         </label>
         <input
           id="lf-price"
@@ -197,7 +185,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-deposit">
-          Deposit (RM)
+          {f.deposit}
         </label>
         <input
           id="lf-deposit"
@@ -209,7 +197,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           defaultValue={sel(listing?.deposit)}
           {...aria("deposit", fieldErrors)}
         />
-        <div className="help">Optional.</div>
+        <div className="help">{f.optional}</div>
         {err("deposit", fieldErrors)}
       </div>
 
@@ -221,13 +209,13 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
             name="utilitiesIncluded"
             defaultChecked={listing?.utilitiesIncluded ?? false}
           />
-          <span>Utilities included in rent</span>
+          <span>{f.utilitiesIncluded}</span>
         </label>
       </div>
 
       <div className="field">
         <label className="label" htmlFor="lf-bedrooms">
-          Bedrooms
+          {f.bedrooms}
         </label>
         <input
           id="lf-bedrooms"
@@ -245,7 +233,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-bathrooms">
-          Bathrooms
+          {f.bathrooms}
         </label>
         <input
           id="lf-bathrooms"
@@ -263,7 +251,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-size">
-          Size (sq ft)
+          {f.size}
         </label>
         <input
           id="lf-size"
@@ -275,13 +263,13 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           defaultValue={sel(listing?.sizeSqft)}
           {...aria("sizeSqft", fieldErrors)}
         />
-        <div className="help">Optional.</div>
+        <div className="help">{f.optional}</div>
         {err("sizeSqft", fieldErrors)}
       </div>
 
       <div className="field">
         <label className="label" htmlFor="lf-furnishing">
-          Furnishing
+          {f.furnishing}
         </label>
         <select
           id="lf-furnishing"
@@ -292,11 +280,11 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           {...aria("furnishing", fieldErrors)}
         >
           <option value="" disabled>
-            Choose a furnishing level
+            {f.chooseFurnishing}
           </option>
-          {FURNISHING_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+          {FURNISHING_VALUES.map((v) => (
+            <option key={v} value={v}>
+              {f.furnishingOptions[v]}
             </option>
           ))}
         </select>
@@ -305,7 +293,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-gender">
-          Gender preference
+          {f.genderPreference}
         </label>
         <select
           id="lf-gender"
@@ -313,18 +301,20 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           name="genderPreference"
           defaultValue={listing?.genderPreference ?? ""}
         >
-          {GENDER_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+          {GENDER_VALUES.map((v) => (
+            <option key={v || "none"} value={v}>
+              {v === ""
+                ? f.genderOptions.none
+                : f.genderOptions[v as "male" | "female" | "mixed"]}
             </option>
           ))}
         </select>
-        <div className="help">Optional.</div>
+        <div className="help">{f.optional}</div>
       </div>
 
       <div className="field">
         <label className="label" htmlFor="lf-available">
-          Available from
+          {f.availableFrom}
         </label>
         <input
           id="lf-available"
@@ -340,7 +330,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-minstay">
-          Minimum stay (months)
+          {f.minStay}
         </label>
         <input
           id="lf-minstay"
@@ -352,13 +342,13 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           defaultValue={sel(listing?.minStayMonths)}
           {...aria("minStayMonths", fieldErrors)}
         />
-        <div className="help">Optional.</div>
+        <div className="help">{f.optional}</div>
         {err("minStayMonths", fieldErrors)}
       </div>
 
       <div className="field">
         <label className="label" htmlFor="lf-address">
-          Address
+          {f.address}
         </label>
         <input
           id="lf-address"
@@ -374,7 +364,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-area">
-          Area
+          {f.area}
         </label>
         <select
           id="lf-area"
@@ -385,7 +375,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
           {...aria("areaId", fieldErrors)}
         >
           <option value="" disabled>
-            Choose an area
+            {f.chooseArea}
           </option>
           {areas.map((a) => (
             <option key={a.id} value={a.id}>
@@ -398,7 +388,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-city">
-          City
+          {f.city}
         </label>
         <input
           id="lf-city"
@@ -414,7 +404,7 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
 
       <div className="field">
         <label className="label" htmlFor="lf-state">
-          State
+          {f.state}
         </label>
         <input
           id="lf-state"
@@ -429,18 +419,18 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
       </div>
 
       <fieldset className="field listing-form-group">
-        <legend className="label">Amenities</legend>
-        <div className="help">Optional.</div>
+        <legend className="label">{f.amenities}</legend>
+        <div className="help">{f.optional}</div>
         <div className="listing-form-checks" role="group">
-          {AMENITY_OPTIONS.map((o) => (
-            <label key={o.value} className="check-row">
+          {AMENITY_VALUES.map((v) => (
+            <label key={v} className="check-row">
               <input
                 type="checkbox"
                 name="amenities"
-                value={o.value}
-                defaultChecked={listing?.amenities.includes(o.value) ?? false}
+                value={v}
+                defaultChecked={listing?.amenities.includes(v) ?? false}
               />
-              <span>{o.label}</span>
+              <span>{dict.areas.amenityLabels[v]}</span>
             </label>
           ))}
         </div>
@@ -452,14 +442,13 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
         disabled={pending}
       >
         {pending
-          ? "Saving…"
+          ? dict.common.saving
           : isEdit
-            ? "Save changes"
-            : "Create draft"}
+            ? dict.common.saveChanges
+            : f.createDraft}
       </button>
       <p className="help" style={{ marginTop: 12 }}>
-        New listings are saved as a private draft. Photos and publishing come
-        next.
+        {f.draftNote}
       </p>
     </form>
   );

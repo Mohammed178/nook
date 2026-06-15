@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
 import { buildListingsHref } from "@/lib/listings-search";
+import { useDict } from "@/lib/i18n/context";
 import { riseIn, spring, staggerDelay } from "@/lib/motion";
 import type { ListingWithRelations } from "@/lib/types";
 
@@ -14,21 +15,26 @@ const ListingsMap = dynamic(
   () => import("./listings-map").then((m) => m.ListingsMap),
   {
     ssr: false,
-    loading: () => (
-      <div
-        style={{
-          height: "100%",
-          display: "grid",
-          placeItems: "center",
-          color: "var(--ink-500)",
-          fontSize: "var(--t-sm)",
-        }}
-      >
-        Loading map…
-      </div>
-    ),
+    loading: () => <MapLoading />,
   },
 );
+
+function MapLoading() {
+  const l = useDict().listings;
+  return (
+    <div
+      style={{
+        height: "100%",
+        display: "grid",
+        placeItems: "center",
+        color: "var(--ink-500)",
+        fontSize: "var(--t-sm)",
+      }}
+    >
+      {l.loadingMap}
+    </div>
+  );
+}
 
 interface ListingsBodyProps {
   items: ListingWithRelations[];
@@ -49,6 +55,8 @@ export function ListingsBody({
   savedIds,
   signedIn,
 }: ListingsBodyProps) {
+  const dict = useDict();
+  const l = dict.listings;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
@@ -63,7 +71,7 @@ export function ListingsBody({
               <Icon name="search" size={32} />
             </div>
             <h3 style={{ fontSize: "var(--t-lg)", marginBottom: 4 }}>
-              No rooms match these filters
+              {l.noRoomsMatch}
             </h3>
             <p
               style={{
@@ -72,11 +80,10 @@ export function ListingsBody({
                 marginBottom: 12,
               }}
             >
-              Try widening the price range, picking a different area, or
-              clearing your filters.
+              {l.noRoomsHint}
             </p>
             <Link href={buildListingsHref({})} className="btn btn-secondary btn-sm">
-              Clear all filters
+              {l.clearAllFilters}
             </Link>
           </div>
         </div>
@@ -90,8 +97,8 @@ export function ListingsBody({
         <div className="list-pane">
           <div className="list-meta">
             <div className="list-meta-l">
-              Showing <strong>{items.length}</strong>{" "}
-              {items.length === 1 ? "room" : "rooms"}
+              {l.showing} <strong>{items.length}</strong>{" "}
+              {items.length === 1 ? l.room : l.rooms}
               {sortLabel ? ` · ${sortLabel}` : ""}
             </div>
           </div>
@@ -113,6 +120,7 @@ export function ListingsBody({
                   listing={listing}
                   agent={agent}
                   area={area}
+                  card={dict.card}
                   variant="horizontal"
                   currentQuery={currentQuery}
                   isActive={activeId === listing.id}
@@ -141,7 +149,7 @@ export function ListingsBody({
         className="map-toggle-floating"
         onClick={() => setMobileMapOpen((v) => !v)}
       >
-        <Icon name="map" size={14} /> {mobileMapOpen ? "Show list" : "Show map"}
+        <Icon name="map" size={14} /> {mobileMapOpen ? l.showList : l.showMap}
       </button>
     </>
   );

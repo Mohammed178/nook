@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { publishListingAction } from "@/app/agents/dashboard/listings/actions";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import type { ListingStatus } from "@/lib/types";
 
 // Phase 4c-B2, the deliberate go-live control on the edit page. Calls
@@ -18,15 +20,25 @@ interface PublishControlProps {
 }
 
 export function PublishControl({ listingId, status }: PublishControlProps) {
+  const t = useDict().agents;
   const router = useRouter();
   const [message, setMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const statusWord =
+    status === "available"
+      ? t.statusAvailable
+      : status === "reserved"
+        ? t.statusReserved
+        : t.statusRented;
+
   if (status !== "draft") {
+    const parts = t.publishedStatus.split("{status}");
     return (
       <p className="help">
-        This listing is <strong>{status}</strong> and visible to students. Editing
-        keeps it live.
+        {parts[0]}
+        <strong>{statusWord}</strong>
+        {parts[1]}
       </p>
     );
   }
@@ -39,17 +51,14 @@ export function PublishControl({ listingId, status }: PublishControlProps) {
         setMessage({ kind: "err", text: result.error });
         return;
       }
-      setMessage({ kind: "ok", text: "Published, your listing is now public." });
+      setMessage({ kind: "ok", text: t.publishedOk });
       router.refresh();
     });
   }
 
   return (
     <div className="publish-control">
-      <p className="help">
-        Publishing makes this listing public. It needs at least one photo and a
-        saved location first.
-      </p>
+      <p className="help">{t.publishHelp}</p>
       {message ? (
         <div
           className={message.kind === "ok" ? "field-ok" : "field-err"}
@@ -64,7 +73,7 @@ export function PublishControl({ listingId, status }: PublishControlProps) {
         onClick={onPublish}
         disabled={pending}
       >
-        {pending ? "Publishing…" : "Publish listing"}
+        {pending ? t.publishing : t.publishListing}
       </button>
     </div>
   );

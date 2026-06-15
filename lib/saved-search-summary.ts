@@ -2,6 +2,8 @@ import type { ListingSearchParams } from "@/lib/listings-search";
 import type { Area } from "@/lib/types";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { formatPrice } from "@/lib/utils";
+import { format } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 /**
  * Slug-keyed area lookup. Server resolves `getAllAreas()` once per request
@@ -14,53 +16,59 @@ import { formatPrice } from "@/lib/utils";
  */
 export type AreaLookup = Record<string, Area>;
 
-const TYPE_LABELS: Record<string, string> = {
-  room: "Room",
-  studio: "Studio",
-  apartment: "Apartment",
-  house: "House",
-};
+type ListingsDict = Dictionary["listings"];
+type SavedSearchesDict = Dictionary["savedSearches"];
 
-function priceChip(p: ListingSearchParams): string | null {
+function priceChip(p: ListingSearchParams, l: ListingsDict): string | null {
   const { priceMin, priceMax } = p;
   if (priceMin == null && priceMax == null) return null;
   if (priceMin != null && priceMax != null) {
-    return `${formatPrice(priceMin)}–${formatPrice(priceMax)}`;
+    return format(l.priceRangeShort, {
+      min: formatPrice(priceMin),
+      max: formatPrice(priceMax),
+    });
   }
-  if (priceMax != null) return `Under ${formatPrice(priceMax)}`;
-  return `From ${formatPrice(priceMin!)}`;
+  if (priceMax != null) return format(l.underPrice, { price: formatPrice(priceMax) });
+  return format(l.fromPriceShort, { price: formatPrice(priceMin!) });
 }
 
-function priceForName(p: ListingSearchParams): string | null {
+function priceForName(p: ListingSearchParams, s: SavedSearchesDict): string | null {
   const { priceMin, priceMax } = p;
   if (priceMin == null && priceMax == null) return null;
   if (priceMin != null && priceMax != null) {
-    return `RM ${priceMin}–${priceMax}`;
+    return format(s.nameRmRange, { min: priceMin, max: priceMax });
   }
-  if (priceMax != null) return `under RM ${priceMax}`;
-  return `from RM ${priceMin}`;
+  if (priceMax != null) return format(s.nameUnderRm, { max: priceMax });
+  return format(s.nameFromRm, { min: priceMin! });
 }
 
-function typeForName(p: ListingSearchParams): string {
-  if (!p.type || p.type.length === 0) return "Rooms";
+function typeForName(p: ListingSearchParams, s: SavedSearchesDict): string {
+  if (!p.type || p.type.length === 0) return s.nameRooms;
   if (p.type.length === 1) {
     const t = p.type[0];
-    return t === "room" ? "Rooms" : t === "studio" ? "Studios" : t === "apartment" ? "Apartments" : "Houses";
+    return t === "room"
+      ? s.nameRooms
+      : t === "studio"
+        ? s.nameStudios
+        : t === "apartment"
+          ? s.nameApartments
+          : s.nameHouses;
   }
-  return "Listings";
+  return s.nameListings;
 }
 
 export function locationForName(
   p: ListingSearchParams,
   areas: AreaLookup,
+  s: SavedSearchesDict,
 ): string | null {
   if (p.university) {
     const u = UNIVERSITY_BY_ID[p.university];
-    if (u) return `near ${u.shortName}`;
+    if (u) return format(s.nameNearUni, { uni: u.shortName });
   }
   if (p.area) {
     const a = areas[p.area];
-    if (a) return `in ${a.name}`;
+    if (a) return format(s.nameInArea, { area: a.name });
   }
   return null;
 }
@@ -68,6 +76,8 @@ export function locationForName(
 export function summarizeChips(
   p: ListingSearchParams,
   areas: AreaLookup,
+  l: ListingsDict,
+  s: SavedSearchesDict,
 ): string[] {
   const chips: string[] = [];
 
@@ -80,25 +90,33 @@ export function summarizeChips(
     if (a) chips.push(a.name);
   }
 
-  const price = priceChip(p);
+  const price = priceChip(p, l);
   if (price) chips.push(price);
 
-  if (p.beds != null) chips.push(`${p.beds}+ bed`);
+  if (p.beds != null) chips.push(format(l.bedsPlus, { n: p.beds }));
 
   if (p.type && p.type.length > 0) {
-    if (p.type.length === 1) chips.push(TYPE_LABELS[p.type[0]] ?? p.type[0]);
-    else chips.push(`${p.type.length} types`);
+    if (p.type.length === 1) {
+      const slug = p.type[0];
+      chips.push(l.types[slug as keyof typeof l.types] ?? slug);
+    } else {
+      chips.push(format(l.typesCount, { n: p.type.length }));
+    }
   }
 
-  if (p.furnished) chips.push("Furnished");
+  if (p.furnished) chips.push(l.furnished);
 
   if (p.amenities && p.amenities.length > 0) {
-    chips.push(p.amenities.length === 1 ? "+1 amenity" : `+${p.amenities.length} amenities`);
+    chips.push(
+      p.amenities.length === 1
+        ? s.oneAmenity
+        : format(s.nAmenities, { n: p.amenities.length }),
+    );
   }
 
-  if (p.q) chips.push(`Search: "${p.q}"`);
+  if (p.q) chips.push(format(s.searchPrefix, { q: p.q }));
 
-  if (p.moveInBy) chips.push(`Move-in by ${p.moveInBy}`);
+  if (p.moveInBy) chips.push(format(s.moveInByChip, { date: p.moveInBy }));
 
   return chips;
 }
@@ -106,29 +124,32 @@ export function summarizeChips(
 export function suggestSearchName(
   p: ListingSearchParams,
   areas: AreaLookup,
+  s: SavedSearchesDict,
 ): string {
-  const noun = typeForName(p);
-  const loc = locationForName(p, areas);
-  const price = priceForName(p);
-  const beds = p.beds != null ? `${p.beds}+ bed ` : "";
+  const noun = typeForName(p, s);
+  const loc = locationForName(p, areas, s);
+  const price = priceForName(p, s);
+  const beds = p.beds != null ? `${format(s.nameBedsPlus, { n: p.beds })} ` : "";
 
   const parts = [beds + noun];
   if (loc) parts.push(loc);
   if (price) parts.push(price);
 
   const out = parts.join(" ").replace(/\s+/g, " ").trim();
-  return out.length > 0 ? out : "All listings";
+  return out.length > 0 ? out : s.allListings;
 }
 
 export function summarizeSearch(
   p: ListingSearchParams,
   areas: AreaLookup,
+  l: ListingsDict,
+  s: SavedSearchesDict,
 ): {
   chips: string[];
   suggestedName: string;
 } {
   return {
-    chips: summarizeChips(p, areas),
-    suggestedName: suggestSearchName(p, areas),
+    chips: summarizeChips(p, areas, l, s),
+    suggestedName: suggestSearchName(p, areas, s),
   };
 }

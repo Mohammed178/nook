@@ -8,6 +8,7 @@ import {
 import { getFilteredListings } from "@/lib/data/listings";
 import { summarizeChips } from "@/lib/saved-search-summary";
 import { getAllAreas } from "@/lib/data/areas";
+import { getDictionary } from "@/lib/i18n/server";
 
 export interface SavedSearchRow {
   id: string;
@@ -57,7 +58,7 @@ export async function getSavedSearchesWithCounts(): Promise<SavedSearchRow[]> {
 
   if (error || !data) return [];
 
-  const areas = await getAllAreas();
+  const [areas, dict] = await Promise.all([getAllAreas(), getDictionary()]);
   // areaLookup is keyed by slug because saved-query `p.area` carries the URL
   // value (= area.slug). The DB uuid (area.id) is irrelevant here.
   const areaLookup = Object.fromEntries(areas.map((a) => [a.slug, a]));
@@ -81,7 +82,7 @@ export async function getSavedSearchesWithCounts(): Promise<SavedSearchRow[]> {
       const canonical = canonicalizeQuery(raw);
       query = canonical.normalized;
       canonicalQs = canonical.canonicalQs;
-      chips = summarizeChips(query, areaLookup);
+      chips = summarizeChips(query, areaLookup, dict.listings, dict.savedSearches);
       matchCount = (await getFilteredListings(query)).length;
     } catch {
       query = {};

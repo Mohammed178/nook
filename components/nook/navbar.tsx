@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/nook/logo";
-import { Icon } from "./icon";
 import { NavSearchTrigger } from "./nav-search-trigger";
 import { AccountMenu } from "./account-menu";
+import { LanguageSwitcher } from "@/components/nook/language-switcher";
 import { getCurrentUser } from "@/lib/auth";
 import { getAllAreas } from "@/lib/data/areas";
 import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getDictionary } from "@/lib/i18n/server";
 
 interface NavbarProps {
   active?:
@@ -19,18 +20,22 @@ interface NavbarProps {
   transparent?: boolean;
 }
 
-const LINKS: { id: NonNullable<NavbarProps["active"]>; label: string; href: string }[] = [
-  { id: "home", label: "Home", href: "/" },
-  { id: "listings", label: "Find a room", href: "/listings" },
-  { id: "areas", label: "Areas", href: "/areas" },
-  { id: "universities", label: "Universities", href: "/universities" },
-  { id: "essentials", label: "Essentials", href: "/essentials" },
-  { id: "help", label: "Help", href: "/help" },
-  { id: "admin", label: "Admin", href: "/admin/agents" },
-];
-
 export async function Navbar({ active = "home", transparent = false }: NavbarProps) {
-  const [user, areas] = await Promise.all([getCurrentUser(), getAllAreas()]);
+  const [user, areas, dict] = await Promise.all([
+    getCurrentUser(),
+    getAllAreas(),
+    getDictionary(),
+  ]);
+
+  const links: { id: NonNullable<NavbarProps["active"]>; label: string; href: string }[] = [
+    { id: "home", label: dict.nav.home, href: "/" },
+    { id: "listings", label: dict.nav.findRoom, href: "/listings" },
+    { id: "areas", label: dict.nav.areas, href: "/areas" },
+    { id: "universities", label: dict.nav.universities, href: "/universities" },
+    { id: "essentials", label: dict.nav.essentials, href: "/essentials" },
+    { id: "help", label: dict.nav.help, href: "/help" },
+    { id: "admin", label: dict.nav.admin, href: "/admin/agents" },
+  ];
 
   return (
     <header className={`topnav${transparent ? " transparent" : ""}`}>
@@ -40,7 +45,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
           <span>nook</span>
         </Link>
         <nav className="nav-links">
-          {LINKS.filter((l) => l.id !== "admin" || user?.isAdmin).map((l) => (
+          {links.filter((l) => l.id !== "admin" || user?.isAdmin).map((l) => (
             <Link
               key={l.id}
               href={l.href}
@@ -52,9 +57,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
         </nav>
         <NavSearchTrigger areas={areas} universities={UNIVERSITIES} />
         <div className="nav-right">
-          <button className="btn btn-ghost btn-sm" style={{ gap: 6 }} type="button">
-            <Icon name="globe" size={14} /> EN
-          </button>
+          <LanguageSwitcher variant="menu" />
           {user ? (
             <AccountMenu
               displayName={user.displayName}
@@ -63,10 +66,10 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
           ) : (
             <>
               <Link href="/login" className="btn btn-ghost btn-sm">
-                Sign in
+                {dict.common.signIn}
               </Link>
               <Link href="/agents/register" className="btn btn-secondary btn-sm">
-                List a property
+                {dict.common.listProperty}
               </Link>
             </>
           )}

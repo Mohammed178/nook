@@ -2,20 +2,25 @@ import Link from "next/link";
 import { ListingCard } from "@/components/nook/listing-card";
 import { getFeaturedListings } from "@/lib/data/featured";
 import { attachListingRelations } from "@/lib/data/listings-relations";
+import { getDictionary } from "@/lib/i18n/server";
 
 export async function FeaturedListings() {
   const listings = await getFeaturedListings();
   if (listings.length === 0) return null;
-  const items = await attachListingRelations(listings);
+  const [items, dict] = await Promise.all([
+    attachListingRelations(listings),
+    getDictionary(),
+  ]);
+  const h = dict.home;
 
   return (
     <section className="home-container tight">
       <div className="home-sec-head">
         <div>
-          <h2>Fresh on Nook this week</h2>
-          <div className="sub">Newly verified rooms, hand-picked from agents with 4.5★+ ratings.</div>
+          <h2>{h.freshTitle}</h2>
+          <div className="sub">{h.freshSub}</div>
         </div>
-        <Link href="/listings" className="more">See all 12,400+ rooms →</Link>
+        <Link href="/listings" className="more">{h.seeAllRooms}</Link>
       </div>
       <div className="lc-grid">
         {items.map(({ listing, agent, area }) => (
@@ -24,6 +29,7 @@ export async function FeaturedListings() {
             listing={listing}
             agent={agent}
             area={area}
+            card={dict.card}
             variant="homepage"
           />
         ))}

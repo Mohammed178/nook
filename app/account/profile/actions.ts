@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createActionClient } from "@/lib/supabase/server";
 import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getDictionary } from "@/lib/i18n/server";
 
 const VALID_GENDERS = new Set(["female", "male", "mixed"]);
 const VALID_UNIVERSITY_IDS = new Set(UNIVERSITIES.map((u) => u.id));
@@ -16,11 +17,14 @@ export async function updateProfileAction(
   const universityIdRaw = String(formData.get("university_id") ?? "").trim();
   const genderRaw = String(formData.get("gender_preference") ?? "").trim();
 
+  const dict = await getDictionary();
+  const a = dict.account;
+
   if (!displayName) {
-    return { error: "Display name is required." };
+    return { error: a.displayNameRequired };
   }
   if (universityIdRaw && !VALID_UNIVERSITY_IDS.has(universityIdRaw)) {
-    return { error: "Pick a university from the list." };
+    return { error: a.pickUniversity };
   }
 
   const supabase = await createActionClient();
@@ -28,7 +32,7 @@ export async function updateProfileAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Not signed in." };
+    return { error: a.notSignedIn };
   }
 
   const { error } = await supabase

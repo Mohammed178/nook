@@ -2,6 +2,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { createActionClient, createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
+import { getDictionary } from "@/lib/i18n/server";
 import {
   LISTING_COLS,
   rowToListing,
@@ -119,8 +120,8 @@ export async function createListing(
   // Resolve the calling agent's id the same way the RLS policy does. Null →
   // not an approved agent → fail fast (the INSERT with-check would deny anyway).
   const { data: agentId, error: rpcErr } = await sb.rpc("current_agent_id");
-  if (rpcErr) return { error: "Could not verify your agent account." };
-  if (!agentId) return { error: "Only approved agents can create listings." };
+  if (rpcErr) return { error: (await getDictionary()).errors.couldNotVerifyAgent };
+  if (!agentId) return { error: (await getDictionary()).errors.onlyApprovedCreate };
 
   const now = new Date().toISOString();
   const cols = inputToColumns(input);
@@ -154,7 +155,7 @@ export async function createListing(
       .single());
   }
 
-  if (error || !data) return { error: "Could not create the listing. Try again." };
+  if (error || !data) return { error: (await getDictionary()).errors.couldNotCreate };
   return { id: data.id as string, slug: data.slug as string };
 }
 
@@ -173,9 +174,9 @@ export async function updateListing(
     .update({ ...inputToColumns(input), updated_at: new Date().toISOString() })
     .eq("id", id)
     .select("id");
-  if (error) return { error: "Could not update the listing. Try again." };
+  if (error) return { error: (await getDictionary()).errors.couldNotUpdate };
   if (!data || data.length === 0) {
-    return { error: "Listing not found, or it is not yours to edit." };
+    return { error: (await getDictionary()).errors.notYoursEdit };
   }
   return {};
 }
@@ -187,9 +188,9 @@ export async function softDeleteListing(id: string): Promise<{ error?: string }>
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", id)
     .select("id");
-  if (error) return { error: "Could not archive the listing. Try again." };
+  if (error) return { error: (await getDictionary()).errors.couldNotArchive };
   if (!data || data.length === 0) {
-    return { error: "Listing not found, or it is not yours to archive." };
+    return { error: (await getDictionary()).errors.notYoursArchive };
   }
   return {};
 }
@@ -201,9 +202,9 @@ export async function restoreListing(id: string): Promise<{ error?: string }> {
     .update({ deleted_at: null })
     .eq("id", id)
     .select("id");
-  if (error) return { error: "Could not restore the listing. Try again." };
+  if (error) return { error: (await getDictionary()).errors.couldNotRestore };
   if (!data || data.length === 0) {
-    return { error: "Listing not found, or it is not yours to restore." };
+    return { error: (await getDictionary()).errors.notYoursRestore };
   }
   return {};
 }
@@ -303,10 +304,10 @@ export async function setListingCoords(
   lng: number,
 ): Promise<SetCoordsResult> {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return { ok: false, error: "Coordinates must be numbers." };
+    return { ok: false, error: (await getDictionary()).errors.coordsNumbers };
   }
   if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    return { ok: false, error: "Coordinates are out of range." };
+    return { ok: false, error: (await getDictionary()).errors.coordsRange };
   }
   const sb = await createActionClient();
   const { data, error } = await sb
@@ -314,9 +315,9 @@ export async function setListingCoords(
     .update({ lat, lng, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select("id");
-  if (error) return { ok: false, error: "Could not save the location." };
+  if (error) return { ok: false, error: (await getDictionary()).errors.couldNotSaveLocation };
   if (!data || data.length === 0) {
-    return { ok: false, error: "Listing not found, or it is not yours." };
+    return { ok: false, error: (await getDictionary()).errors.notYours };
   }
   return { ok: true };
 }
@@ -344,7 +345,7 @@ export async function addListingPhoto(
     .order("sort_order", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (maxErr) return { ok: false, error: "Could not read existing photos." };
+  if (maxErr) return { ok: false, error: (await getDictionary()).errors.couldNotReadPhotos };
 
   const nextSort = (maxRow?.sort_order ?? -1) + 1;
 
@@ -358,7 +359,7 @@ export async function addListingPhoto(
     })
     .select("id")
     .single();
-  if (error || !data) return { ok: false, error: "Could not add the photo." };
+  if (error || !data) return { ok: false, error: (await getDictionary()).errors.couldNotAddPhoto };
   return { ok: true, id: data.id as string };
 }
 
@@ -398,14 +399,14 @@ export async function reorderListingPhotos(
     .from("listing_photos")
     .select("id, listing_id, storage_path, alt_text, sort_order, created_at")
     .eq("listing_id", listingId);
-  if (readErr || !photos) return { ok: false, error: "Could not read photos." };
+  if (readErr || !photos) return { ok: false, error: (await getDictionary()).errors.couldNotReadPhotos2 };
 
   const byId = new Map(photos.map((p) => [p.id as string, p]));
   if (
     orderedPhotoIds.length !== photos.length ||
     !orderedPhotoIds.every((id) => byId.has(id))
   ) {
-    return { ok: false, error: "Order must list every photo of this listing exactly once." };
+    return { ok: false, error: (await getDictionary()).errors.reorderExact };
   }
 
   const rows = orderedPhotoIds.map((id, index) => ({
@@ -416,7 +417,7 @@ export async function reorderListingPhotos(
   const { error } = await sb
     .from("listing_photos")
     .upsert(rows, { onConflict: "id" });
-  if (error) return { ok: false, error: "Could not reorder the photos." };
+  if (error) return { ok: false, error: (await getDictionary()).errors.couldNotReorderPhotos };
   return { ok: true };
 }
 

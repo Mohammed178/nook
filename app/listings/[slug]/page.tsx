@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
+import { getDictionary } from "@/lib/i18n/server";
 import { HeartButton } from "@/components/nook/heart-button";
 import { Gallery } from "@/components/listings/gallery";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
@@ -30,6 +31,7 @@ import {
 import { REVIEWS_BY_AGENT } from "@/lib/seed/reviews";
 import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
 import { amenitySpec } from "@/lib/amenities";
+import { format } from "@/lib/i18n/config";
 import { formatPrice } from "@/lib/utils";
 import {
   parseListingSearchParams,
@@ -51,7 +53,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const listing = await getListingBySlug(slug);
-  if (!listing) return { title: "Listing not found · Nook" };
+  if (!listing) {
+    const { meta } = await getDictionary();
+    return { title: meta.listingNotFound };
+  }
   return {
     title: `${listing.title} · Nook`,
     description: listing.description.split("\n\n")[0]?.slice(0, 160),
@@ -77,11 +82,6 @@ function initials(name: string): string {
     .join("");
 }
 
-function withinBudgetCopy(price: number, max: number): string {
-  const diff = max - price;
-  if (diff <= 0) return "";
-  return `Within budget · ${formatPrice(diff)} below your ${formatPrice(max)} cap`;
-}
 
 export default async function ListingDetailPage({
   params,
@@ -98,8 +98,13 @@ export default async function ListingDetailPage({
   const parsed = parseListingSearchParams(sp);
   const currentQuery = preserveQueryString(sp);
 
-  const [savedIds, user] = await Promise.all([getFavouriteIds(), getCurrentUser()]);
+  const [savedIds, user, dict] = await Promise.all([
+    getFavouriteIds(),
+    getCurrentUser(),
+    getDictionary(),
+  ]);
   const signedIn = user !== null;
+  const d = dict.listingDetail;
   const initialSaved = savedIds.includes(listing.id);
 
   // Post-3b-B-3: Listing.areaId / agentId are UUIDs. Resolve the Agent/Area
@@ -132,13 +137,23 @@ export default async function ListingDetailPage({
   const similar = await attachListingRelations(similarListings);
 
   const paragraphs = listing.description.split("\n\n").filter(Boolean);
+  const budgetDiff =
+    parsed.priceMax != null ? parsed.priceMax - listing.priceMonthly : 0;
   const withinBudget =
-    parsed.priceMax != null && listing.priceMonthly <= parsed.priceMax
-      ? withinBudgetCopy(listing.priceMonthly, parsed.priceMax)
+    parsed.priceMax != null &&
+    listing.priceMonthly <= parsed.priceMax &&
+    budgetDiff > 0
+      ? format(d.withinBudget, {
+          diff: formatPrice(budgetDiff),
+          max: formatPrice(parsed.priceMax),
+        })
       : "";
 
   const distanceLabel = nearest
-    ? `${nearest.km.toFixed(1)} km from ${primaryUni?.shortName ?? "campus"}`
+    ? format(d.kmFromUni, {
+        km: nearest.km.toFixed(1),
+        uni: primaryUni?.shortName ?? d.campus,
+      })
     : null;
 
   return (
@@ -165,11 +180,11 @@ export default async function ListingDetailPage({
               <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
                 {agent?.status === "approved" && (
                   <span className="pill pill-verified">
-                    <Icon name="check" size={10} /> Verified agent
+                    <Icon name="check" size={10} /> {d.verifiedAgent}
                   </span>
                 )}
                 {listing.listedToday && (
-                  <span className="pill pill-today">Listed today</span>
+                  <span className="pill pill-today">{d.listedToday}</span>
                 )}
               </div>
               <h1>{listing.title}</h1>
@@ -186,7 +201,7 @@ export default async function ListingDetailPage({
                 signedIn={signedIn}
                 variant="icon"
               />
-              <button type="button" className="btn btn-icon" aria-label="Share">
+              <button type="button" className="btn btn-icon" aria-label={d.share}>
                 <Icon name="share" size={16} />
               </button>
             </div>
@@ -195,7 +210,7 @@ export default async function ListingDetailPage({
           <div className="price-block">
             <div className="price-amt">
               {formatPrice(listing.priceMonthly)}
-              <span className="per">/mo</span>
+              <span className="per">{d.perMonth}</span>
             </div>
             {withinBudget && (
               <span className="pill pill-within pill-lg">{withinBudget}</span>
@@ -206,54 +221,59 @@ export default async function ListingDetailPage({
             <div className="qf">
               <div className="qf-icon"><Icon name="bed" size={20} /></div>
               <div className="qf-val">{listing.bedrooms}</div>
-              <div className="qf-lab">{listing.bedrooms === 1 ? "Bedroom" : "Bedrooms"}</div>
+              <div className="qf-lab">{listing.bedrooms === 1 ? d.bedroom : d.bedrooms}</div>
             </div>
             <div className="qf">
               <div className="qf-icon"><Icon name="bath" size={20} /></div>
               <div className="qf-val">{listing.bathrooms}</div>
-              <div className="qf-lab">{listing.bathrooms === 1 ? "Bathroom" : "Bathrooms"}</div>
+              <div className="qf-lab">{listing.bathrooms === 1 ? d.bathroom : d.bathrooms}</div>
             </div>
             <div className="qf">
               <div className="qf-icon"><Icon name="sqft" size={20} /></div>
               <div className="qf-val">{listing.sizeSqft ?? "-"}</div>
-              <div className="qf-lab">Sq ft</div>
+              <div className="qf-lab">{d.sqft}</div>
             </div>
             <div className="qf">
               <div className="qf-icon"><Icon name="check" size={20} /></div>
               <div className="qf-val">
                 {listing.furnishing === "full"
-                  ? "Yes"
+                  ? d.yes
                   : listing.furnishing === "partial"
-                    ? "Partial"
-                    : "No"}
+                    ? d.partial
+                    : d.no}
               </div>
-              <div className="qf-lab">Furnished</div>
+              <div className="qf-lab">{d.furnished}</div>
             </div>
             <div className="qf">
               <div className="qf-icon"><Icon name="school" size={20} /></div>
               <div className="qf-val">
                 {nearest ? `${nearest.km.toFixed(1)} km` : "-"}
               </div>
-              <div className="qf-lab">to {primaryUni?.shortName ?? "campus"}</div>
+              <div className="qf-lab">
+                {format(d.toCampus, { uni: primaryUni?.shortName ?? d.campus })}
+              </div>
             </div>
           </div>
 
           <div className="section description">
-            <h2>About this {listing.type}</h2>
+            <h2>{format(d.aboutThis, { type: dict.listings.types[listing.type] })}</h2>
             {paragraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </div>
 
           <div className="section">
-            <h2>What&apos;s included</h2>
+            <h2>{d.whatsIncluded}</h2>
             <div className="amenities">
               {listing.amenities.map((slug) => {
                 const spec = amenitySpec(slug);
+                const label =
+                  d.amenityLabels[slug as keyof typeof d.amenityLabels] ??
+                  spec.label;
                 return (
                   <div key={slug} className="amenity">
                     <span className="ico"><Icon name={spec.icon} size={14} /></span>
-                    {spec.label}
+                    {label}
                   </div>
                 );
               })}
@@ -261,7 +281,7 @@ export default async function ListingDetailPage({
           </div>
 
           <div className="section">
-            <h2>Location</h2>
+            <h2>{d.location}</h2>
             <ListingDetailMap
               lat={listing.lat ?? null}
               lng={listing.lng ?? null}
@@ -278,7 +298,7 @@ export default async function ListingDetailPage({
                 {nearbyCampuses.map((c) => (
                   <li key={c.id} className="campus-chip">
                     <Icon name="school" size={12} />
-                    {c.km.toFixed(1)} km from {c.shortName}
+                    {format(d.kmFromUni, { km: c.km.toFixed(1), uni: c.shortName })}
                   </li>
                 ))}
               </ul>
@@ -288,7 +308,7 @@ export default async function ListingDetailPage({
                 misread as distances from this listing. */}
             {nearby.length > 0 && (
               <>
-                <h3 className="nearby-heading">In the area</h3>
+                <h3 className="nearby-heading">{d.inTheArea}</h3>
                 <div className="nearby-list">
                   {nearby.slice(0, 6).map((p) => (
                     <div key={p.name} className="nearby">
@@ -305,7 +325,7 @@ export default async function ListingDetailPage({
 
           {agent && reviews.length > 0 && (
             <div className="section">
-              <h2>About this agent</h2>
+              <h2>{d.aboutAgent}</h2>
               <div className="review-rail">
                 {reviews.map((r) => (
                   <div key={r.id} className="review-card">
@@ -331,7 +351,7 @@ export default async function ListingDetailPage({
                   href="#"
                   style={{ fontSize: "var(--t-sm)", fontWeight: 600 }}
                 >
-                  See all {agent.reviewCount} reviews →
+                  {format(d.seeAllReviews, { count: agent.reviewCount })}
                 </a>
               )}
             </div>
@@ -339,7 +359,7 @@ export default async function ListingDetailPage({
 
           {similar.length > 0 && (
             <div className="section">
-              <h2>Similar rooms</h2>
+              <h2>{d.similarRooms}</h2>
               <div className="similar-grid">
                 {similar.map((item) => (
                   <ListingCard
@@ -347,6 +367,7 @@ export default async function ListingDetailPage({
                     listing={item.listing}
                     agent={item.agent}
                     area={item.area}
+                    card={dict.card}
                     currentQuery={currentQuery}
                   />
                 ))}
@@ -364,7 +385,7 @@ export default async function ListingDetailPage({
                   <div className="agent-meta-name">
                     {agent.name}
                     {agent.status === "approved" && (
-                      <span className="verif" title="BOVAEP-licensed">
+                      <span className="verif" title={d.bovaepLicensed}>
                         <Icon name="check-circle" size={14} />
                       </span>
                     )}
@@ -374,7 +395,7 @@ export default async function ListingDetailPage({
                   )}
                   {agent.bovaepLicence && (
                     <div className="agent-meta-license">
-                      BOVAEP {agent.bovaepLicence}
+                      {format(d.bovaepNum, { licence: agent.bovaepLicence })}
                     </div>
                   )}
                   <div className="agent-meta-rating">
@@ -383,7 +404,7 @@ export default async function ListingDetailPage({
                       {agent.rating.toFixed(1)}
                     </strong>
                     <span style={{ color: "var(--ink-500)" }}>
-                      · {agent.reviewCount} reviews
+                      · {agent.reviewCount} {d.reviews}
                     </span>
                   </div>
                 </div>
@@ -400,69 +421,67 @@ export default async function ListingDetailPage({
                     style={{ flex: 1 }}
                   >
                     <span className="wa-live-dot" aria-hidden="true" />
-                    <Icon name="whatsapp" size={16} /> WhatsApp
+                    <Icon name="whatsapp" size={16} /> {d.whatsapp}
                   </a>
                   <a
                     href={`tel:${(agent.phone ?? agent.whatsapp).replace(/\s/g, "")}`}
                     className="btn btn-call"
                     style={{ flex: 1 }}
                   >
-                    <Icon name="phone" size={16} /> Call
+                    <Icon name="phone" size={16} /> {d.call}
                   </a>
                 </div>
                 <div className="reveal-hint">
-                  <Icon name="chat" size={12} /> Most agents reply within 4
-                  hours on WhatsApp
+                  <Icon name="chat" size={12} /> {d.replyHint}
                 </div>
               </div>
 
               <div className="trust-list">
                 <div className="trust-item">
                   <span className="ico"><Icon name="check" size={14} /></span>
-                  Identity verified by Nook
+                  {d.identityVerified}
                 </div>
                 {agent.status === "approved" && (
                   <div className="trust-item">
                     <span className="ico"><Icon name="check" size={14} /></span>
-                    BOVAEP licence checked against LPEPH
+                    {d.bovaepChecked}
                   </div>
                 )}
                 <div className="trust-item">
                   <span className="ico"><Icon name="check" size={14} /></span>
-                  Responds within {agent.responseTimeMins} minutes · avg
+                  {format(d.respondsWithin, { mins: agent.responseTimeMins })}
                 </div>
                 <div className="trust-item">
                   <span className="ico"><Icon name="check" size={14} /></span>
-                  No deposit fraud reports
+                  {d.noFraud}
                 </div>
               </div>
             </div>
           )}
 
           <div className="heads-up">
-            <strong>Heads up</strong>
-            Nook never holds your deposit. Always view in person, sign a written
-            tenancy, and pay only the licensed agent listed above.{" "}
-            <a href="#">Read our renter safety guide →</a>
+            <strong>{d.headsUp}</strong>
+            {d.headsUpBody}{" "}
+            <a href="#">{d.safetyGuide}</a>
           </div>
         </aside>
       </div>
 
       {agent && (
-        <div className="mobile-cta-bar" role="region" aria-label="Contact agent">
+        <div className="mobile-cta-bar" role="region" aria-label={d.contactAgent}>
           <a
             href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, "")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-whatsapp"
           >
-            <Icon name="whatsapp" size={16} /> WhatsApp
+            <Icon name="whatsapp" size={16} /> {d.whatsapp}
           </a>
           <a
             href={`tel:${(agent.phone ?? agent.whatsapp).replace(/\s/g, "")}`}
             className="btn btn-call"
           >
-            <Icon name="phone" size={16} /> Call
+            <Icon name="phone" size={16} /> {d.call}
           </a>
         </div>
       )}

@@ -2,41 +2,39 @@ import Link from "next/link";
 import { CountUp } from "@/components/motion/count-up";
 import { Magnetic } from "@/components/motion/magnetic";
 import { BIG_CTA_IMAGE_URL, BIG_CTA_STATS } from "@/lib/home-content";
+import { getDictionary } from "@/lib/i18n/server";
 
 // Closing band: asymmetric split echoing the hero, solid slate content panel
 // on the left, KL-at-night photograph on the right with the stats floating
 // over it as glass chips (the hero deck's floating-card motif, reprised).
-export function BigCTA() {
+export async function BigCTA() {
+  const h = (await getDictionary()).home;
   return (
     <section className="home-container">
       <div className="big-cta">
         <div className="big-cta-content">
-          <div className="big-cta-kicker">For agents</div>
+          <div className="big-cta-kicker">{h.bigCtaKicker}</div>
           <h2>
-            Got rooms to rent?
+            {h.bigCtaHeadline1}
             <br />
-            List them on Nook.
+            {h.bigCtaHeadline2}
           </h2>
-          <p>
-            Reach 40,000+ students looking for a room this month. Verified
-            agents see 3.4× more enquiries. Free for your first 3 listings,
-            no commission, ever.
-          </p>
+          <p>{h.bigCtaBody}</p>
           <div className="ctas">
             <Magnetic>
               <Link href="/agents/register" className="btn-on-brand">
-                List a property →
+                {h.listProperty}
               </Link>
             </Magnetic>
             <Link href="/agents/register" className="btn-on-brand-ghost">
-              How verification works
+              {h.howVerification}
             </Link>
           </div>
         </div>
         <div
           className="big-cta-media"
           role="img"
-          aria-label="Kuala Lumpur skyline at night"
+          aria-label={h.klSkylineAlt}
           style={{ ["--big-cta-bg" as string]: `url('${BIG_CTA_IMAGE_URL}')` }}
         >
           <a
@@ -45,7 +43,7 @@ export function BigCTA() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Photo: Wikimedia Commons
+            {h.photoCredit}
           </a>
           <dl className="big-cta-stats">
             {BIG_CTA_STATS.map((s, i) => (
@@ -57,7 +55,7 @@ export function BigCTA() {
                 <dd>
                   <CountUp value={s.value} />
                 </dd>
-                <dt>{s.label}</dt>
+                <dt>{h.bigCtaStatLabels[i] ?? s.label}</dt>
               </div>
             ))}
           </dl>

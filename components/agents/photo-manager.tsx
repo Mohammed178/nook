@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { publicPhotoUrl } from "@/lib/data/_row-mappers";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import {
   addListingPhotoAction,
   removeListingPhotoAction,
@@ -63,6 +65,7 @@ interface PhotoManagerProps {
 }
 
 export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
+  const t = useDict().photoManager;
   const router = useRouter();
   const [photos, setPhotos] = useState<ListingPhoto[]>(initialPhotos);
   const [file, setFile] = useState<File | null>(null);
@@ -77,7 +80,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
     setError(null);
     const chosen = e.target.files?.[0] ?? null;
     if (chosen && !ACCEPTED_TYPES.includes(chosen.type)) {
-      setError("Choose a JPEG, PNG, or WebP image.");
+      setError(t.chooseImageType);
       setFile(null);
       return;
     }
@@ -93,16 +96,16 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
   function onAdd() {
     setError(null);
     if (!file) {
-      setError("Choose an image first.");
+      setError(t.chooseImageFirst);
       return;
     }
     const alt = altText.trim();
     if (!alt) {
-      setError("Add alt text describing the photo.");
+      setError(t.addAltText);
       return;
     }
     if (atMax) {
-      setError(`You can add up to ${MAX_PHOTOS} photos.`);
+      setError(format(t.maxPhotos, { max: MAX_PHOTOS }));
       return;
     }
 
@@ -111,8 +114,8 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
       let blob: Blob;
       try {
         blob = await downscaleToJpeg(file);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not process the image.");
+      } catch {
+        setError(t.couldNotProcess);
         return;
       }
 
@@ -123,7 +126,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
         .from(BUCKET)
         .upload(path, blob, { contentType: "image/jpeg", upsert: false });
       if (uploadErr) {
-        setError("Upload failed. Check the file and try again.");
+        setError(t.uploadFailed);
         return;
       }
 
@@ -131,7 +134,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
       if (!result.ok || !result.id) {
         // Roll back the orphaned object so a retry is clean.
         await supabase.storage.from(BUCKET).remove([path]);
-        setError(result.error ?? "Could not save the photo.");
+        setError(result.error ?? t.couldNotSave);
         return;
       }
 
@@ -149,7 +152,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
     startTransition(async () => {
       const result = await removeListingPhotoAction(listingId, photoId);
       if (!result.ok) {
-        setError(result.error ?? "Could not remove the photo.");
+        setError(result.error ?? t.couldNotRemove);
         return;
       }
       setPhotos((prev) => prev.filter((p) => p.id !== photoId));
@@ -173,7 +176,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
         reordered.map((p) => p.id),
       );
       if (!result.ok) {
-        setError(result.error ?? "Could not reorder the photos.");
+        setError(result.error ?? t.couldNotReorder);
         router.refresh();
         return;
       }
@@ -190,10 +193,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
       ) : null}
 
       {photos.length === 0 ? (
-        <p className="help">
-          No photos yet. Add at least one, a listing needs a photo before it can
-          be published.
-        </p>
+        <p className="help">{t.noPhotos}</p>
       ) : (
         <ul className="photo-grid">
           {photos.map((p, i) => (
@@ -210,25 +210,25 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
                   className="btn btn-icon btn-sm"
                   onClick={() => onMove(i, -1)}
                   disabled={pending || i === 0}
-                  aria-label={`Move photo ${i + 1} earlier`}
+                  aria-label={format(t.movePhotoEarlier, { n: i + 1 })}
                 >
-                  <Icon name="chevron-left" size={16} />
+                  <Icon name="chevron-left" size={16} className="rtl-flip" />
                 </button>
                 <button
                   type="button"
                   className="btn btn-icon btn-sm"
                   onClick={() => onMove(i, 1)}
                   disabled={pending || i === photos.length - 1}
-                  aria-label={`Move photo ${i + 1} later`}
+                  aria-label={format(t.movePhotoLater, { n: i + 1 })}
                 >
-                  <Icon name="chevron-right" size={16} />
+                  <Icon name="chevron-right" size={16} className="rtl-flip" />
                 </button>
                 <button
                   type="button"
                   className="btn btn-icon btn-sm"
                   onClick={() => onRemove(p.id)}
                   disabled={pending}
-                  aria-label={`Remove photo ${i + 1}`}
+                  aria-label={format(t.removePhoto, { n: i + 1 })}
                 >
                   <Icon name="x" size={16} />
                 </button>
@@ -241,7 +241,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
       <div className="photo-add">
         <div className="field">
           <label className="label" htmlFor="pm-file">
-            Add a photo
+            {t.addAPhoto}
           </label>
           <input
             id="pm-file"
@@ -253,13 +253,13 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
             disabled={pending || atMax}
           />
           <div className="help">
-            JPEG, PNG, or WebP, up to 5 MB. {photos.length}/{MAX_PHOTOS} added.
+            {format(t.fileHelp, { count: photos.length, max: MAX_PHOTOS })}
           </div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="pm-alt">
-            Alt text (describe the photo)
+            {t.altLabel}
           </label>
           <input
             id="pm-alt"
@@ -267,12 +267,12 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
             type="text"
             value={altText}
             onChange={(e) => setAltText(e.target.value)}
-            placeholder="e.g. Bright living room with balcony"
+            placeholder={t.altPlaceholder}
             disabled={pending || atMax}
             aria-describedby="pm-alt-help"
           />
           <div className="help" id="pm-alt-help">
-            Required, used by screen readers and shown if the image fails to load.
+            {t.altHelp}
           </div>
         </div>
 
@@ -282,7 +282,7 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
           onClick={onAdd}
           disabled={pending || atMax || !file || !altText.trim()}
         >
-          {pending ? "Working…" : "Add photo"}
+          {pending ? t.working : t.addPhoto}
         </button>
       </div>
     </div>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
+import { format } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import type { ListingWithRelations } from "@/lib/types";
 
 const RECENT_DISPLAY_CAP = 20;
@@ -13,20 +15,22 @@ interface RecentListProps {
   items: RecentListItem[];
   savedIds: Set<string>;
   signedIn: boolean;
+  dict: Dictionary;
 }
 
-export function RecentList({ items, savedIds, signedIn }: RecentListProps) {
+export function RecentList({ items, savedIds, signedIn, dict }: RecentListProps) {
   const count = items.length;
+  const l = dict.accountLists;
 
   return (
     <>
       <header className="account-page-head">
-        <span className="account-page-kicker">Your account</span>
-        <h1>Recent</h1>
+        <span className="account-page-kicker">{dict.accountHome.yourAccount}</span>
+        <h1>{l.recentTitle}</h1>
         <p className="account-page-sub">
           {count === 0
-            ? "No recent listings yet."
-            : `${count} recently viewed${count === RECENT_DISPLAY_CAP ? ` · capped at ${RECENT_DISPLAY_CAP}` : ""}.`}
+            ? l.noRecent
+            : `${format(l.recentViewed, { count })}${count === RECENT_DISPLAY_CAP ? format(l.cappedSuffix, { cap: RECENT_DISPLAY_CAP }) : ""}.`}
         </p>
       </header>
 
@@ -35,10 +39,10 @@ export function RecentList({ items, savedIds, signedIn }: RecentListProps) {
           <span className="saved-empty-icon" aria-hidden="true">
             <Icon name="calendar" size={28} />
           </span>
-          <h2>Nothing here yet</h2>
-          <p>Listings you open will show up here, up to 20.</p>
+          <h2>{l.recentEmptyTitle}</h2>
+          <p>{l.recentEmptyBody}</p>
           <Link href="/listings" className="btn btn-primary">
-            Browse listings
+            {dict.accountHome.browseListings}
           </Link>
         </div>
       ) : (
@@ -53,6 +57,7 @@ export function RecentList({ items, savedIds, signedIn }: RecentListProps) {
                 listing={item.listing}
                 agent={item.agent}
                 area={item.area}
+                card={dict.card}
                 variant="horizontal"
                 initialSaved={savedIds.has(item.listing.id)}
                 signedIn={signedIn}

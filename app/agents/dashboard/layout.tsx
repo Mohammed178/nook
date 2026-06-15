@@ -1,12 +1,15 @@
+import type { Metadata } from "next";
+import { getDictionary } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/nook/navbar";
 import { DashboardSidebar } from "@/components/agents/dashboard-sidebar";
 import { getCurrentUser } from "@/lib/auth";
 import { getAgentByUserId } from "@/lib/data/agents";
 
-export const metadata = {
-  title: "Dashboard · Nook",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.dashboard };
+}
 
 // Phase 4b dashboard gate (L-4b.15, Q16). The agent is resolved ONCE here, the
 // single status-aware gate for every /agents/dashboard/* route. Middleware

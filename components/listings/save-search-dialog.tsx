@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import {
   suggestSearchName,
   type AreaLookup,
@@ -30,8 +32,10 @@ export function SaveSearchDialog({
   onClose,
   onSaved,
 }: SaveSearchDialogProps) {
+  const dict = useDict();
+  const s = dict.savedSearches;
   const [name, setName] = useState<string>(() =>
-    suggestSearchName(query, areaLookup),
+    suggestSearchName(query, areaLookup, s),
   );
   const [error, setError] = useState<string | null>(null);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
@@ -47,7 +51,7 @@ export function SaveSearchDialog({
 
   useEffect(() => {
     if (!open) return;
-    setName(suggestSearchName(query, areaLookup));
+    setName(suggestSearchName(query, areaLookup, s));
     setError(null);
     setDuplicateWarning(null);
     requestAnimationFrame(() => {
@@ -99,7 +103,7 @@ export function SaveSearchDialog({
       ref={dialogRef}
       className="save-search-popover"
       role="dialog"
-      aria-label="Save this search"
+      aria-label={s.dialogAria}
       style={{ top, right, width: POPOVER_WIDTH }}
     >
       <form
@@ -109,7 +113,7 @@ export function SaveSearchDialog({
         }}
       >
         <label className="label" htmlFor="ss-name">
-          Name this search
+          {s.nameThisSearch}
         </label>
         <input
           ref={inputRef}
@@ -127,9 +131,9 @@ export function SaveSearchDialog({
         {duplicateWarning ? (
           <div className="save-search-warn" role="status">
             <Icon name="check-circle" size={14} />
-            You already have one with these filters
-            {duplicateWarning ? ` (“${duplicateWarning}”)` : ""}.
-            Save anyway?
+            {s.dupWarn}
+            {duplicateWarning ? format(s.dupNamed, { name: duplicateWarning }) : ""}
+            {s.saveAnywayQ}
           </div>
         ) : null}
         {error ? (
@@ -144,7 +148,7 @@ export function SaveSearchDialog({
             onClick={onClose}
             disabled={pending}
           >
-            Cancel
+            {dict.common.cancel}
           </button>
           <button
             type="submit"
@@ -152,10 +156,10 @@ export function SaveSearchDialog({
             disabled={pending || name.trim().length === 0}
           >
             {pending
-              ? "Saving…"
+              ? dict.common.saving
               : duplicateWarning
-                ? "Save anyway"
-                : "Save"}
+                ? s.saveAnyway
+                : dict.common.save}
           </button>
         </div>
       </form>

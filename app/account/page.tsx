@@ -1,11 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Icon } from "@/components/nook/icon";
+import { getDictionary } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
 
-export const metadata = {
-  title: "Account · Nook",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.account };
+}
 
 // Profile fields that count toward completeness. Email is excluded, it is set
 // at sign-up and not user-editable here, so it would always read as complete.
@@ -17,9 +21,9 @@ const PROFILE_FIELDS = [
   "gender_preference",
 ] as const;
 
-function firstName(name: string): string {
+function firstName(name: string, fallback: string): string {
   const first = name.trim().split(/\s+/)[0];
-  return first || "there";
+  return first || fallback;
 }
 
 export default async function AccountOverviewPage() {
@@ -33,7 +37,7 @@ export default async function AccountOverviewPage() {
 
   // Cheap head-only counts (no row payloads) + the profile row for the
   // completeness meter. All reads are RLS-pinned to the current user.
-  const [savedRes, recentRes, searchesRes, profileRes] = await Promise.all([
+  const [savedRes, recentRes, searchesRes, profileRes, dict] = await Promise.all([
     supabase
       .from("favourites")
       .select("listing_id", { count: "exact", head: true })
@@ -51,7 +55,9 @@ export default async function AccountOverviewPage() {
       .select("display_name, phone, country, university_id, gender_preference")
       .eq("id", user.id)
       .maybeSingle(),
+    getDictionary(),
   ]);
+  const h = dict.accountHome;
 
   const savedCount = savedRes.count ?? 0;
   const recentCount = recentRes.count ?? 0;
@@ -63,24 +69,27 @@ export default async function AccountOverviewPage() {
     return typeof v === "string" ? v.trim().length > 0 : Boolean(v);
   }).length;
   const completeness = Math.round((filled / PROFILE_FIELDS.length) * 100);
-  const name = firstName(profile?.display_name ?? user.email?.split("@")[0] ?? "there");
+  const name = firstName(
+    profile?.display_name ?? user.email?.split("@")[0] ?? h.friend,
+    h.friend,
+  );
 
   const stats = [
     {
       href: "/account/saved",
-      label: "Saved listings",
+      label: h.savedListings,
       icon: "heart" as const,
       value: savedCount,
     },
     {
       href: "/account/recent",
-      label: "Recently viewed",
+      label: h.recentlyViewed,
       icon: "calendar" as const,
       value: recentCount,
     },
     {
       href: "/account/searches",
-      label: "Saved searches",
+      label: h.savedSearches,
       icon: "search" as const,
       value: searchesCount,
     },
@@ -90,16 +99,17 @@ export default async function AccountOverviewPage() {
     <div className="acct-overview">
       <header className="acct-hero">
         <div>
-          <span className="kicker">Your account</span>
+          <span className="kicker">{h.yourAccount}</span>
           <h1>
-            Welcome back,{" "}
+            {h.welcomeBack.split("{name}")[0]}
             <span className="accent">{name}</span>
+            {h.welcomeBack.split("{name}")[1]}
           </h1>
         </div>
         {completeness < 100 ? (
           <div className="acct-meter">
             <div className="acct-meter-top">
-              <span>Profile completeness</span>
+              <span>{h.profileCompleteness}</span>
               <span className="acct-meter-pct">{completeness}%</span>
             </div>
             <div
@@ -108,7 +118,7 @@ export default async function AccountOverviewPage() {
               aria-valuenow={completeness}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label="Profile completeness"
+              aria-label={h.profileCompleteness}
             >
               <span
                 className="acct-meter-fill"
@@ -116,18 +126,15 @@ export default async function AccountOverviewPage() {
               />
             </div>
             <Link href="/account/profile" className="acct-meter-link">
-              Finish your profile →
+              {h.finishProfile}
             </Link>
           </div>
         ) : (
-          <p className="dek">
-            Your profile is complete. Agents see your university and roommate
-            preference when you enquire.
-          </p>
+          <p className="dek">{h.profileComplete}</p>
         )}
       </header>
 
-      <nav className="acct-stats" aria-label="Account activity">
+      <nav className="acct-stats" aria-label={h.activityAria}>
         {stats.map((s, i) => (
           <Link
             key={s.href}
@@ -145,17 +152,17 @@ export default async function AccountOverviewPage() {
       </nav>
 
       <section className="acct-quick">
-        <h2>Pick up where you left off</h2>
+        <h2>{h.pickUp}</h2>
         <div className="acct-quick-row">
           <Link href="/listings" className="btn btn-primary">
-            Browse listings
+            {h.browseListings}
           </Link>
           <Link href="/account/profile" className="btn btn-secondary">
-            Edit profile
+            {h.editProfile}
           </Link>
           {savedCount > 0 ? (
             <Link href="/account/saved" className="btn btn-ghost">
-              View saved
+              {h.viewSaved}
             </Link>
           ) : null}
         </div>

@@ -5,6 +5,7 @@ import { Icon } from "@/components/nook/icon";
 import { UniversitySearch } from "@/components/auth/university-search";
 import { GenderPicker } from "@/components/account/gender-picker";
 import { updateProfileAction } from "@/app/account/profile/actions";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 interface ProfileInitial {
   display_name: string;
@@ -17,6 +18,7 @@ interface ProfileInitial {
 
 interface ProfileFormProps {
   initial: ProfileInitial;
+  dict: Dictionary;
 }
 
 const PHONE_PREFIX = "+60";
@@ -27,7 +29,9 @@ function stripPrefix(raw: string): string {
   return trimmed;
 }
 
-export function ProfileForm({ initial }: ProfileFormProps) {
+export function ProfileForm({ initial, dict }: ProfileFormProps) {
+  const a = dict.account;
+  const c = dict.common;
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -80,10 +84,10 @@ export function ProfileForm({ initial }: ProfileFormProps) {
       {error ? <div className="auth-error" role="alert">{error}</div> : null}
 
       <fieldset className="profile-section">
-        <legend className="profile-legend">Identity</legend>
+        <legend className="profile-legend">{a.identity}</legend>
         <div className="profile-row">
           <div className="field">
-            <label className="label" htmlFor="pf-name">Display name</label>
+            <label className="label" htmlFor="pf-name">{a.displayName}</label>
             <input
               id="pf-name"
               className="input"
@@ -95,7 +99,7 @@ export function ProfileForm({ initial }: ProfileFormProps) {
             />
           </div>
           <div className="field">
-            <label className="label" htmlFor="pf-email">Email</label>
+            <label className="label" htmlFor="pf-email">{a.email}</label>
             <div className="profile-email-wrap">
               <input
                 id="pf-email"
@@ -109,17 +113,17 @@ export function ProfileForm({ initial }: ProfileFormProps) {
               <Icon name="lock" size={14} className="profile-email-lock" aria-hidden="true" />
             </div>
             <div className="help" id="pf-email-help">
-              Email change requires verification, coming later.
+              {a.emailChangeHelp}
             </div>
           </div>
         </div>
       </fieldset>
 
       <fieldset className="profile-section">
-        <legend className="profile-legend">Contact</legend>
+        <legend className="profile-legend">{a.contact}</legend>
         <div className="profile-row">
           <div className="field">
-            <label className="label" htmlFor="pf-phone">Mobile</label>
+            <label className="label" htmlFor="pf-phone">{a.mobile}</label>
             <div className="profile-prefix-wrap">
               <span className="profile-prefix" aria-hidden="true">{PHONE_PREFIX}</span>
               <input
@@ -135,11 +139,11 @@ export function ProfileForm({ initial }: ProfileFormProps) {
               />
             </div>
             <div className="help" id="pf-phone-help">
-              For agent contact only, not shown publicly.
+              {a.mobileHelp}
             </div>
           </div>
           <div className="field">
-            <label className="label" htmlFor="pf-country">Country</label>
+            <label className="label" htmlFor="pf-country">{a.country}</label>
             <input
               id="pf-country"
               className="input"
@@ -150,27 +154,27 @@ export function ProfileForm({ initial }: ProfileFormProps) {
               aria-describedby="pf-country-help"
             />
             <div className="help" id="pf-country-help">
-              Where you're from, for agent context.
+              {a.countryHelp}
             </div>
           </div>
         </div>
       </fieldset>
 
       <fieldset className="profile-section">
-        <legend className="profile-legend">Preferences</legend>
+        <legend className="profile-legend">{a.preferences}</legend>
         <div className="field">
-          <label className="label" htmlFor="pf-university">University</label>
+          <label className="label" htmlFor="pf-university">{a.university}</label>
           <UniversitySearch name="university_id" defaultValue={initial.university_id} />
-          <div className="help">Used to compute walk-minutes to campus.</div>
+          <div className="help">{a.universityHelp}</div>
         </div>
         <div className="field">
-          <span className="label">Roommate preference</span>
+          <span className="label">{a.roommatePreference}</span>
           <GenderPicker
             name="gender_preference"
             defaultValue={initial.gender_preference}
-            ariaLabel="Roommate preference"
+            ariaLabel={a.roommatePreference}
           />
-          <div className="help">Filters listings to match your preferred mix.</div>
+          <div className="help">{a.roommateHelp}</div>
         </div>
       </fieldset>
 
@@ -184,17 +188,17 @@ export function ProfileForm({ initial }: ProfileFormProps) {
           {dirty && !pending ? (
             <span className="profile-dirty-dot" aria-hidden="true" />
           ) : null}
-          {pending ? "Saving…" : "Save changes"}
+          {pending ? c.saving : c.saveChanges}
         </button>
         {dirty && !pending ? (
           <span id="pf-dirty-hint" className="profile-dirty-hint">
-            Unsaved changes
+            {c.unsavedChanges}
           </span>
         ) : null}
         <span className="profile-save-chip" role="status" aria-live="polite">
           {savedAt !== null ? (
             <span className="profile-save-chip-inner" data-visible="true">
-              <Icon name="check" size={14} aria-hidden="true" /> Saved
+              <Icon name="check" size={14} aria-hidden="true" /> {c.saved}
             </span>
           ) : null}
         </span>

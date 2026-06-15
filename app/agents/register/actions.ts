@@ -2,6 +2,7 @@
 
 import { createActionClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slugify";
+import { getDictionary } from "@/lib/i18n/server";
 
 type ActionClient = Awaited<ReturnType<typeof createActionClient>>;
 
@@ -38,21 +39,23 @@ export async function signUpAgentAction(
   const password = String(formData.get("password") ?? "");
   const terms = formData.get("terms");
 
+  const { errors: e, auth } = await getDictionary();
+
   if (!name || !email || !contactEmail || !phone || !whatsapp || !agency || !bovaepLicence || !password) {
-    return { error: "All fields are required." };
+    return { error: e.allFieldsRequired };
   }
   if (password.length < 8) {
-    return { error: "Password must be at least 8 characters." };
+    return { error: auth.passwordMin };
   }
   // LC-26, the public contact email is a SEPARATE field from the login email and
   // is shown publicly (agents_public). Validate its shape server-side; the form's
   // type="email" is client-only and non-authoritative. Simple email-shape bound,
   // not the bovaep charset.
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
-    return { error: "Enter a valid contact email." };
+    return { error: e.validContactEmail };
   }
   if (!terms) {
-    return { error: "You must agree to the Terms of Service to continue." };
+    return { error: auth.mustAgreeTerms };
   }
   // F3, defense-in-depth licence format check. Length + charset that admits the
   // BOVAEP "E(n)NNNN" estate-agent number (parentheses required, the seed agents
@@ -60,7 +63,7 @@ export async function signUpAgentAction(
   // single E(n) shape: the unique index (0025) and the manual admin registry check
   // (LOCK-4.6) are the real integrity gates; format is only a sanity bound.
   if (!/^[A-Za-z0-9()/\- ]{4,40}$/.test(bovaepLicence)) {
-    return { error: "Enter a valid BOVAEP licence number." };
+    return { error: e.validBovaep };
   }
 
   const supabase = await createActionClient();
@@ -91,10 +94,7 @@ export async function signUpAgentAction(
       `[agent-register] no session after signUp, auth auto-confirm may be OFF. ` +
         `Orphaned auth user email=${email}. Agents row NOT created.`,
     );
-    return {
-      error:
-        "Registration could not complete due to a server configuration issue. Try again later or contact support.",
-    };
+    return { error: e.registrationConfig };
   }
 
   const slug = await deriveUniqueSlug(name, supabase);
@@ -124,7 +124,7 @@ export async function signUpAgentAction(
     console.error(
       `[agent-register] agents insert failed for user=${user.id} email=${email}: ${insertError.message}`,
     );
-    return { error: "Could not complete registration. Try again." };
+    return { error: e.couldNotRegister };
   }
 
   return undefined;

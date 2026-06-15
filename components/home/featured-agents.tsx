@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { getFeaturedAgents } from "@/lib/data/featured";
+import { getDictionary } from "@/lib/i18n/server";
 
 function initials(name: string) {
   return name
@@ -14,15 +15,16 @@ function initials(name: string) {
 export async function FeaturedAgents() {
   const agents = await getFeaturedAgents();
   if (agents.length === 0) return null;
+  const h = (await getDictionary()).home;
 
   return (
     <section className="home-container tight">
       <div className="home-sec-head">
         <div>
-          <h2>Top agents this month</h2>
-          <div className="sub">Most responsive, highest-rated agents in the Klang Valley.</div>
+          <h2>{h.agentsTitle}</h2>
+          <div className="sub">{h.agentsSub}</div>
         </div>
-        <Link href="/agents" className="more">All agents →</Link>
+        <Link href="/agents" className="more">{h.allAgents}</Link>
       </div>
       <div className="agent-grid">
         {agents.map(({ agent, activeListings, areasServed }) => (
@@ -43,13 +45,13 @@ export async function FeaturedAgents() {
                   <Icon name="check" size={14} strokeWidth={2} style={{ color: "var(--success)" }} />
                 )}
               </div>
-              <div className="agency">{agent.agency ?? "Independent"}</div>
+              <div className="agency">{agent.agency ?? h.independent}</div>
               <div className="meta-row">
                 <span>
-                  <span className="star">★</span> <strong>{agent.rating.toFixed(1)}</strong> · {agent.reviewCount} reviews
+                  <span className="star">★</span> <strong>{agent.rating.toFixed(1)}</strong> · {agent.reviewCount} {h.reviews}
                 </span>
                 <span style={{ color: "var(--ink-300)" }}>·</span>
-                <span><strong>{activeListings}</strong> active</span>
+                <span><strong>{activeListings}</strong> {h.active}</span>
               </div>
               {areasServed && <div className="areas">{areasServed}</div>}
             </div>

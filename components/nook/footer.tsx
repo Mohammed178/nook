@@ -1,21 +1,25 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/nook/logo";
 import { Icon, type IconName } from "@/components/nook/icon";
+import { LanguageSwitcher } from "@/components/nook/language-switcher";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-// Folded in from the old homepage trust strip, same claims, one line each.
-const TRUST_ITEMS: { iconName: IconName; label: string }[] = [
-  { iconName: "check", label: "REN/PEA licences checked against BOVAEP" },
-  { iconName: "camera", label: "Min. 5 real photos per listing" },
-  { iconName: "star", label: "Reviews only from completed tenancies" },
-  { iconName: "shield", label: "Reports reviewed within 48 hours" },
-];
+export function Footer({ dict }: { dict: Dictionary }) {
+  const f = dict.footer;
 
-export function Footer() {
+  // Folded in from the old homepage trust strip, same claims, one line each.
+  const trustItems: { iconName: IconName; label: string }[] = [
+    { iconName: "check", label: f.trustLicences },
+    { iconName: "camera", label: f.trustPhotos },
+    { iconName: "star", label: f.trustReviews },
+    { iconName: "shield", label: f.trustReports },
+  ];
+
   return (
     <footer className="footer">
       <div className="footer-inner">
         <div className="footer-trust">
-          {TRUST_ITEMS.map((it) => (
+          {trustItems.map((it) => (
             <span key={it.label} className="footer-trust-item">
               <Icon name={it.iconName} size={14} strokeWidth={1.8} />
               {it.label}
@@ -36,73 +40,42 @@ export function Footer() {
                 marginBottom: 16,
               }}
             >
-              Verified student rentals across the Klang Valley. Operated by BOVAEP-licensed
-              agents.
+              {f.tagline}
             </p>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                type="button"
-                className="btn btn-sm"
-                style={{ background: "var(--ink-700)", color: "#fff" }}
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm"
-                style={{
-                  background: "transparent",
-                  color: "var(--ink-300)",
-                  border: "1px solid var(--ink-700)",
-                }}
-              >
-                BM
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm"
-                style={{
-                  background: "transparent",
-                  color: "var(--ink-300)",
-                  border: "1px solid var(--ink-700)",
-                }}
-              >
-                عربي
-              </button>
-            </div>
+            <LanguageSwitcher variant="inline" />
           </div>
           <div>
-            <h4>For students</h4>
+            <h4>{f.forStudents}</h4>
             <ul>
-              <li><Link href="/listings">Browse rooms</Link></li>
-              <li><Link href="/areas">Areas</Link></li>
-              <li><Link href="/universities">Universities</Link></li>
-              <li><Link href="/saved">Saved</Link></li>
+              <li><Link href="/listings">{f.browseRooms}</Link></li>
+              <li><Link href="/areas">{f.areas}</Link></li>
+              <li><Link href="/universities">{f.universities}</Link></li>
+              <li><Link href="/saved">{f.saved}</Link></li>
             </ul>
           </div>
           <div>
-            <h4>For agents</h4>
+            <h4>{f.forAgents}</h4>
             <ul>
-              <li><Link href="/agents/register">List a property</Link></li>
-              <li><Link href="/verification">Verification</Link></li>
-              <li><Link href="/pricing">Pricing</Link></li>
-              <li><Link href="/agent-login">Agent login</Link></li>
+              <li><Link href="/agents/register">{f.listProperty}</Link></li>
+              <li><Link href="/verification">{f.verification}</Link></li>
+              <li><Link href="/pricing">{f.pricing}</Link></li>
+              <li><Link href="/agent-login">{f.agentLogin}</Link></li>
             </ul>
           </div>
           <div>
-            <h4>Company &amp; legal</h4>
+            <h4>{f.companyLegal}</h4>
             <ul>
-              <li><Link href="/about">About</Link></li>
-              <li><Link href="/contact">Contact</Link></li>
-              <li><Link href="/terms">Terms</Link></li>
-              <li><Link href="/privacy">Privacy</Link></li>
-              <li><Link href="/bovaep">BOVAEP</Link></li>
+              <li><Link href="/about">{f.about}</Link></li>
+              <li><Link href="/contact">{f.contact}</Link></li>
+              <li><Link href="/terms">{f.terms}</Link></li>
+              <li><Link href="/privacy">{f.privacy}</Link></li>
+              <li><Link href="/bovaep">{f.bovaep}</Link></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Nook Sdn Bhd · Registered with BOVAEP under E(3)1234</span>
-          <span>Klang Valley · Selangor + KL</span>
+          <span>{f.copyright}</span>
+          <span>{f.region}</span>
         </div>
       </div>
     </footer>

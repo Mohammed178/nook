@@ -4,15 +4,15 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
+import { localizeVibe } from "@/lib/seed/areas.i18n";
 import { AreaMap, type AreaMapListing } from "@/components/areas/area-map";
 import { getAreaBySlug } from "@/lib/data/areas";
 import { getAllListings } from "@/lib/data/listings";
 import { attachListingRelations } from "@/lib/data/listings-relations";
 import {
   computeAreaStats,
-  TYPE_LABEL,
-  FURNISHING_LABEL,
-  GENDER_LABEL,
   amenityLabel,
   type Tally,
 } from "@/lib/data/area-stats";
@@ -31,11 +31,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const area = await getAreaBySlug(slug);
-  if (!area) return { title: "Area not found · Nook" };
+  const [area, { meta }] = await Promise.all([
+    getAreaBySlug(slug),
+    getDictionary(),
+  ]);
+  if (!area) return { title: meta.areaNotFound };
   return {
-    title: `Student rooms in ${area.name} · Nook`,
-    description: `Live room counts, typical rents and nearby campuses for ${area.name}, ${area.city}, computed from current Nook listings.`,
+    title: format(meta.areaTitle, { area: area.name }),
+    description: format(meta.areaDesc, { area: area.name, city: area.city }),
   };
 }
 
@@ -67,11 +70,15 @@ export default async function AreaPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [area, listings] = await Promise.all([
+  const [area, listings, dict, locale] = await Promise.all([
     getAreaBySlug(slug),
     getAllListings(),
+    getDictionary(),
+    getLocale(),
   ]);
   if (!area) notFound();
+  const t = dict.areas;
+  const amLabel = (k: string) => t.amenityLabels[k as keyof typeof t.amenityLabels] ?? amenityLabel(k);
 
   const stats = computeAreaStats(listings, area, UNIVERSITIES);
 
@@ -95,8 +102,9 @@ export default async function AreaPage({
       priceMonthly: l.priceMonthly,
     }));
 
-  const vibes = area.vibe
-    ? area.vibe.split(",").map((v) => v.trim()).filter(Boolean)
+  const localizedVibe = localizeVibe(area.slug, area.vibe, locale);
+  const vibes = localizedVibe
+    ? localizedVibe.split(/[,،]/).map((v) => v.trim()).filter(Boolean)
     : [];
   const content = AREA_CONTENT[area.slug];
 
@@ -126,8 +134,8 @@ export default async function AreaPage({
         }
       >
         <div className="uni-hero-inner">
-          <nav className="uni-hero-crumb" aria-label="Breadcrumb">
-            <Link href="/areas">Areas</Link>
+          <nav className="uni-hero-crumb" aria-label={t.breadcrumbAria}>
+            <Link href="/areas">{t.breadcrumb}</Link>
             <span aria-hidden="true">/</span>
             <span>{area.name}</span>
           </nav>
@@ -151,7 +159,7 @@ export default async function AreaPage({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Photo: Wikimedia Commons
+            {t.photoCredit}
           </a>
         )}
       </header>
@@ -159,30 +167,30 @@ export default async function AreaPage({
       <div className="container uni-detail">
         <dl className="uni-facts">
           <div className="uf">
-            <dt>Live rooms</dt>
+            <dt>{t.liveRooms}</dt>
             <dd>{stats.liveCount}</dd>
           </div>
           {stats.fromPrice != null && (
             <div className="uf">
-              <dt>Rooms from</dt>
+              <dt>{t.roomsFrom}</dt>
               <dd>
                 {formatPrice(stats.fromPrice)}
-                <span className="per">/mo</span>
+                <span className="per">{t.perMonth}</span>
               </dd>
             </div>
           )}
           {stats.medianPrice != null && (
             <div className="uf">
-              <dt>Median rent</dt>
+              <dt>{t.medianRent}</dt>
               <dd>
                 {formatPrice(stats.medianPrice)}
-                <span className="per">/mo</span>
+                <span className="per">{t.perMonth}</span>
               </dd>
             </div>
           )}
           {stats.nearbyCampuses[0] && (
             <div className="uf">
-              <dt>Nearest campus</dt>
+              <dt>{t.nearestCampusFact}</dt>
               <dd>
                 {stats.nearbyCampuses[0].shortName}
                 <span className="per">
@@ -199,51 +207,64 @@ export default async function AreaPage({
             {stats.liveCount > 0 ? (
               <>
                 <section className="uni-section">
-                  <h2>The rooms here</h2>
+                  <h2>{t.theRoomsHere}</h2>
                   <p>
-                    {stats.liveCount}{" "}
-                    {stats.liveCount === 1 ? "room is" : "rooms are"} live in{" "}
-                    {area.name} right now
-                    {stats.fromPrice != null && stats.maxPrice != null
-                      ? `, ${formatPrice(stats.fromPrice)}–${formatPrice(stats.maxPrice)}/mo`
-                      : ""}
-                    . Everything below is counted from those listings.
+                    {format(t.roomsLiveIntro, {
+                      count: stats.liveCount,
+                      verb: stats.liveCount === 1 ? t.roomIs : t.roomsAre,
+                      area: area.name,
+                      range:
+                        stats.fromPrice != null && stats.maxPrice != null
+                          ? format(t.priceRange, {
+                              min: formatPrice(stats.fromPrice),
+                              max: formatPrice(stats.maxPrice),
+                            })
+                          : "",
+                    })}
                   </p>
 
                   <div className="area-insights">
                     <div className="area-metric">
-                      <h3>Property type</h3>
+                      <h3>{t.propertyType}</h3>
                       <div className="area-bars">
-                        {renderBars(stats.typeMix, (k) => TYPE_LABEL[k])}
+                        {renderBars(stats.typeMix, (k) => t.typeLabels[k])}
                       </div>
                     </div>
                     <div className="area-metric">
-                      <h3>Furnishing</h3>
+                      <h3>{t.furnishingHeading}</h3>
                       <div className="area-bars">
                         {renderBars(
                           stats.furnishingMix,
-                          (k) => FURNISHING_LABEL[k],
+                          (k) => t.furnishingLabels[k],
                         )}
                       </div>
                     </div>
                     <div className="area-metric">
-                      <h3>Who can rent</h3>
+                      <h3>{t.whoCanRent}</h3>
                       <div className="area-bars">
-                        {renderBars(stats.genderMix, (k) => GENDER_LABEL[k] ?? k)}
+                        {renderBars(
+                          stats.genderMix,
+                          (k) =>
+                            t.genderLabels[k as keyof typeof t.genderLabels] ?? k,
+                        )}
                       </div>
                     </div>
                     <div className="area-metric">
-                      <h3>Good to know</h3>
+                      <h3>{t.goodToKnow}</h3>
                       <dl className="area-keyvals">
                         {stats.utilitiesIncludedPct != null && (
                           <div>
-                            <dt>Utilities included</dt>
-                            <dd>{stats.utilitiesIncludedPct}% of rooms</dd>
+                            <dt>{t.utilitiesIncluded}</dt>
+                            <dd>
+                              {format(t.pctOfRooms, {
+                                pct: stats.utilitiesIncludedPct,
+                              })}
+                            </dd>
                           </div>
                         )}
                         {stats.bedroomsRange && (
                           <div>
-                            <dt>Bedrooms</dt>
+                            <dt>{t.bedroomsLabel}</dt>
                             <dd>
                               {stats.bedroomsRange[0] === stats.bedroomsRange[1]
                                 ? stats.bedroomsRange[0]
@@ -252,9 +273,12 @@ export default async function AreaPage({
                           </div>
                         )}
                         <div>
-                          <dt>Available now</dt>
+                          <dt>{t.availableNow}</dt>
                           <dd>
-                            {stats.availableCount} of {stats.liveCount}
+                            {format(t.availableOf, {
+                              available: stats.availableCount,
+                              total: stats.liveCount,
+                            })}
                           </dd>
                         </div>
                       </dl>
@@ -263,11 +287,11 @@ export default async function AreaPage({
 
                   {stats.topAmenities.length > 0 && (
                     <div className="area-amenities">
-                      <h3>Common amenities</h3>
+                      <h3>{t.commonAmenities}</h3>
                       <ul className="area-chips">
                         {stats.topAmenities.map((a) => (
                           <li key={a.key} className="area-chip">
-                            {amenityLabel(a.key)}
+                            {amLabel(a.key)}
                             <span className="c">{a.count}</span>
                           </li>
                         ))}
@@ -278,7 +302,7 @@ export default async function AreaPage({
 
                 {mapListings.length > 0 && (
                   <section className="uni-section">
-                    <h2>Where the rooms are</h2>
+                    <h2>{t.whereRoomsAre}</h2>
                     <AreaMap
                       name={area.name}
                       label={area.name}
@@ -291,16 +315,11 @@ export default async function AreaPage({
               </>
             ) : (
               <section className="uni-section">
-                <h2>The rooms here</h2>
+                <h2>{t.theRoomsHere}</h2>
                 <div className="uni-empty">
-                  <p>
-                    No rooms are live in {area.name} right now. New listings here
-                    appear the day an agent publishes them, meanwhile the
-                    nearby campuses and the rest of the Klang Valley are a click
-                    away.
-                  </p>
+                  <p>{format(t.noRoomsLive, { area: area.name })}</p>
                   <Link href="/listings" className="btn btn-secondary">
-                    Browse all Klang Valley rooms
+                    {t.browseAllKV}
                   </Link>
                 </div>
               </section>
@@ -310,7 +329,7 @@ export default async function AreaPage({
           <aside className="campus-rail">
             {stats.nearbyCampuses.length > 0 && (
               <section className="campus-rail-block">
-                <h2>Nearest campuses</h2>
+                <h2>{t.nearestCampuses}</h2>
                 <ul className="uni-area-list">
                   {stats.nearbyCampuses.map((c) => (
                     <li key={c.uniId}>
@@ -335,8 +354,11 @@ export default async function AreaPage({
                 href={`/listings?area=${area.slug}`}
                 className="btn btn-primary btn-lg campus-rail-cta"
               >
-                Browse {stats.liveCount}{" "}
-                {stats.liveCount === 1 ? "room" : "rooms"} in {area.name}
+                {format(t.browseRoomsIn, {
+                  count: stats.liveCount,
+                  roomsWord: stats.liveCount === 1 ? t.roomWord : t.roomsWord,
+                  area: area.name,
+                })}
               </Link>
             )}
           </aside>
@@ -345,9 +367,9 @@ export default async function AreaPage({
         {top.length > 0 && (
           <section className="uni-section uni-rooms">
             <div className="section-h">
-              <h2>Rooms in {area.name}</h2>
+              <h2>{format(t.roomsInArea, { area: area.name })}</h2>
               <Link href={`/listings?area=${area.slug}`} className="more">
-                Browse all →
+                {t.browseAll}
               </Link>
             </div>
             <div className="uni-rooms-grid">
@@ -361,6 +383,7 @@ export default async function AreaPage({
                     listing={item.listing}
                     agent={item.agent}
                     area={item.area}
+                    card={dict.card}
                   />
                 </div>
               ))}

@@ -4,6 +4,9 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
+import { localizeUniversityContent } from "@/lib/seed/university-content.i18n";
 import {
   UniversityMap,
   type UniMapListing,
@@ -27,10 +30,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const uni = UNIVERSITY_BY_ID[id];
-  if (!uni) return { title: "University not found · Nook" };
+  const [{ meta }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  if (!uni) return { title: meta.universityNotFound };
   return {
-    title: `Student housing near ${uni.shortName} · Nook`,
-    description: UNIVERSITY_CONTENT[id]?.description.slice(0, 160),
+    title: format(meta.universityTitle, { uni: uni.shortName }),
+    description: localizeUniversityContent(id, UNIVERSITY_CONTENT[id], locale)
+      .description.slice(0, 160),
   };
 }
 
@@ -49,7 +54,14 @@ export default async function UniversityPage({
   // Compute-don't-claim (4c-B2): every number on this page derives from
   // coordinates at read, room count, from-price, per-listing km. Nothing here
   // is an agent-entered claim.
-  const [listings, areas] = await Promise.all([getAllListings(), getAllAreas()]);
+  const [listings, areas, dict, locale] = await Promise.all([
+    getAllListings(),
+    getAllAreas(),
+    getDictionary(),
+    getLocale(),
+  ]);
+  const t = dict.universities;
+  const lc = localizeUniversityContent(id, content, locale);
 
   const near = listings
     .filter((l) => l.lat != null && l.lng != null)
@@ -89,8 +101,8 @@ export default async function UniversityPage({
         style={{ "--uni-hero-bg": `url(${content.photo})` } as React.CSSProperties}
       >
         <div className="uni-hero-inner">
-          <nav className="uni-hero-crumb" aria-label="Breadcrumb">
-            <Link href="/universities">Universities</Link>
+          <nav className="uni-hero-crumb" aria-label={t.breadcrumbAria}>
+            <Link href="/universities">{t.breadcrumb}</Link>
             <span aria-hidden="true">/</span>
             <span>{uni.shortName}</span>
           </nav>
@@ -102,7 +114,7 @@ export default async function UniversityPage({
             </span>
             {uni.campusType && (
               <span className="type">
-                {uni.campusType === "public" ? "Public university" : "Private university"}
+                {uni.campusType === "public" ? t.publicUni : t.privateUni}
               </span>
             )}
           </div>
@@ -113,7 +125,7 @@ export default async function UniversityPage({
           target="_blank"
           rel="noopener noreferrer"
         >
-          Photo: Wikimedia Commons
+          {t.photoCredit}
         </a>
       </header>
 
@@ -121,20 +133,20 @@ export default async function UniversityPage({
         <dl className="uni-facts">
           {uni.studentCount != null && (
             <div className="uf">
-              <dt>Students</dt>
+              <dt>{t.studentsLabel}</dt>
               <dd>{formatStudents.format(uni.studentCount)}</dd>
             </div>
           )}
           <div className="uf">
-            <dt>Rooms within {NEAR_CAMPUS_RADIUS_KM} km</dt>
+            <dt>{format(t.roomsWithin, { radius: NEAR_CAMPUS_RADIUS_KM })}</dt>
             <dd>{near.length}</dd>
           </div>
           {fromPrice != null && (
             <div className="uf">
-              <dt>Rooms from</dt>
+              <dt>{t.roomsFrom}</dt>
               <dd>
                 {formatPrice(fromPrice)}
-                <span className="per">/mo</span>
+                <span className="per">{t.perMonth}</span>
               </dd>
             </div>
           )}
@@ -143,10 +155,10 @@ export default async function UniversityPage({
         <div className="uni-body">
           <div className="uni-main">
             <section className="uni-section">
-              <h2>About the campus</h2>
-              <p>{content.description}</p>
+              <h2>{t.aboutCampus}</h2>
+              <p>{lc.description}</p>
               <ul className="uni-feature-list">
-                {content.campusFeatures.map((f) => (
+                {lc.campusFeatures.map((f) => (
                   <li key={f}>
                     <span className="ico">
                       <Icon name="check" size={14} />
@@ -158,21 +170,21 @@ export default async function UniversityPage({
             </section>
 
             <section className="uni-section">
-              <h2>Getting there</h2>
+              <h2>{t.gettingThere}</h2>
               <ul className="uni-feature-list">
-                {content.transit.map((t) => (
-                  <li key={t}>
+                {lc.transit.map((line) => (
+                  <li key={line}>
                     <span className="ico">
                       <Icon name="train" size={14} />
                     </span>
-                    {t}
+                    {line}
                   </li>
                 ))}
               </ul>
             </section>
 
             <section className="uni-section">
-              <h2>Campus and nearby rooms</h2>
+              <h2>{t.campusAndRooms}</h2>
               <UniversityMap
                 name={uni.name}
                 shortName={uni.shortName}
@@ -187,7 +199,7 @@ export default async function UniversityPage({
           <aside className="campus-rail">
             {studentAreas.length > 0 && (
               <section className="campus-rail-block">
-                <h2>Where students live</h2>
+                <h2>{t.whereStudentsLive}</h2>
                 <ul className="uni-area-list">
                   {studentAreas.map((a) => (
                     <li key={a.id}>
@@ -203,7 +215,7 @@ export default async function UniversityPage({
             )}
 
             <section className="campus-rail-block">
-              <h2>Official site</h2>
+              <h2>{t.officialSite}</h2>
               <a
                 className="campus-rail-site"
                 href={content.website}
@@ -219,8 +231,11 @@ export default async function UniversityPage({
                 href={`/listings?university=${uni.id}`}
                 className="btn btn-primary btn-lg campus-rail-cta"
               >
-                Browse {near.length} {near.length === 1 ? "room" : "rooms"} near{" "}
-                {uni.shortName}
+                {format(t.browseRoomsNear, {
+                  count: near.length,
+                  roomsWord: near.length === 1 ? t.roomWord : t.roomsWord,
+                  uni: uni.shortName,
+                })}
               </Link>
             )}
           </aside>
@@ -228,10 +243,10 @@ export default async function UniversityPage({
 
         <section className="uni-section uni-rooms">
           <div className="section-h">
-            <h2>Closest rooms to {uni.shortName}</h2>
+            <h2>{format(t.closestRooms, { uni: uni.shortName })}</h2>
             {near.length > 0 && (
               <Link href={`/listings?university=${uni.id}`} className="more">
-                Browse all →
+                {t.browseAll}
               </Link>
             )}
           </div>
@@ -247,6 +262,7 @@ export default async function UniversityPage({
                     listing={item.listing}
                     agent={item.agent}
                     area={item.area}
+                    card={dict.card}
                   />
                 </div>
               ))}
@@ -254,12 +270,13 @@ export default async function UniversityPage({
           ) : (
             <div className="uni-empty">
               <p>
-                No rooms within {NEAR_CAMPUS_RADIUS_KM} km right now. New
-                listings near {uni.shortName} appear here the day an agent
-                publishes them.
+                {format(t.noRoomsWithin, {
+                  radius: NEAR_CAMPUS_RADIUS_KM,
+                  uni: uni.shortName,
+                })}
               </p>
               <Link href="/listings" className="btn btn-secondary">
-                Browse all Klang Valley rooms
+                {t.browseAllKV}
               </Link>
             </div>
           )}

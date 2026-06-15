@@ -3,36 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { spring } from "@/lib/motion";
-
-interface Step {
-  num: string;
-  label: string;
-  title: string;
-  body: string;
-}
-
-const STEPS: Step[] = [
-  {
-    num: "01",
-    label: "Search",
-    title: "Filter by your university",
-    body: "Pick your campus, your budget, your move-in date. Sort by walking distance, KTM stops, or rent. Map view shows you everything at once.",
-  },
-  {
-    num: "02",
-    label: "Connect",
-    title: "Message the agent on WhatsApp",
-    body: "One tap to a verified, BOVAEP-licensed agent. No phone-number harvesting, no fake landlords. Most agents reply within 4 hours.",
-  },
-  {
-    num: "03",
-    label: "Move in",
-    title: "View, sign, settle in",
-    body: "Schedule a viewing, sign your tenancy agreement, then leave a review for future students. Average time from enquiry to keys: 38 hours.",
-  },
-];
+import { useDict } from "@/lib/i18n/context";
 
 export function HowItWorks() {
+  const h = useDict().home;
+  const steps = h.hiwSteps.map((s, i) => ({
+    num: String(i + 1).padStart(2, "0"),
+    ...s,
+  }));
   const reduceMotion = useReducedMotion();
   const ref = useRef<HTMLOListElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
@@ -53,11 +31,8 @@ export function HowItWorks() {
       <div className="home-container">
         <div className="hiw-split">
           <div className="hiw-head">
-            <h2>How Nook works</h2>
-            <div className="sub">
-              Made for students. Built around how rooms actually get rented in
-              Malaysia.
-            </div>
+            <h2>{h.hiwTitle}</h2>
+            <div className="sub">{h.hiwSub}</div>
           </div>
           <ol className="hiw-timeline" ref={ref}>
             <motion.span
@@ -67,7 +42,7 @@ export function HowItWorks() {
               animate={shown ? { scaleY: 1 } : undefined}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
             />
-            {STEPS.map((s, i) => (
+            {steps.map((s, i) => (
               <motion.li
                 key={s.num}
                 className="hiw-item"

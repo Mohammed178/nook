@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import { spring } from "@/lib/motion";
 
 interface GalleryProps {
@@ -13,6 +15,8 @@ interface GalleryProps {
 const TILE_COUNT = 5;
 
 export function Gallery({ photos, title }: GalleryProps) {
+  const dict = useDict();
+  const d = dict.listingDetail;
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   // The tile the lightbox was opened from, the shared-element morph runs
@@ -79,12 +83,12 @@ export function Gallery({ photos, title }: GalleryProps) {
             className="g-photo"
             layoutId={tileLayoutId(i)}
             style={{ backgroundImage: `url(${src})` }}
-            aria-label={`Open photo ${i + 1} of ${photos.length}`}
+            aria-label={format(d.openPhoto, { i: i + 1, total: photos.length })}
             onClick={() => openAt(i)}
           >
             {i === 0 && (
               <span className="g-all-btn">
-                <Icon name="camera" size={12} /> All {photos.length} photos
+                <Icon name="camera" size={12} /> {format(d.allPhotos, { count: photos.length })}
               </span>
             )}
           </motion.button>
@@ -97,7 +101,7 @@ export function Gallery({ photos, title }: GalleryProps) {
             className="lightbox"
             role="dialog"
             aria-modal="true"
-            aria-label={`Photos of ${title}`}
+            aria-label={format(d.photosOf, { title })}
           >
             <motion.div
               className="lightbox-backdrop"
@@ -121,7 +125,7 @@ export function Gallery({ photos, title }: GalleryProps) {
                 type="button"
                 className="btn btn-icon"
                 onClick={close}
-                aria-label="Close"
+                aria-label={dict.common.close}
                 style={{ background: "transparent", color: "#fff", borderColor: "transparent" }}
               >
                 <Icon name="x" size={18} />
@@ -132,7 +136,7 @@ export function Gallery({ photos, title }: GalleryProps) {
                 type="button"
                 className="btn btn-icon"
                 onClick={prev}
-                aria-label="Previous"
+                aria-label={dict.common.previous}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -155,7 +159,7 @@ export function Gallery({ photos, title }: GalleryProps) {
                 type="button"
                 className="btn btn-icon"
                 onClick={next}
-                aria-label="Next"
+                aria-label={dict.common.next}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -177,7 +181,7 @@ export function Gallery({ photos, title }: GalleryProps) {
                   type="button"
                   className={`lightbox-thumb${i === index ? " active" : ""}`}
                   style={{ backgroundImage: `url(${src})` }}
-                  aria-label={`Photo ${i + 1}`}
+                  aria-label={format(d.photoN, { i: i + 1 })}
                   onClick={() => {
                     if (i !== openedFrom) setOpenedFrom(-1);
                     setIndex(i);

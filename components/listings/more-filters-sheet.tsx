@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
 import type { ListingSearchParams } from "@/lib/listings-search";
 import type { ListingType } from "@/lib/types";
 
@@ -18,33 +19,20 @@ interface InnerProps {
   onApply: (next: Partial<ListingSearchParams>) => void;
 }
 
-const TYPE_OPTIONS: { value: ListingType; label: string }[] = [
-  { value: "room", label: "Room" },
-  { value: "studio", label: "Studio" },
-  { value: "apartment", label: "Apartment" },
-  { value: "house", label: "House" },
-];
-
-const BEDS_OPTIONS = [
-  { value: undefined, label: "Any" },
-  { value: 1, label: "1+" },
-  { value: 2, label: "2+" },
-  { value: 3, label: "3+" },
-  { value: 4, label: "4+" },
-];
-
-const AMENITY_OPTIONS = [
-  { slug: "wifi", label: "WiFi" },
-  { slug: "aircon", label: "Air conditioning" },
-  { slug: "parking", label: "Parking" },
-  { slug: "pool", label: "Pool" },
-  { slug: "gym", label: "Gym" },
-  { slug: "kitchen", label: "Private kitchen" },
-  { slug: "shared-kitchen", label: "Shared kitchen" },
-  { slug: "washer", label: "Washing machine" },
-  { slug: "garden", label: "Garden" },
-  { slug: "security", label: "24/7 security" },
-];
+const TYPE_VALUES: ListingType[] = ["room", "studio", "apartment", "house"];
+const BEDS_VALUES: (number | undefined)[] = [undefined, 1, 2, 3, 4];
+const AMENITY_SLUGS = [
+  "wifi",
+  "aircon",
+  "parking",
+  "pool",
+  "gym",
+  "kitchen",
+  "shared-kitchen",
+  "washer",
+  "garden",
+  "security",
+] as const;
 
 export function MoreFiltersSheet({
   open,
@@ -57,6 +45,8 @@ export function MoreFiltersSheet({
 }
 
 function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
+  const dict = useDict();
+  const l = dict.listings;
   const [priceMin, setPriceMin] = useState(initial.priceMin?.toString() ?? "");
   const [priceMax, setPriceMax] = useState(initial.priceMax?.toString() ?? "");
   const [types, setTypes] = useState<Set<ListingType>>(new Set(initial.type ?? []));
@@ -98,7 +88,7 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
   }
 
   const bedsDisabled = types.size === 1 && types.has("room");
-  const bedsDisabledMsg = "Disabled when you search using only room filter";
+  const bedsDisabledMsg = l.bedsDisabledMsg;
 
   const minN = priceMin.trim() === "" ? undefined : Number(priceMin);
   const maxN = priceMax.trim() === "" ? undefined : Number(priceMax);
@@ -112,9 +102,9 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
     minN > maxN;
   const priceInvalid = minInvalid || maxInvalid || rangeInvalid;
   const priceError = rangeInvalid
-    ? "Minimum price cannot be larger than the maximum price"
+    ? l.priceRangeError
     : minInvalid || maxInvalid
-      ? "Enter a valid amount"
+      ? l.enterValidAmount
       : null;
 
   function apply() {
@@ -148,26 +138,26 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
     >
       <div className="sheet">
         <div className="sheet-head">
-          <h2 style={{ fontSize: "var(--t-lg)", fontWeight: 700 }}>More filters</h2>
+          <h2 style={{ fontSize: "var(--t-lg)", fontWeight: 700 }}>{l.moreFiltersTitle}</h2>
           <button
             type="button"
             className="btn btn-icon"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={dict.common.close}
           >
             <Icon name="x" size={16} />
           </button>
         </div>
         <div className="sheet-body">
           <div className="sheet-section">
-            <h3>Price (RM / month)</h3>
+            <h3>{l.priceRmMonth}</h3>
             <div style={{ display: "flex", gap: 8 }}>
               <input
                 type="number"
                 inputMode="numeric"
                 min={0}
-                className="input"
-                placeholder="Min"
+                className="input force-ltr"
+                placeholder={l.min}
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
                 aria-invalid={minInvalid || rangeInvalid || undefined}
@@ -180,8 +170,8 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
                 type="number"
                 inputMode="numeric"
                 min={0}
-                className="input"
-                placeholder="Max"
+                className="input force-ltr"
+                placeholder={l.max}
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
                 aria-invalid={maxInvalid || rangeInvalid || undefined}
@@ -206,23 +196,23 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
           </div>
 
           <div className="sheet-section">
-            <h3>Type</h3>
+            <h3>{l.typeHeading}</h3>
             <div className="checkbox-grid">
-              {TYPE_OPTIONS.map((t) => (
-                <label key={t.value} className="checkbox-row">
+              {TYPE_VALUES.map((value) => (
+                <label key={value} className="checkbox-row">
                   <input
                     type="checkbox"
-                    checked={types.has(t.value)}
-                    onChange={() => toggleType(t.value)}
+                    checked={types.has(value)}
+                    onChange={() => toggleType(value)}
                   />
-                  {t.label}
+                  {l.types[value]}
                 </label>
               ))}
             </div>
           </div>
 
           <div className="sheet-section">
-            <h3>Bedrooms</h3>
+            <h3>{l.bedrooms}</h3>
             <div
               style={{
                 display: "flex",
@@ -231,17 +221,17 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
                 opacity: bedsDisabled ? 0.5 : 1,
               }}
             >
-              {BEDS_OPTIONS.map((b) => (
+              {BEDS_VALUES.map((value) => (
                 <button
-                  key={String(b.value)}
+                  key={String(value)}
                   type="button"
-                  className={`filter-pill ${beds === b.value && !bedsDisabled ? "active" : ""}`}
-                  onClick={() => setBeds(b.value)}
+                  className={`filter-pill ${beds === value && !bedsDisabled ? "active" : ""}`}
+                  onClick={() => setBeds(value)}
                   disabled={bedsDisabled}
                   aria-disabled={bedsDisabled}
                   title={bedsDisabled ? bedsDisabledMsg : undefined}
                 >
-                  {b.label}
+                  {value === undefined ? l.any : `${value}+`}
                 </button>
               ))}
             </div>
@@ -259,7 +249,7 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
           </div>
 
           <div className="sheet-section">
-            <h3>Preferences</h3>
+            <h3>{l.preferences}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <label className="checkbox-row">
                 <input
@@ -267,22 +257,22 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
                   checked={furnished}
                   onChange={(e) => setFurnished(e.target.checked)}
                 />
-                Furnished only
+                {l.furnishedOnly}
               </label>
             </div>
           </div>
 
           <div className="sheet-section">
-            <h3>Must include</h3>
+            <h3>{l.mustInclude}</h3>
             <div className="checkbox-grid">
-              {AMENITY_OPTIONS.map((a) => (
-                <label key={a.slug} className="checkbox-row">
+              {AMENITY_SLUGS.map((slug) => (
+                <label key={slug} className="checkbox-row">
                   <input
                     type="checkbox"
-                    checked={amenities.has(a.slug)}
-                    onChange={() => toggleAmenity(a.slug)}
+                    checked={amenities.has(slug)}
+                    onChange={() => toggleAmenity(slug)}
                   />
-                  {a.label}
+                  {l.amenityFilter[slug]}
                 </label>
               ))}
             </div>
@@ -290,7 +280,7 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
         </div>
         <div className="sheet-foot">
           <button type="button" className="btn btn-secondary" onClick={reset}>
-            Reset
+            {l.reset}
           </button>
           <button
             type="button"
@@ -299,7 +289,7 @@ function MoreFiltersSheetInner({ onClose, initial, onApply }: InnerProps) {
             disabled={priceInvalid}
             aria-disabled={priceInvalid}
           >
-            Apply filters
+            {l.applyFilters}
           </button>
         </div>
       </div>

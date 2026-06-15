@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/nook/icon";
 import { signOutAction } from "@/app/account/actions";
 import type { AgentStatus } from "@/lib/types";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 interface NavItem {
   href: string;
@@ -12,19 +13,12 @@ interface NavItem {
   icon: IconName;
 }
 
-const NAV: NavItem[] = [
-  { href: "/account", label: "Overview", icon: "grid" },
-  { href: "/account/profile", label: "Profile", icon: "user" },
-  { href: "/account/saved", label: "Saved listings", icon: "heart" },
-  { href: "/account/recent", label: "Recent", icon: "calendar" },
-  { href: "/account/searches", label: "Saved searches", icon: "search" },
-];
-
 interface AccountSidebarProps {
   displayName: string;
   email: string;
   agentStatus?: AgentStatus;
   agencyName?: string;
+  dict: Dictionary;
 }
 
 function initials(name: string): string {
@@ -38,13 +32,22 @@ export function AccountSidebar({
   email,
   agentStatus,
   agencyName,
+  dict,
 }: AccountSidebarProps) {
+  const n = dict.accountNav;
+  const NAV: NavItem[] = [
+    { href: "/account", label: n.overview, icon: "grid" },
+    { href: "/account/profile", label: n.profile, icon: "user" },
+    { href: "/account/saved", label: n.savedListings, icon: "heart" },
+    { href: "/account/recent", label: n.recent, icon: "calendar" },
+    { href: "/account/searches", label: n.savedSearches, icon: "search" },
+  ];
   const pathname = usePathname();
   const isApprovedAgent = agentStatus === "approved";
   const isPendingAgent = agentStatus === "pending" || agentStatus === "rejected";
 
   return (
-    <aside className="account-sidebar" aria-label="Account navigation">
+    <aside className="account-sidebar" aria-label={n.navAria}>
       <header className="account-sidebar-head">
         <span className="account-sidebar-avatar" aria-hidden="true">
           {initials(displayName)}
@@ -56,11 +59,11 @@ export function AccountSidebar({
           </div>
           {isApprovedAgent ? (
             <div className="account-sidebar-role">
-              Agent{agencyName ? ` · ${agencyName}` : ""}
+              {n.agent}{agencyName ? ` · ${agencyName}` : ""}
             </div>
           ) : isPendingAgent ? (
             <div className="account-sidebar-role">
-              {agentStatus === "rejected" ? "Application rejected" : "Agent · under review"}
+              {agentStatus === "rejected" ? n.applicationRejected : n.underReview}
             </div>
           ) : null}
         </div>
@@ -78,7 +81,7 @@ export function AccountSidebar({
               }
             >
               <Icon name="grid" size={16} />
-              <span>Agent dashboard</span>
+              <span>{n.agentDashboard}</span>
             </Link>
           </li>
         ) : null}
@@ -92,7 +95,7 @@ export function AccountSidebar({
               aria-current={pathname === "/agents/pending" ? "page" : undefined}
             >
               <Icon name="shield" size={16} />
-              <span>Application status</span>
+              <span>{n.applicationStatus}</span>
             </Link>
           </li>
         ) : null}
@@ -121,7 +124,7 @@ export function AccountSidebar({
               className="account-nav-item account-nav-item-danger"
             >
               <Icon name="log-out" size={16} />
-              <span>Sign out</span>
+              <span>{n.signOut}</span>
             </button>
           </form>
         </li>

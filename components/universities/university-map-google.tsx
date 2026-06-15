@@ -9,6 +9,7 @@ import {
   mapsConfigured,
 } from "@/components/maps/google";
 import { formatPrice } from "@/lib/utils";
+import { useDict } from "@/lib/i18n/context";
 import type { UniversityMapProps } from "./university-map";
 
 // Google Maps half of the university map (loaded ssr:false). Campus label pin
@@ -24,6 +25,7 @@ export function UniversityMapGoogle({
   radiusKm,
   listings,
 }: UniversityMapProps) {
+  const common = useDict().common;
   const [openId, setOpenId] = useState<string | null>(null);
 
   if (!mapsConfigured) {
@@ -72,7 +74,7 @@ export function UniversityMapGoogle({
                 <button
                   type="button"
                   className="map-overlay-close"
-                  aria-label="Close"
+                  aria-label={common.close}
                   onClick={() => setOpenId(null)}
                 >
                   ×

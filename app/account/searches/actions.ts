@@ -2,20 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 import { createActionClient } from "@/lib/supabase/server";
+import { getDictionary } from "@/lib/i18n/server";
 
 export async function renameSavedSearchAction(
   id: string,
   newName: string,
 ): Promise<{ ok?: true; error?: string }> {
+  const e = (await getDictionary()).errors;
   const name = newName.trim();
-  if (name.length === 0) return { error: "Name is required." };
-  if (name.length > 100) return { error: "Name is too long (max 100)." };
+  if (name.length === 0) return { error: e.nameRequired };
+  if (name.length > 100) return { error: e.nameTooLong };
 
   const supabase = await createActionClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
+  if (!user) return { error: e.notSignedIn };
 
   const { error } = await supabase
     .from("saved_searches")
@@ -35,7 +37,7 @@ export async function deleteSavedSearchAction(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
+  if (!user) return { error: (await getDictionary()).errors.notSignedIn };
 
   const { error } = await supabase
     .from("saved_searches")

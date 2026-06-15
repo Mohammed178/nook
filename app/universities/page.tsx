@@ -6,12 +6,13 @@ import { UNIVERSITIES } from "@/lib/seed/universities";
 import { UNIVERSITY_CONTENT } from "@/lib/seed/university-content";
 import { getAllListings } from "@/lib/data/listings";
 import { isNearCampus, NEAR_CAMPUS_RADIUS_KM } from "@/lib/distance";
+import { getDictionary } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
 
-export const metadata: Metadata = {
-  title: "Universities · Nook",
-  description:
-    "Student housing guides for ten Klang Valley campuses, transit, neighbourhoods, and verified rooms near each university.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.universities };
+}
 
 const formatStudents = new Intl.NumberFormat("en-MY");
 
@@ -23,7 +24,11 @@ const SPANS = [4, 2, 2, 2, 2, 3, 3, 2, 2, 2];
 export default async function UniversitiesPage() {
   // Compute-don't-claim: the per-campus room count derives from listing
   // coordinates at read (4c-B2), never a stored tag.
-  const listings = await getAllListings();
+  const [listings, dict] = await Promise.all([
+    getAllListings(),
+    getDictionary(),
+  ]);
+  const t = dict.universities;
   const countFor = (uniId: string) =>
     listings.filter((l) => isNearCampus(l.lat, l.lng, uniId)).length;
 
@@ -34,35 +39,33 @@ export default async function UniversitiesPage() {
       <div className="container uni-index">
         <header className="uni-index-head">
           <div>
-            <div className="kicker">Campus guides</div>
+            <div className="kicker">{t.kicker}</div>
             <h1>
-              Ten campuses.
+              {t.headline1}
               <br />
-              One honest map of each.
+              {t.headline2}
             </h1>
           </div>
           <p className="dek">
-            Transit, the neighbourhoods students actually rent in, and the
-            verified rooms within {NEAR_CAMPUS_RADIUS_KM} km, every distance
-            computed from coordinates, never an agent&apos;s claim.
+            {format(t.indexDek, { radius: NEAR_CAMPUS_RADIUS_KM })}
           </p>
         </header>
 
         <ul className="uni-mosaic">
-          {UNIVERSITIES.map((u, i) => {
-            const count = countFor(u.id);
-            const content = UNIVERSITY_CONTENT[u.id];
+          {UNIVERSITIES.map((uni, i) => {
+            const count = countFor(uni.id);
+            const content = UNIVERSITY_CONTENT[uni.id];
             return (
               <li
-                key={u.id}
+                key={uni.id}
                 className={`uni-tile u-span-${SPANS[i]}`}
                 style={{ "--i": i } as React.CSSProperties}
               >
-                <Link href={`/universities/${u.id}`} className="uni-tile-link">
+                <Link href={`/universities/${uni.id}`} className="uni-tile-link">
                   <div
                     className="uni-tile-photo"
                     role="img"
-                    aria-label={`${u.name} campus`}
+                    aria-label={format(t.campusAria, { name: uni.name })}
                     style={
                       content
                         ? { backgroundImage: `url(${content.photo})` }
@@ -70,28 +73,32 @@ export default async function UniversitiesPage() {
                     }
                   >
                     <span className="uni-tile-short" aria-hidden="true">
-                      {u.shortName}
+                      {uni.shortName}
                     </span>
-                    {u.campusType && (
+                    {uni.campusType && (
                       <span className="uni-tile-type">
-                        {u.campusType === "public" ? "Public" : "Private"}
+                        {uni.campusType === "public" ? t.public : t.private}
                       </span>
                     )}
                   </div>
                   <div className="uni-tile-body">
-                    <h2>{u.name}</h2>
+                    <h2>{uni.name}</h2>
                     <div className="loc">
                       <Icon name="pin" size={12} />
-                      {u.city}, {u.state}
+                      {uni.city}, {uni.state}
                     </div>
                     <div className="meta">
-                      {u.studentCount != null && (
+                      {uni.studentCount != null && (
                         <span className="v">
-                          {formatStudents.format(u.studentCount)} students
+                          {format(t.studentsCount, {
+                            count: formatStudents.format(uni.studentCount),
+                          })}
                         </span>
                       )}
                       <span className="v">
-                        {count} {count === 1 ? "room" : "rooms"} nearby
+                        {format(count === 1 ? t.roomNearby : t.roomsNearby, {
+                          count,
+                        })}
                       </span>
                     </div>
                   </div>

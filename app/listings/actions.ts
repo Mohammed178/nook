@@ -5,6 +5,7 @@ import { createActionClient } from "@/lib/supabase/server";
 import { getListingResolver } from "@/lib/data/listings";
 import type { ListingSearchParams } from "@/lib/listings-search";
 import { canonicalizeQuery } from "@/lib/saved-searches";
+import { getDictionary } from "@/lib/i18n/server";
 
 export type ToggleResult =
   | { saved: boolean; signedIn: true }
@@ -21,7 +22,7 @@ export async function toggleFavouriteAction(
 ): Promise<ToggleResult> {
   const resolveListing = await getListingResolver();
   if (!resolveListing(listingId)) {
-    return { error: "Unknown listing." };
+    return { error: (await getDictionary()).errors.unknownListing };
   }
 
   const supabase = await createActionClient();
@@ -29,7 +30,7 @@ export async function toggleFavouriteAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Not signed in.", signedIn: false };
+    return { error: (await getDictionary()).errors.notSignedIn, signedIn: false };
   }
 
   const { data: existing } = await supabase
@@ -50,7 +51,7 @@ export async function toggleFavouriteAction(
       console.error(
         `[favourite] delete failed for user=${user.id} listing=${listingId}: ${error.message}`,
       );
-      return { error: "Couldn't update favourite.", signedIn: true };
+      return { error: (await getDictionary()).errors.couldNotUpdateFavourite, signedIn: true };
     }
     revalidatePath("/account/saved");
     return { saved: false, signedIn: true };
@@ -122,9 +123,10 @@ export async function addSavedSearchAction(input: {
   query: ListingSearchParams;
   force?: boolean;
 }): Promise<AddSavedSearchResult> {
+  const e = (await getDictionary()).errors;
   const name = input.name.trim();
-  if (name.length === 0) return { error: "Name is required." };
-  if (name.length > 100) return { error: "Name is too long (max 100)." };
+  if (name.length === 0) return { error: e.nameRequired };
+  if (name.length > 100) return { error: e.nameTooLong };
 
   const { normalized, canonicalQs } = canonicalizeQuery(input.query);
 
@@ -132,7 +134,7 @@ export async function addSavedSearchAction(input: {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Not signed in." };
+  if (!user) return { error: e.notSignedIn };
 
   if (!input.force) {
     const { data: existing } = await supabase

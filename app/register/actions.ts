@@ -2,6 +2,7 @@
 
 import { createActionClient } from "@/lib/supabase/server";
 import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getDictionary } from "@/lib/i18n/server";
 
 const VALID_GENDERS = new Set(["female", "male", "mixed"]);
 const VALID_UNIVERSITY_IDS = new Set(UNIVERSITIES.map((u) => u.id));
@@ -17,20 +18,22 @@ export async function signUpAction(
   const genderRaw = String(formData.get("gender_preference") ?? "").trim();
   const terms = formData.get("terms");
 
+  const t = (await getDictionary()).auth;
+
   if (!email || !password || !displayName) {
-    return { error: "Email, password, and display name are required." };
+    return { error: t.emailPasswordNameRequired };
   }
   if (password.length < 8) {
-    return { error: "Password must be at least 8 characters." };
+    return { error: t.passwordMin };
   }
   if (!terms) {
-    return { error: "You must agree to the Terms of Service to continue." };
+    return { error: t.mustAgreeTerms };
   }
 
   // Validate against seed list before sending. No FK in DB; this is the
   // gate (see migration 0003 for rationale).
   if (universityIdRaw && !VALID_UNIVERSITY_IDS.has(universityIdRaw)) {
-    return { error: "Pick a university from the list." };
+    return { error: t.pickUniversity };
   }
   const universityId = universityIdRaw || null;
   const genderPreference = VALID_GENDERS.has(genderRaw) ? genderRaw : null;

@@ -5,6 +5,8 @@ import { useOptimistic, useState, useTransition } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import type { ListingWithRelations } from "@/lib/types";
 
 export interface SavedListItem extends ListingWithRelations {
@@ -16,6 +18,8 @@ interface SavedListProps {
 }
 
 export function SavedList({ initial }: SavedListProps) {
+  const dict = useDict();
+  const l = dict.accountLists;
   const [items, setItems] = useState<SavedListItem[]>(initial);
   const [optimisticItems, removeOptimistic] = useOptimistic<
     SavedListItem[],
@@ -39,12 +43,10 @@ export function SavedList({ initial }: SavedListProps) {
   return (
     <>
       <header className="account-page-head">
-        <span className="account-page-kicker">Your account</span>
-        <h1>Saved listings</h1>
+        <span className="account-page-kicker">{dict.accountHome.yourAccount}</span>
+        <h1>{l.savedTitle}</h1>
         <p className="account-page-sub">
-          {count === 0
-            ? "Nothing saved yet."
-            : `${count} saved · tap the heart to unsave.`}
+          {count === 0 ? l.nothingSaved : format(l.savedCount, { count })}
         </p>
       </header>
 
@@ -53,10 +55,10 @@ export function SavedList({ initial }: SavedListProps) {
           <span className="saved-empty-icon" aria-hidden="true">
             <Icon name="heart" size={28} />
           </span>
-          <h2>No saved listings yet</h2>
-          <p>Tap the heart on any listing to save it here.</p>
+          <h2>{l.savedEmptyTitle}</h2>
+          <p>{l.savedEmptyBody}</p>
           <Link href="/listings" className="btn btn-primary">
-            Browse listings
+            {dict.accountHome.browseListings}
           </Link>
         </div>
       ) : (
@@ -79,6 +81,7 @@ export function SavedList({ initial }: SavedListProps) {
                   listing={item.listing}
                   agent={item.agent}
                   area={item.area}
+                  card={dict.card}
                   variant="horizontal"
                   initialSaved
                   signedIn

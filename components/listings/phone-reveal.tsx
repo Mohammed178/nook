@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 
 interface PhoneRevealProps {
   phone: string;
@@ -15,6 +17,7 @@ function formatRevealedAt(d: Date): string {
 }
 
 export function PhoneReveal({ phone }: PhoneRevealProps) {
+  const t = useDict().phone;
   const [revealedAt, setRevealedAt] = useState<Date | null>(null);
   const [copied, setCopied] = useState(false);
   const [display, setDisplay] = useState(phone);
@@ -52,7 +55,7 @@ export function PhoneReveal({ phone }: PhoneRevealProps) {
         className="btn btn-primary btn-lg btn-block"
         onClick={() => setRevealedAt(new Date())}
       >
-        <Icon name="eye" size={16} /> Reveal phone number
+        <Icon name="eye" size={16} /> {t.reveal}
       </button>
     );
   }
@@ -77,11 +80,11 @@ export function PhoneReveal({ phone }: PhoneRevealProps) {
         cursor: "pointer",
       }}
     >
-      <div className="phone-reveal-text" style={{ textAlign: "left" }}>
-        <div className="phone-reveal-num">{display}</div>
+      <div className="phone-reveal-text" style={{ textAlign: "start" }}>
+        <div className="phone-reveal-num force-ltr">{display}</div>
         <div className="phone-reveal-lab">
-          {copied ? "Copied" : "Tap to copy"} · revealed at{" "}
-          {formatRevealedAt(revealedAt)}
+          {copied ? t.copied : t.tapToCopy} ·{" "}
+          {format(t.revealedAt, { time: formatRevealedAt(revealedAt) })}
         </div>
       </div>
       <Icon name="check-circle" size={18} style={{ color: "var(--success)" }} />

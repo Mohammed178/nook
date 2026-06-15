@@ -6,8 +6,10 @@ import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { signInAction } from "@/app/login/actions";
 import { safeRedirectPath } from "@/lib/safe-redirect";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function LoginForm() {
+export function LoginForm({ dict }: { dict: Dictionary }) {
+  const t = dict.auth;
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = safeRedirectPath(searchParams.get("redirect"));
@@ -33,33 +35,31 @@ export function LoginForm() {
 
   return (
     <>
-      <span className="auth-kicker">Welcome back</span>
-      <h2>Sign in</h2>
-      <p className="auth-sub">
-        Pick up where you left off, saved rooms, agent threads, and your shortlist.
-      </p>
+      <span className="auth-kicker">{t.loginKicker}</span>
+      <h2>{t.loginTitle}</h2>
+      <p className="auth-sub">{t.loginSub}</p>
 
       {error ? <div className="auth-error">{error}</div> : null}
 
       <form onSubmit={onSubmit} noValidate>
         <div className="field">
           <label className="label" htmlFor="login-email">
-            Email
+            {t.email}
           </label>
           <input
             id="login-email"
-            className="input"
+            className="input force-ltr"
             name="email"
             type="email"
             required
             autoComplete="email"
-            placeholder="you@uni.edu.my"
+            placeholder={t.emailPlaceholder}
           />
         </div>
 
         <div className="field">
           <label className="label" htmlFor="login-password">
-            Password
+            {t.password}
           </label>
           <div className="pw-wrap">
             <input
@@ -69,13 +69,13 @@ export function LoginForm() {
               type={showPw ? "text" : "password"}
               required
               autoComplete="current-password"
-              placeholder="Your password"
+              placeholder={t.passwordPlaceholder}
             />
             <button
               type="button"
               className="toggle-eye"
               onClick={() => setShowPw((v) => !v)}
-              aria-label={showPw ? "Hide password" : "Show password"}
+              aria-label={showPw ? t.hidePassword : t.showPassword}
             >
               <Icon name={showPw ? "eye-off" : "eye"} size={16} />
             </button>
@@ -87,17 +87,17 @@ export function LoginForm() {
           className="btn btn-primary btn-block auth-submit"
           disabled={pending}
         >
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? t.signingIn : t.signIn}
         </button>
       </form>
 
       <div className="auth-bottom">
         <span>
-          New to Nook? <Link href="/register">Create a student account</Link>
+          {t.newToNook} <Link href="/register">{t.createStudentAccount}</Link>
         </span>
         <span>
-          Want to list a property?{" "}
-          <Link href="/agents/register">Register as an agent</Link>
+          {t.wantToList}{" "}
+          <Link href="/agents/register">{t.registerAsAgent}</Link>
         </span>
       </div>
     </>

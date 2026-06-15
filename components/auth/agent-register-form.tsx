@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { signUpAgentAction } from "@/app/agents/register/actions";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function AgentRegisterForm() {
+export function AgentRegisterForm({ dict }: { dict: Dictionary }) {
+  const t = dict.agentAuth;
+  const a = dict.auth;
   const router = useRouter();
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,19 +32,16 @@ export function AgentRegisterForm() {
 
   return (
     <>
-      <span className="auth-kicker">For agents</span>
-      <h2>Register your agency</h2>
-      <p className="auth-sub">
-        List student rentals on Nook. We verify every agent against the BOVAEP
-        registry before your listings go live.
-      </p>
+      <span className="auth-kicker">{t.kicker}</span>
+      <h2>{t.title}</h2>
+      <p className="auth-sub">{t.sub}</p>
 
       {error ? <div className="auth-error">{error}</div> : null}
 
       <form onSubmit={onSubmit} noValidate>
         <div className="field">
           <label className="label" htmlFor="agent-name">
-            Full name
+            {t.fullName}
           </label>
           <input
             id="agent-name"
@@ -50,14 +50,14 @@ export function AgentRegisterForm() {
             type="text"
             required
             autoComplete="name"
-            placeholder="Aisha Rahman"
+            placeholder={t.fullNamePlaceholder}
           />
-          <div className="help">Shown on your listings and agent profile.</div>
+          <div className="help">{t.fullNameHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-agency">
-            Agency
+            {t.agency}
           </label>
           <input
             id="agent-agency"
@@ -66,89 +66,89 @@ export function AgentRegisterForm() {
             type="text"
             required
             autoComplete="organization"
-            placeholder="Bangi Properties"
+            placeholder={t.agencyPlaceholder}
           />
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-bovaep">
-            BOVAEP licence number
+            {t.bovaepLicence}
           </label>
           <input
             id="agent-bovaep"
-            className="input"
+            className="input force-ltr"
             name="bovaep_licence"
             type="text"
             required
-            placeholder="E(3)1234"
+            placeholder={t.bovaepPlaceholder}
           />
-          <div className="help">We check this against the public BOVAEP registry.</div>
+          <div className="help">{t.bovaepHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-email">
-            Login email
+            {t.loginEmail}
           </label>
           <input
             id="agent-email"
-            className="input"
+            className="input force-ltr"
             name="email"
             type="email"
             required
             autoComplete="email"
-            placeholder="you@agency.my"
+            placeholder={t.loginEmailPlaceholder}
           />
-          <div className="help">You sign in with this address. Not shown publicly.</div>
+          <div className="help">{t.loginEmailHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-contact-email">
-            Public contact email
+            {t.publicEmail}
           </label>
           <input
             id="agent-contact-email"
-            className="input"
+            className="input force-ltr"
             name="contact_email"
             type="email"
             required
-            placeholder="contact@agency.my"
+            placeholder={t.publicEmailPlaceholder}
           />
-          <div className="help">Shown on your public agent profile and listings.</div>
+          <div className="help">{t.publicEmailHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-phone">
-            Mobile (Malaysia)
+            {a.mobileMy}
           </label>
           <input
             id="agent-phone"
-            className="input"
+            className="input force-ltr"
             name="phone"
             type="tel"
             required
             autoComplete="tel"
-            placeholder="+60 12 345 6789"
+            placeholder={a.mobilePlaceholder}
           />
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-whatsapp">
-            WhatsApp
+            {t.whatsapp}
           </label>
           <input
             id="agent-whatsapp"
-            className="input"
+            className="input force-ltr"
             name="whatsapp"
             type="tel"
             required
-            placeholder="+60 12 345 6789"
+            placeholder={a.mobilePlaceholder}
           />
-          <div className="help">Where renters reach you. Can be the same as your mobile.</div>
+          <div className="help">{t.whatsappHelp}</div>
         </div>
 
         <div className="field">
           <label className="label" htmlFor="agent-password">
-            Password
+            {a.password}
           </label>
           <div className="pw-wrap">
             <input
@@ -159,13 +159,13 @@ export function AgentRegisterForm() {
               required
               minLength={8}
               autoComplete="new-password"
-              placeholder="At least 8 characters"
+              placeholder={a.passwordMinPlaceholder}
             />
             <button
               type="button"
               className="toggle-eye"
               onClick={() => setShowPw((v) => !v)}
-              aria-label={showPw ? "Hide password" : "Show password"}
+              aria-label={showPw ? a.hidePassword : a.showPassword}
             >
               <Icon name={showPw ? "eye-off" : "eye"} size={16} />
             </button>
@@ -175,9 +175,8 @@ export function AgentRegisterForm() {
         <label className="check-row">
           <input type="checkbox" name="terms" required />
           <span>
-            I agree to Nook&apos;s <Link href="#">Terms of Service</Link> and{" "}
-            <Link href="#">Privacy Policy</Link>, and confirm the BOVAEP licence above
-            is mine.
+            {a.termsAgree} <Link href="#">{a.termsOfService}</Link> {a.and}{" "}
+            <Link href="#">{a.privacyPolicy}</Link>{t.termsTail}
           </span>
         </label>
 
@@ -186,17 +185,17 @@ export function AgentRegisterForm() {
           className="btn btn-primary btn-block auth-submit"
           disabled={pending}
         >
-          {pending ? "Submitting…" : "Submit for verification"}
+          {pending ? t.submitting : t.submit}
         </button>
       </form>
 
       <div className="auth-bottom">
         <span>
-          Already registered? <Link href="/login">Sign in</Link>
+          {t.alreadyRegistered} <Link href="/login">{a.signIn}</Link>
         </span>
         <span>
-          Looking for a room?{" "}
-          <Link href="/register">Create a student account</Link>
+          {t.lookingForRoom}{" "}
+          <Link href="/register">{a.createStudentAccount}</Link>
         </span>
       </div>
     </>

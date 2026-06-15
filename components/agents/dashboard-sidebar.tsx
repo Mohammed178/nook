@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/nook/icon";
 import { signOutAction } from "@/app/account/actions";
+import { useDict } from "@/lib/i18n/context";
 
 // Mirrors AdminSidebar (itself forked from account-sidebar, Q5): reuses the
 // .account-sidebar / .account-nav* structural CSS primitives, zero new sidebar
@@ -16,22 +17,6 @@ interface NavItem {
   /** Exact-match only (default false → active on any deeper path). */
   exact?: boolean;
 }
-
-// Dashboard-scoped sections.
-const DASHBOARD_NAV: NavItem[] = [
-  { href: "/agents/dashboard", label: "My listings", icon: "list", exact: true },
-  { href: "/agents/dashboard/listings/new", label: "New listing", icon: "bookmark", exact: true },
-];
-
-// Account-scoped sections, the same set the account sidebar shows, so an agent
-// on the dashboard is never siloed and can reach every option in one click.
-const ACCOUNT_NAV: NavItem[] = [
-  { href: "/account", label: "Overview", icon: "grid", exact: true },
-  { href: "/account/profile", label: "Profile", icon: "user" },
-  { href: "/account/saved", label: "Saved listings", icon: "heart" },
-  { href: "/account/recent", label: "Recent", icon: "calendar" },
-  { href: "/account/searches", label: "Saved searches", icon: "search" },
-];
 
 interface DashboardSidebarProps {
   displayName: string;
@@ -68,10 +53,26 @@ export function DashboardSidebar({
   email,
   agencyName,
 }: DashboardSidebarProps) {
+  const dict = useDict();
+  const t = dict.agents;
+  const n = dict.accountNav;
   const pathname = usePathname();
 
+  const DASHBOARD_NAV: NavItem[] = [
+    { href: "/agents/dashboard", label: t.myListings, icon: "list", exact: true },
+    { href: "/agents/dashboard/listings/new", label: t.newListing, icon: "bookmark", exact: true },
+  ];
+
+  const ACCOUNT_NAV: NavItem[] = [
+    { href: "/account", label: n.overview, icon: "grid", exact: true },
+    { href: "/account/profile", label: n.profile, icon: "user" },
+    { href: "/account/saved", label: n.savedListings, icon: "heart" },
+    { href: "/account/recent", label: n.recent, icon: "calendar" },
+    { href: "/account/searches", label: n.savedSearches, icon: "search" },
+  ];
+
   return (
-    <aside className="account-sidebar" aria-label="Agent dashboard navigation">
+    <aside className="account-sidebar" aria-label={t.dashboardNavAria}>
       <header className="account-sidebar-head">
         <span className="account-sidebar-avatar" aria-hidden="true">
           {initials(displayName)}
@@ -82,19 +83,19 @@ export function DashboardSidebar({
             {email}
           </div>
           <div className="account-sidebar-role">
-            Agent{agencyName ? ` · ${agencyName}` : ""}
+            {n.agent}{agencyName ? ` · ${agencyName}` : ""}
           </div>
         </div>
       </header>
       <ul className="account-nav">
         <li className="account-nav-label" aria-hidden="true">
-          Dashboard
+          {t.dashboardLabel}
         </li>
         {DASHBOARD_NAV.map((item) => renderNavItem(item, pathname))}
 
         <li className="account-nav-divider" aria-hidden="true" />
         <li className="account-nav-label" aria-hidden="true">
-          Account
+          {t.accountLabel}
         </li>
         {ACCOUNT_NAV.map((item) => renderNavItem(item, pathname))}
 
@@ -106,7 +107,7 @@ export function DashboardSidebar({
               className="account-nav-item account-nav-item-danger"
             >
               <Icon name="log-out" size={16} />
-              <span>Sign out</span>
+              <span>{n.signOut}</span>
             </button>
           </form>
         </li>

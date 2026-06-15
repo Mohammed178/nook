@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { softDeleteListingAction } from "@/app/agents/dashboard/listings/actions";
+import { useDict } from "@/lib/i18n/context";
 
 // Two-step archive control. First click reveals an inline confirmation with the
 // honest reversibility copy (L-4b.15, no exclamation, calm); the confirm button
@@ -9,6 +10,8 @@ import { softDeleteListingAction } from "@/app/agents/dashboard/listings/actions
 // the confirmation region is wired via aria-describedby, focus moves to the
 // confirm action when revealed.
 export function ArchiveButton({ listingId }: { listingId: string }) {
+  const dict = useDict();
+  const t = dict.agents;
   const [confirming, setConfirming] = useState(false);
   const noteId = useId();
 
@@ -19,7 +22,7 @@ export function ArchiveButton({ listingId }: { listingId: string }) {
         className="btn btn-ghost btn-sm"
         onClick={() => setConfirming(true)}
       >
-        Archive
+        {t.archive}
       </button>
     );
   }
@@ -28,7 +31,7 @@ export function ArchiveButton({ listingId }: { listingId: string }) {
     <form action={softDeleteListingAction} className="listing-confirm">
       <input type="hidden" name="id" value={listingId} />
       <p className="help" id={noteId}>
-        This listing will be moved to your archive. You can restore it anytime.
+        {t.archiveNote}
       </p>
       <div className="listing-confirm-actions">
         <button
@@ -37,14 +40,14 @@ export function ArchiveButton({ listingId }: { listingId: string }) {
           aria-describedby={noteId}
           autoFocus
         >
-          Move to archive
+          {t.moveToArchive}
         </button>
         <button
           type="button"
           className="btn btn-ghost btn-sm"
           onClick={() => setConfirming(false)}
         >
-          Cancel
+          {dict.common.cancel}
         </button>
       </div>
     </form>

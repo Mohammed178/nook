@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
 import { UNIVERSITIES } from "@/lib/seed/universities";
+import { useDict } from "@/lib/i18n/context";
 
 interface UniversitySearchProps {
   name: string;
@@ -13,8 +14,10 @@ interface UniversitySearchProps {
 export function UniversitySearch({
   name,
   defaultValue = "",
-  placeholder = "Search your university…",
+  placeholder,
 }: UniversitySearchProps) {
+  const t = useDict().uniSearch;
+  const placeholderText = placeholder ?? t.placeholder;
   const [selectedId, setSelectedId] = useState<string>(defaultValue);
   const [query, setQuery] = useState<string>(() => {
     const u = UNIVERSITIES.find((x) => x.id === defaultValue);
@@ -97,7 +100,7 @@ export function UniversitySearch({
           className="input uni-search-input"
           type="text"
           autoComplete="off"
-          placeholder={placeholder}
+          placeholder={placeholderText}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -114,7 +117,7 @@ export function UniversitySearch({
             type="button"
             className="uni-search-clear"
             onClick={clear}
-            aria-label="Clear university"
+            aria-label={t.clear}
           >
             <Icon name="x" size={14} />
           </button>
@@ -144,9 +147,7 @@ export function UniversitySearch({
       ) : null}
       {open && matches.length === 0 ? (
         <ul className="uni-search-menu">
-          <li className="uni-search-empty">
-            No matches. Pick the closest one or skip, you can change it later.
-          </li>
+          <li className="uni-search-empty">{t.noMatches}</li>
         </ul>
       ) : null}
     </div>

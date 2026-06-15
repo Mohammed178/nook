@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
+import { useDict } from "@/lib/i18n/context";
 import { SaveSearchDialog } from "./save-search-dialog";
 import type { ListingSearchParams } from "@/lib/listings-search";
 import type { AreaLookup } from "@/lib/saved-search-summary";
@@ -24,6 +25,8 @@ export function SaveSearchButton({
   signedIn,
   areaLookup,
 }: SaveSearchButtonProps) {
+  const dict = useDict();
+  const s = dict.savedSearches;
   const btnRef = useRef<HTMLButtonElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
@@ -78,11 +81,11 @@ export function SaveSearchButton({
           onClick={handleClick}
         >
           <Icon name="bookmark" size={14} />
-          Save this search
+          {s.saveThisSearch}
         </button>
         {savedFlash ? (
           <span className="save-search-flash" role="status" aria-live="polite">
-            <Icon name="check" size={14} /> Saved
+            <Icon name="check" size={14} /> {dict.common.saved}
           </span>
         ) : null}
       </span>
@@ -92,7 +95,7 @@ export function SaveSearchButton({
           role="status"
           style={{ top: tipPos.top, right: tipPos.right }}
         >
-          Sign in to save searches.
+          {s.signInToSave}
         </span>
       ) : null}
       <SaveSearchDialog

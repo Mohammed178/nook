@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useDict } from "@/lib/i18n/context";
 
 // Phase 4c-B2, student-facing detail map (replaces the decorative SVG block).
 // Client wrapper that loads the Google Maps half ssr:false. The map is read-only,
@@ -35,14 +36,15 @@ const DetailMap = dynamic(
 );
 
 export function ListingDetailMap(props: ListingDetailMapProps) {
+  const maps = useDict().maps;
   if (props.lat == null || props.lng == null) {
     return (
       <div
         className="detail-map-live detail-map-empty"
         role="img"
-        aria-label="Location not set for this listing"
+        aria-label={maps.locationNotSet}
       >
-        Location not set
+        {maps.locationNotSetShort}
       </div>
     );
   }
