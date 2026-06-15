@@ -10,7 +10,8 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Icon } from "@/components/nook/icon";
-import { parseMoveInBy, parseWhere } from "@/lib/queries";
+import { useDict } from "@/lib/i18n/context";
+import { parseWhere } from "@/lib/queries";
 import {
   buildListingsHref,
   type ListingSearchParams,
@@ -26,6 +27,13 @@ interface SearchFormProps {
   universities: University[];
   /** When given (hero), the where-input placeholder typewrites through these. */
   placeholderHints?: string[];
+  /**
+   * Existing search params to fold the new query into (listings page). The
+   * location trio (university/area/q) is always overridden by this search;
+   * everything else (type, beds, amenities, sort, ...) is preserved. Omit on
+   * the home hero, where a search starts from a clean slate.
+   */
+  baseParams?: ListingSearchParams;
 }
 
 function filterUniversities(
@@ -48,8 +56,19 @@ export function SearchForm({
   areas,
   universities,
   placeholderHints,
+  baseParams,
 }: SearchFormProps) {
+  const dict = useDict();
+  const h = dict.home;
   const router = useRouter();
+
+  // Local "today" (not UTC) so the date picker's min never blocks a same-day
+  // move-in for users east of UTC (Malaysia is UTC+8).
+  const todayISO = useMemo(() => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  }, []);
   const [where, setWhere] = useState("");
   const [pickedUniversityId, setPickedUniversityId] = useState<string | null>(
     null,
@@ -66,7 +85,7 @@ export function SearchForm({
 
   // Typewriter placeholder. Paused (via ref, no effect restarts) while the
   // user is typing or the suggest list is open; disabled for reduced motion.
-  const [hint, setHint] = useState(placeholderHints?.[0] ?? "UM, UKM, Bangsar…");
+  const [hint, setHint] = useState(placeholderHints?.[0] ?? h.searchPlaceholder);
   const hintPausedRef = useRef(false);
 
   useEffect(() => {
@@ -158,12 +177,17 @@ export function SearchForm({
     const max = maxPrice.trim() === "" ? undefined : Number(maxPrice);
 
     if (min != null && max != null && min > max) {
-      setError("Min price must be less than or equal to Max price.");
+      setError(h.minMaxError);
       return;
     }
     setError(null);
 
-    const next: ListingSearchParams = {};
+    // Start from the current search (listings re-search) or a clean slate
+    // (home hero). Either way the location trio is replaced by this query.
+    const next: ListingSearchParams = { ...(baseParams ?? {}) };
+    next.university = undefined;
+    next.area = undefined;
+    next.q = undefined;
 
     if (pickedUniversityId) {
       next.university = pickedUniversityId;
@@ -173,9 +197,8 @@ export function SearchForm({
       else if (parsed.areaId) next.area = parsed.areaId;
       else if (parsed.q) next.q = parsed.q;
     }
-    if (moveIn.trim()) {
-      const iso = parseMoveInBy(moveIn);
-      if (iso) next.moveInBy = iso;
+    if (moveIn) {
+      next.moveInBy = moveIn;
     }
     if (min != null) next.priceMin = min;
     if (max != null) next.priceMax = max;
@@ -194,12 +217,12 @@ export function SearchForm({
         noValidate
       >
         <div className="sp-cell sp-cell-where" ref={whereCellRef}>
-          <span className="sp-lab">University or area</span>
+          <span className="sp-lab">{h.uniOrArea}</span>
           <div className="sp-where-row">
             <input
               ref={whereInputRef}
               className="sp-input"
-              placeholder={placeholderHints ? hint : "UM, UKM, Bangsar…"}
+              placeholder={placeholderHints ? hint : h.searchPlaceholder}
               value={where}
               onChange={(e) => {
                 setWhere(e.target.value);
@@ -218,7 +241,7 @@ export function SearchForm({
             <button
               type="button"
               className="sp-where-toggle"
-              aria-label={showSuggest ? "Close university list" : "Open university list"}
+              aria-label={showSuggest ? h.closeUniList : h.openUniList}
               aria-expanded={showSuggest}
               tabIndex={-1}
               onMouseDown={(e) => {
@@ -259,16 +282,19 @@ export function SearchForm({
           )}
         </div>
         <div className="sp-cell">
-          <span className="sp-lab">Move-in</span>
+          <span className="sp-lab">{h.moveIn}</span>
           <input
-            className="sp-input"
-            placeholder="Anytime"
+            className="sp-input sp-input-date force-ltr"
+            type="date"
+            min={todayISO}
             value={moveIn}
             onChange={(e) => setMoveIn(e.target.value)}
+            aria-label={h.moveIn}
+            data-empty={moveIn === "" ? "true" : undefined}
           />
         </div>
         <div className="sp-cell">
-          <span className="sp-lab">Min RM</span>
+          <span className="sp-lab">{h.minRM}</span>
           <input
             className="sp-input"
             type="number"
@@ -283,7 +309,7 @@ export function SearchForm({
           />
         </div>
         <div className="sp-cell">
-          <span className="sp-lab">Max RM</span>
+          <span className="sp-lab">{h.maxRM}</span>
           <input
             className="sp-input"
             type="number"
@@ -298,7 +324,7 @@ export function SearchForm({
           />
         </div>
         <div className="sp-cta">
-          <button type="submit" title="Search" aria-label="Search">
+          <button type="submit" title={dict.common.search} aria-label={dict.common.search}>
             <Icon name="search" size={22} strokeWidth={2.2} />
           </button>
         </div>
