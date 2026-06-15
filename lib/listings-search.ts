@@ -44,6 +44,21 @@ function num(v: string | string[] | undefined): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+// Non-negative integer-ish guard for URL-borne numerics (price, beds). Drops
+// negatives and non-finite values so a tampered `?priceMin=-1` can't widen a
+// query past intent. Upper-bounded to keep absurd values out of the UI.
+const MAX_NUM = 1_000_000;
+function nonNeg(n: number | undefined): number | undefined {
+  if (n == null) return undefined;
+  if (n < 0 || n > MAX_NUM) return undefined;
+  return n;
+}
+
+// Free-text query is matched in-memory (applyFilters) and rendered only through
+// React's auto-escaping, so it carries no injection risk; the cap is purely to
+// bound work and URL length against a hostile `?q=<huge>`.
+const MAX_Q_LEN = 80;
+
 function str(v: string | string[] | undefined): string | undefined {
   if (Array.isArray(v)) v = v[0];
   return v && v.trim() !== "" ? v : undefined;
@@ -59,8 +74,8 @@ const VALID_TYPES: ListingType[] = ["room", "studio", "apartment", "house"];
 
 export function parseListingSearchParams(sp: RawSearchParams): ListingSearchParams {
   // Back-compat shim: minPrice/maxPrice → priceMin/priceMax; universityId → university; areaId → area
-  const priceMin = num(sp.priceMin) ?? num(sp.minPrice);
-  const priceMax = num(sp.priceMax) ?? num(sp.maxPrice);
+  const priceMin = nonNeg(num(sp.priceMin) ?? num(sp.minPrice));
+  const priceMax = nonNeg(num(sp.priceMax) ?? num(sp.maxPrice));
   const university = str(sp.university) ?? str(sp.universityId);
   const area = str(sp.area) ?? str(sp.areaId);
 
@@ -69,11 +84,11 @@ export function parseListingSearchParams(sp: RawSearchParams): ListingSearchPara
     (VALID_TYPES as readonly string[]).includes(t),
   );
 
-  const beds = num(sp.beds);
+  const beds = nonNeg(num(sp.beds));
   const furnished = str(sp.furnished) === "1" || str(sp.furnished) === "true";
   const amenities = strList(sp.amenities);
   const moveInBy = str(sp.moveInBy);
-  const q = str(sp.q);
+  const q = str(sp.q)?.slice(0, MAX_Q_LEN);
   const from = str(sp.from);
 
   const sortRaw = str(sp.sort);

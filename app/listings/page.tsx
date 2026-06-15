@@ -12,6 +12,9 @@ import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import type { Gender } from "@/lib/types";
+import { getDictionary } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import {
   parseListingSearchParams,
   preserveQueryString,
@@ -21,45 +24,57 @@ import {
   type SortKey,
 } from "@/lib/listings-search";
 
-export const metadata: Metadata = {
-  title: "Find a room · Nook",
-  description: "Browse verified student rooms across Klang Valley.",
-};
-
-const KLANG_VALLEY_CENTER: [number, number] = [3.1073, 101.6067];
-
-function pageHeading(label: ReturnType<typeof resolveLocationLabel>): string {
-  if (label.area) return `Rooms in ${label.area}`;
-  if (label.universityShort) return `Rooms near ${label.universityShort}`;
-  return "Rooms in Klang Valley";
+export async function generateMetadata(): Promise<Metadata> {
+  const { meta } = await getDictionary();
+  return { title: meta.findRoom, description: meta.listingsDesc };
 }
 
-function pageMeta(count: number, label: ReturnType<typeof resolveLocationLabel>): string {
-  if (count === 0) return "No matching rooms. Adjust filters to see more.";
+type ListingsDict = Dictionary["listings"];
+const KLANG_VALLEY_CENTER: [number, number] = [3.1073, 101.6067];
+
+function pageHeading(
+  label: ReturnType<typeof resolveLocationLabel>,
+  l: ListingsDict,
+): string {
+  if (label.area) return format(l.roomsInArea, { area: label.area });
+  if (label.universityShort)
+    return format(l.roomsNearUni, { uni: label.universityShort });
+  return l.roomsInKV;
+}
+
+function pageMeta(
+  count: number,
+  label: ReturnType<typeof resolveLocationLabel>,
+  l: ListingsDict,
+): string {
+  if (count === 0) return l.noMatchingMeta;
   if (label.universityShort) {
-    return `Within walking distance to ${label.universityShort}.`;
+    return format(l.withinWalking, { uni: label.universityShort });
   }
   return "";
 }
 
-function locationPillLabel(label: ReturnType<typeof resolveLocationLabel>): string {
+function locationPillLabel(
+  label: ReturnType<typeof resolveLocationLabel>,
+  l: ListingsDict,
+): string {
   if (label.area) return label.area;
   if (label.universityShort) return label.universityShort;
-  return "Klang Valley";
+  return l.kvShort;
 }
 
-function sortLabelFor(sort: SortKey, uniShort?: string): string {
+function sortLabelFor(sort: SortKey, l: ListingsDict, uniShort?: string): string {
   switch (sort) {
     case "priceAsc":
-      return "sorted by price (low to high)";
+      return l.sortedPriceAsc;
     case "priceDesc":
-      return "sorted by price (high to low)";
+      return l.sortedPriceDesc;
     case "distance":
       return uniShort
-        ? `sorted by distance to ${uniShort}`
-        : "sorted by distance";
+        ? format(l.sortedDistanceUni, { uni: uniShort })
+        : l.sortedDistance;
     case "newest":
-      return "sorted by newest first";
+      return l.sortedNewest;
   }
 }
 
@@ -74,7 +89,12 @@ export default async function ListingsPage({
   const sort = defaultSort(params);
   const currentQuery = preserveQueryString(sp);
 
-  const [savedIds, user] = await Promise.all([getFavouriteIds(), getCurrentUser()]);
+  const [savedIds, user, dict] = await Promise.all([
+    getFavouriteIds(),
+    getCurrentUser(),
+    getDictionary(),
+  ]);
+  const l = dict.listings;
   const signedIn = user !== null;
 
   let viewerGender: Gender | undefined;
@@ -118,17 +138,18 @@ export default async function ListingsPage({
       <FilterBar
         params={params}
         resultCount={listings.length}
-        locationLabel={locationPillLabel(label)}
+        locationLabel={locationPillLabel(label, l)}
         effectiveSort={sort}
         signedIn={signedIn}
         viewerGender={viewerGender}
         areaLookup={areaLookup}
+        areas={areas}
       />
 
       <div className="breadcrumb">
         <Link href="/">Nook</Link>
         <span>›</span>
-        <Link href="/listings">{label.state ?? "Klang Valley"}</Link>
+        <Link href="/listings">{label.state ?? l.kvShort}</Link>
         <span>›</span>
         {label.area ? (
           <span style={{ color: "var(--ink-700)", fontWeight: 600 }}>
@@ -136,23 +157,23 @@ export default async function ListingsPage({
           </span>
         ) : label.universityShort ? (
           <span style={{ color: "var(--ink-700)", fontWeight: 600 }}>
-            Near {label.universityShort}
+            {format(l.near, { uni: label.universityShort })}
           </span>
         ) : (
-          <span style={{ color: "var(--ink-700)", fontWeight: 600 }}>Rooms</span>
+          <span style={{ color: "var(--ink-700)", fontWeight: 600 }}>{l.roomsWord}</span>
         )}
       </div>
 
       <div className="listings-h1">
         <div>
-          <h1>{pageHeading(label)}</h1>
-          {pageMeta(listings.length, label) ? (
-            <div className="meta">{pageMeta(listings.length, label)}</div>
+          <h1>{pageHeading(label, l)}</h1>
+          {pageMeta(listings.length, label, l) ? (
+            <div className="meta">{pageMeta(listings.length, label, l)}</div>
           ) : null}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button type="button" className="btn btn-secondary btn-sm">
-            <Icon name="share" size={14} /> Share
+            <Icon name="share" size={14} /> {l.share}
           </button>
         </div>
       </div>
@@ -162,7 +183,7 @@ export default async function ListingsPage({
         currentQuery={currentQuery}
         mapCenter={mapCenter}
         mapZoom={mapZoom}
-        sortLabel={sortLabelFor(sort, label.universityShort)}
+        sortLabel={sortLabelFor(sort, l, label.universityShort)}
         savedIds={savedIds}
         signedIn={signedIn}
       />
