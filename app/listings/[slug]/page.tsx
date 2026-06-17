@@ -347,12 +347,12 @@ export default async function ListingDetailPage({
                 ))}
               </div>
               {agent.reviewCount > reviews.length && (
-                <a
-                  href="#"
+                <Link
+                  href={`/agents/${agent.slug}#reviews`}
                   style={{ fontSize: "var(--t-sm)", fontWeight: 600 }}
                 >
                   {format(d.seeAllReviews, { count: agent.reviewCount })}
-                </a>
+                </Link>
               )}
             </div>
           )}
@@ -379,7 +379,10 @@ export default async function ListingDetailPage({
         <aside className="sidebar">
           {agent && (
             <div className="agent-panel">
-              <div className="agent-head">
+              <Link
+                href={`/agents/${agent.slug}`}
+                className="agent-head agent-head-link"
+              >
                 <div className="agent-avatar-md">{initials(agent.name)}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="agent-meta-name">
@@ -408,7 +411,7 @@ export default async function ListingDetailPage({
                     </span>
                   </div>
                 </div>
-              </div>
+              </Link>
 
               <div className="reveal-row">
                 <PhoneReveal phone={agent.phone ?? agent.whatsapp} />
@@ -462,7 +465,7 @@ export default async function ListingDetailPage({
           <div className="heads-up">
             <strong>{d.headsUp}</strong>
             {d.headsUpBody}{" "}
-            <a href="#">{d.safetyGuide}</a>
+            <Link href="/help#safety">{d.safetyGuide}</Link>
           </div>
         </aside>
       </div>

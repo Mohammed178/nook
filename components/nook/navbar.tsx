@@ -17,6 +17,7 @@ interface NavbarProps {
     | "universities"
     | "essentials"
     | "help"
+    | "agents"
     | "admin";
   transparent?: boolean;
 }

@@ -50,7 +50,8 @@ export function Footer({ dict }: { dict: Dictionary }) {
               <li><Link href="/listings">{f.browseRooms}</Link></li>
               <li><Link href="/areas">{f.areas}</Link></li>
               <li><Link href="/universities">{f.universities}</Link></li>
-              <li><Link href="/saved">{f.saved}</Link></li>
+              <li><Link href="/agents">{f.agents}</Link></li>
+              <li><Link href="/account/saved">{f.saved}</Link></li>
             </ul>
           </div>
           <div>
@@ -59,17 +60,16 @@ export function Footer({ dict }: { dict: Dictionary }) {
               <li><Link href="/agents/register">{f.listProperty}</Link></li>
               <li><Link href="/verification">{f.verification}</Link></li>
               <li><Link href="/pricing">{f.pricing}</Link></li>
-              <li><Link href="/agent-login">{f.agentLogin}</Link></li>
+              <li><Link href="/login">{f.agentLogin}</Link></li>
             </ul>
           </div>
           <div>
             <h4>{f.companyLegal}</h4>
             <ul>
+              <li><Link href="/help">{f.help}</Link></li>
               <li><Link href="/about">{f.about}</Link></li>
-              <li><Link href="/contact">{f.contact}</Link></li>
               <li><Link href="/terms">{f.terms}</Link></li>
               <li><Link href="/privacy">{f.privacy}</Link></li>
-              <li><Link href="/bovaep">{f.bovaep}</Link></li>
             </ul>
           </div>
         </div>
