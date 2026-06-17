@@ -3280,12 +3280,28 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .ess-note a { color: var(--brand-500); font-weight: 600; }
 
-@media (max-width: 720px) {
+@media (max-width: 720px), (orientation: landscape) and (max-height: 600px) {
   .ess-head { grid-template-columns: 1fr; gap: 14px; }
   .ess-head .dek { justify-self: start; }
   .ess-cat-head { grid-template-columns: 1fr; gap: 8px; }
   .ess-cat-num { font-size: 30px; }
   .ess-grid { grid-template-columns: 1fr; }
+
+  /* Jump nav: the 10 category chips wrap into a tall cramped block on phones.
+     Collapse to a single edge-to-edge row that swipes sideways (the original
+     intent per the desktop comment), pills kept intact. */
+  .ess-jump {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+  .ess-jump::-webkit-scrollbar { display: none; }
+  .ess-jump-link { flex: 0 0 auto; scroll-snap-align: start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
