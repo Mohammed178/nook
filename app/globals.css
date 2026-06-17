@@ -271,7 +271,7 @@ img { display: block; max-width: 100%; }
 
 /* === Inputs === */
 .input, .select {
-  width: 100%; padding: 9px 12px; border: 1px solid var(--ink-300);
+  width: 100%; min-width: 0; padding: 9px 12px; border: 1px solid var(--ink-300);
   border-radius: var(--r-sm); background: var(--paper); color: var(--ink-900);
   font-size: var(--t-base); transition: border-color 120ms, box-shadow 120ms;
 }
@@ -2186,7 +2186,9 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .profile-row {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0,1fr), not 1fr (= minmax(auto,1fr)): the `auto` floor is the
+     email input's min-content, which refuses to shrink and overflows phones. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
 }
 @media (min-width: 720px) {
@@ -2198,7 +2200,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 .profile-prefix-wrap {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: stretch;
 }
 .profile-prefix {
@@ -3571,6 +3573,9 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   background: var(--paper);
   border: 1px solid var(--ink-200);
   border-radius: var(--r-lg);
+  /* <fieldset> defaults to min-inline-size: min-content, which blocks it from
+     shrinking on phones and overflows the viewport. Let it track the column. */
+  min-inline-size: 0;
 }
 .profile-legend {
   letter-spacing: 0.08em;
@@ -3611,13 +3616,16 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
    ============================================================ */
 @media (max-width: 900px), (orientation: landscape) and (max-height: 600px) {
   .account-shell {
-    grid-template-columns: 1fr;
+    /* minmax(0,1fr): a bare 1fr floors at the column's min-content, which the
+       nowrap email in the identity header inflates — widening the whole column
+       (header AND content) past the viewport. minmax(0,…) lets it shrink. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 18px;
     padding: 20px 0 56px;
   }
   /* Identity rail folds into a compact context header (keeps who-am-I
      visible instead of dropping to bare links). */
-  .account-sidebar { position: static; padding: 0; }
+  .account-sidebar { position: static; padding: 0; min-width: 0; }
   .account-sidebar-head {
     display: flex;
     flex-direction: row;
@@ -3625,6 +3633,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
     gap: 12px;
     padding: 0 2px 14px;
     margin-bottom: 0;
+    min-width: 0;
   }
   .account-sidebar-avatar { width: 44px; height: 44px; font-size: var(--t-base); }
   .account-sidebar-name { font-size: var(--t-base); white-space: nowrap; }
