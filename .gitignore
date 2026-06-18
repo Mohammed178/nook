@@ -58,6 +58,7 @@ next-env.d.ts
 /PRODUCT.md
 /SCALING.md
 /nook-cc-workflow-and-rituals.md
+/CLAUDE.md
 
 # windows git-bash crash dumps
 *.stackdump
