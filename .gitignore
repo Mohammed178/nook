@@ -42,3 +42,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal / IP material — purged from history, must not be re-committed
+/graphify-out/
+/design-pack/
+/supabase/migrations/
+/docs/
+/ARCHITECTURE.md
+/CONTEXT.md
+/DESIGN.json
+/DESIGN.md
+/HANDOFF.md
+/LATE_CATCHES.md
+/PHASE4_ARCHITECTURE.md
+/PRODUCT.md
+/SCALING.md
+/nook-cc-workflow-and-rituals.md
+
+# windows git-bash crash dumps
+*.stackdump
