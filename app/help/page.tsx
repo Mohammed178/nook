@@ -34,7 +34,7 @@ export default async function HelpPage() {
     <>
       <Navbar active="help" />
 
-      <div className="container help">
+      <div className="container help-page">
         <header className="help-head">
           <div>
             <div className="kicker">{t.kicker}</div>

@@ -125,10 +125,7 @@ export function ListingCard({
           {agent && (
             <div className="agent-strip">
               <span className="agent-av">{initials(agent.name)}</span>
-              <span>
-                {agent.name.split(" ")[0]} ·{" "}
-                <span className="star">★</span> {agent.rating.toFixed(1)}
-              </span>
+              <span>{agent.name.split(" ")[0]}</span>
             </div>
           )}
         </div>

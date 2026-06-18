@@ -11,7 +11,6 @@ export function Footer({ dict }: { dict: Dictionary }) {
   const trustItems: { iconName: IconName; label: string }[] = [
     { iconName: "check", label: f.trustLicences },
     { iconName: "camera", label: f.trustPhotos },
-    { iconName: "star", label: f.trustReviews },
     { iconName: "shield", label: f.trustReports },
   ];
 

@@ -1,9 +1,8 @@
 import "server-only";
-import type { Agent, Area, Listing, Review } from "@/lib/types";
+import type { Agent, Area, Listing } from "@/lib/types";
 import { getAllAgents, getAgentBySlug } from "@/lib/data/agents";
 import { getAllListings } from "@/lib/data/listings";
 import { getAllAreas } from "@/lib/data/areas";
-import { REVIEWS_BY_AGENT } from "@/lib/seed/reviews";
 
 // An agent plus the coverage we derive from their live listings: which areas
 // they actually have rooms in, and (via those areas) which campuses they serve.
@@ -78,12 +77,9 @@ export interface AgentProfile {
   agent: Agent;
   listings: Listing[];
   areaById: Map<string, Area>;
-  reviews: Review[];
 }
 
-// Profile feed: the agent, their live listings (with an area lookup for cards),
-// and every review for them. Reviews are seed-sourced today (keyed by slug);
-// the read shape stays stable when they move to the DB.
+// Profile feed: the agent and their live listings (with an area lookup for cards).
 export async function getAgentProfile(slug: string): Promise<AgentProfile | null> {
   const agent = await getAgentBySlug(slug);
   if (!agent) return null;
@@ -98,6 +94,5 @@ export async function getAgentProfile(slug: string): Promise<AgentProfile | null
     agent,
     listings: agentListings,
     areaById,
-    reviews: REVIEWS_BY_AGENT[slug] ?? [],
   };
 }

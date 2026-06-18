@@ -37,7 +37,7 @@ export default async function AgentProfilePage({ params }: ProfilePageProps) {
   const profile = await getAgentProfile(slug);
   if (!profile) notFound();
 
-  const { agent, listings, areaById, reviews } = profile;
+  const { agent, listings, areaById } = profile;
   const t = dict.agentProfile;
   const d = dict.listingDetail;
   const waNumber = agent.whatsapp.replace(/[^0-9]/g, "");
@@ -88,13 +88,6 @@ export default async function AgentProfilePage({ params }: ProfilePageProps) {
             )}
 
             <div className="agent-facts">
-              <span className="agent-fact">
-                <Icon name="star" size={14} />
-                <strong>{agent.rating.toFixed(1)}</strong>
-                <span className="agent-fact-sub">
-                  {agent.reviewCount} {t.reviewsLabel}
-                </span>
-              </span>
               <span className="agent-fact">
                 <Icon name="grid" size={14} />
                 <strong>{listings.length}</strong>
@@ -150,41 +143,6 @@ export default async function AgentProfilePage({ params }: ProfilePageProps) {
                       area={areaById.get(listing.areaId) ?? null}
                       card={dict.card}
                     />
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section className="agent-section" id="reviews">
-              <h2>
-                {t.reviewsTitle}
-                {reviews.length > 0 && (
-                  <span className="agent-reviews-count">
-                    {format(t.reviewsCount, { count: agent.reviewCount })}
-                  </span>
-                )}
-              </h2>
-              {reviews.length === 0 ? (
-                <p className="agent-empty">{t.noReviews}</p>
-              ) : (
-                <div className="agent-reviews">
-                  {reviews.map((r) => (
-                    <div key={r.id} className="review-card">
-                      <div className="review-stars">
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <span key={n} className={n > r.rating ? "empty" : ""}>
-                            <Icon name="star" size={14} />
-                          </span>
-                        ))}
-                      </div>
-                      <div className="review-body">{r.comment}</div>
-                      <div className="review-foot">
-                        <span>-</span>
-                        <strong>{r.reviewerName}</strong>
-                        <span>·</span>
-                        <span>{r.date}</span>
-                      </div>
-                    </div>
                   ))}
                 </div>
               )}

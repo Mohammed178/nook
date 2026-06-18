@@ -127,12 +127,6 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
                       {agent.agency ?? t.independent}
                     </div>
                     <div className="agents-meta">
-                      <span className="agents-rating">
-                        <Icon name="star" size={12} />
-                        <strong>{agent.rating.toFixed(1)}</strong> ·{" "}
-                        {agent.reviewCount} {t.reviews}
-                      </span>
-                      <span className="agents-dot">·</span>
                       <span>
                         <strong>{activeListings}</strong> {t.active}
                       </span>

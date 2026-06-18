@@ -78,17 +78,6 @@ export interface NearbyPOI {
   distanceMetres: number;
 }
 
-export interface Review {
-  id: string;
-  listingId?: string;
-  agentId?: string;
-  reviewerName: string;
-  reviewerAvatarUrl?: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
-
 export interface ListingWithRelations {
   listing: Listing;
   agent: Agent | null;

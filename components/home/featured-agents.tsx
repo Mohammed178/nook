@@ -47,10 +47,6 @@ export async function FeaturedAgents() {
               </div>
               <div className="agency">{agent.agency ?? h.independent}</div>
               <div className="meta-row">
-                <span>
-                  <span className="star">★</span> <strong>{agent.rating.toFixed(1)}</strong> · {agent.reviewCount} {h.reviews}
-                </span>
-                <span style={{ color: "var(--ink-300)" }}>·</span>
                 <span><strong>{activeListings}</strong> {h.active}</span>
               </div>
               {areasServed && <div className="areas">{areasServed}</div>}

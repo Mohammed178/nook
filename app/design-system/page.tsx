@@ -445,11 +445,10 @@ export default async function DesignSystemPage() {
           title="KPI tile"
           lab="Used in agent dashboard + analytics. Brand-coloured number, ink-500 label."
         >
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
             <Kpi label="Active listings" value="24" delta="+3 this week" up />
             <Kpi label="Phone reveals" value="142" delta="+18% vs last week" up />
             <Kpi label="WhatsApp clicks" value="87" delta="−4% vs last week" down />
-            <Kpi label="Avg rating" value="4.8" delta="47 reviews total" />
           </div>
         </Section>
 

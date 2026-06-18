@@ -28,7 +28,6 @@ import {
   ListingDetailMap,
   type DetailMapCampus,
 } from "@/components/listings/listing-detail-map";
-import { REVIEWS_BY_AGENT } from "@/lib/seed/reviews";
 import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
 import { amenitySpec } from "@/lib/amenities";
 import { format } from "@/lib/i18n/config";
@@ -130,7 +129,6 @@ export default async function ListingDetailPage({
       };
     })
     .sort((a, b) => a.km - b.km);
-  const reviews = (agent ? (REVIEWS_BY_AGENT[agent.slug] ?? []) : []).slice(0, 3);
   // Area-level context names only (no fabricated per-listing distances, 4c-B2).
   const nearby: NearbyPOI[] = area ? (NEARBY_BY_AREA[area.slug] ?? []) : [];
   const similarListings = await getSimilarListings(listing, 4);
@@ -323,40 +321,6 @@ export default async function ListingDetailPage({
             )}
           </div>
 
-          {agent && reviews.length > 0 && (
-            <div className="section">
-              <h2>{d.aboutAgent}</h2>
-              <div className="review-rail">
-                {reviews.map((r) => (
-                  <div key={r.id} className="review-card">
-                    <div className="review-stars">
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <span key={n} className={n > r.rating ? "empty" : ""}>
-                          <Icon name="star" size={14} />
-                        </span>
-                      ))}
-                    </div>
-                    <div className="review-body">{r.comment}</div>
-                    <div className="review-foot">
-                      <span>-</span>
-                      <strong>{r.reviewerName}</strong>
-                      <span>·</span>
-                      <span>{r.date}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {agent.reviewCount > reviews.length && (
-                <Link
-                  href={`/agents/${agent.slug}#reviews`}
-                  style={{ fontSize: "var(--t-sm)", fontWeight: 600 }}
-                >
-                  {format(d.seeAllReviews, { count: agent.reviewCount })}
-                </Link>
-              )}
-            </div>
-          )}
-
           {similar.length > 0 && (
             <div className="section">
               <h2>{d.similarRooms}</h2>
@@ -401,15 +365,6 @@ export default async function ListingDetailPage({
                       {format(d.bovaepNum, { licence: agent.bovaepLicence })}
                     </div>
                   )}
-                  <div className="agent-meta-rating">
-                    <span className="star"><Icon name="star" size={12} /></span>
-                    <strong style={{ color: "var(--ink-900)" }}>
-                      {agent.rating.toFixed(1)}
-                    </strong>
-                    <span style={{ color: "var(--ink-500)" }}>
-                      · {agent.reviewCount} {d.reviews}
-                    </span>
-                  </div>
                 </div>
               </Link>
 

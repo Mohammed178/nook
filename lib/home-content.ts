@@ -7,7 +7,6 @@ export const HOME_STATS: HomeStat[] = [
   { value: "12,400+", label: "Verified rooms across Klang Valley" },
   { value: "2,800", label: "REN/PEA-licensed agents" },
   { value: "38h", label: "Average enquiry-to-tenancy" },
-  { value: "4.7 ★", label: "Average agent rating" },
 ];
 
 export const BIG_CTA_STATS: HomeStat[] = [
