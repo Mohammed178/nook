@@ -1,4 +1,4 @@
-import type { Gender, Listing, ListingType } from "@/lib/types";
+import type { Gender, Listing, ListingType, University } from "@/lib/types";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { AREA_BY_ID } from "@/lib/seed/areas";
 import {
@@ -6,6 +6,8 @@ import {
   isNearCampus,
   nearestCampus,
   NEAR_CAMPUS_RADIUS_KM,
+  SEED_UNI_INDEX,
+  type UniIndex,
 } from "@/lib/distance";
 
 export type SortKey = "priceAsc" | "priceDesc" | "distance" | "newest";
@@ -171,22 +173,27 @@ export function preserveQueryString(sp: RawSearchParams): string {
 // the old l.nearbyUniversityIds[0] claim is gone, distance is computed from
 // coordinates). lat/lng are nullable (drafts carry none); a coordinate-less
 // listing sorts last. The haversine lives in lib/distance.ts (single source).
-export function listingDistanceKm(l: Listing, universityId?: string): number {
+export function listingDistanceKm(
+  l: Listing,
+  universityId?: string,
+  idx: UniIndex = SEED_UNI_INDEX,
+): number {
   if (l.lat == null || l.lng == null) return Number.POSITIVE_INFINITY;
-  const targetUniId =
-    universityId && UNIVERSITY_BY_ID[universityId]
-      ? universityId
-      : nearestCampus(l.lat, l.lng)?.uniId;
-  if (!targetUniId) return Number.POSITIVE_INFINITY;
-  const uni = UNIVERSITY_BY_ID[targetUniId];
-  if (!uni) return Number.POSITIVE_INFINITY;
-  return haversineKm(l.lat, l.lng, uni.lat, uni.lng);
+  const target =
+    (universityId ? idx.byKey.get(universityId) : undefined) ??
+    (() => {
+      const n = nearestCampus(l.lat, l.lng, idx);
+      return n ? idx.byKey.get(n.uniId) : undefined;
+    })();
+  if (!target) return Number.POSITIVE_INFINITY;
+  return haversineKm(l.lat, l.lng, target.lat, target.lng);
 }
 
 export function applyFilters(
   listings: Listing[],
   p: ListingSearchParams,
   viewerGender?: Gender,
+  idx: UniIndex = SEED_UNI_INDEX,
 ): Listing[] {
   const genderApplies =
     viewerGender !== undefined && p.genderOverride !== "off";
@@ -196,8 +203,12 @@ export function applyFilters(
     // Compute-don't-claim (4c-B2): "near university X" = within
     // NEAR_CAMPUS_RADIUS_KM of X's campus, computed from the listing's coords
     // (was: agent-tagged nearbyUniversityIds). A coordless listing matches no
-    // campus filter, but still appears in unfiltered browse.
-    if (p.university && !isNearCampus(l.lat, l.lng, p.university, NEAR_CAMPUS_RADIUS_KM)) {
+    // campus filter, but still appears in unfiltered browse. `idx` carries the
+    // live campus list so admin-added campuses filter correctly (0022).
+    if (
+      p.university &&
+      !isNearCampus(l.lat, l.lng, p.university, NEAR_CAMPUS_RADIUS_KM, idx)
+    ) {
       return false;
     }
     if (p.area && l.areaId !== p.area) return false;
@@ -224,6 +235,7 @@ export function applySort(
   listings: Listing[],
   sort: SortKey,
   universityId?: string,
+  idx: UniIndex = SEED_UNI_INDEX,
 ): Listing[] {
   const arr = [...listings];
   switch (sort) {
@@ -236,8 +248,8 @@ export function applySort(
     case "distance":
       arr.sort(
         (a, b) =>
-          listingDistanceKm(a, universityId) -
-          listingDistanceKm(b, universityId),
+          listingDistanceKm(a, universityId, idx) -
+          listingDistanceKm(b, universityId, idx),
       );
       break;
     case "newest":
@@ -252,8 +264,21 @@ export function applySort(
 // array-operating core). applyFilters / applySort / defaultSort above are
 // unchanged and consumed by the relocated wrappers.
 
-/** Resolve a search-params bundle into a human-readable area/uni breadcrumb. */
-export function resolveLocationLabel(p: ListingSearchParams): {
+// Seed slug→University map (the seed legacy id is the slug), the default lookup
+// for resolveLocationLabel when no live list is supplied.
+const SEED_UNI_MAP: ReadonlyMap<string, University> = new Map(
+  Object.entries(UNIVERSITY_BY_ID),
+);
+
+/**
+ * Resolve a search-params bundle into a human-readable area/uni breadcrumb.
+ * `uniByKey` defaults to the seed map; the listings page passes a slug→University
+ * map built from the live DB list so admin-added campuses resolve a label too.
+ */
+export function resolveLocationLabel(
+  p: ListingSearchParams,
+  uniByKey: ReadonlyMap<string, University> = SEED_UNI_MAP,
+): {
   state?: string;
   area?: string;
   universityShort?: string;
@@ -263,7 +288,7 @@ export function resolveLocationLabel(p: ListingSearchParams): {
     if (a) return { state: a.state, area: a.name };
   }
   if (p.university) {
-    const u = UNIVERSITY_BY_ID[p.university];
+    const u = uniByKey.get(p.university);
     if (u) return { state: u.state, universityShort: u.shortName };
   }
   return {};

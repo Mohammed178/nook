@@ -2,10 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
-import { UNIVERSITIES } from "@/lib/seed/universities";
-import { UNIVERSITY_CONTENT } from "@/lib/seed/university-content";
+import { getAllUniversities } from "@/lib/data/universities";
 import { getAllListings } from "@/lib/data/listings";
-import { isNearCampus, NEAR_CAMPUS_RADIUS_KM } from "@/lib/distance";
+import { buildUniIndex, isNearCampus, NEAR_CAMPUS_RADIUS_KM } from "@/lib/distance";
 import { getDictionary } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
 
@@ -17,20 +16,24 @@ export async function generateMetadata(): Promise<Metadata> {
 const formatStudents = new Intl.NumberFormat("en-MY");
 
 // Mosaic spans on the 6-column grid, deliberately uneven so the page reads
-// as an editorial photo board, not a uniform card row. Index-aligned with
-// UNIVERSITIES order; rows resolve to [4+2][2+2+2][3+3][2+2+2].
-const SPANS = [4, 2, 2, 2, 2, 3, 3, 2, 2, 2];
+// as an editorial photo board, not a uniform card row. Cycled by index (the
+// campus list is DB-backed and variable-length since 0022); the pattern tiles
+// to [4+2][2+2+2][3+3] and repeats, ragged final rows are fine on the grid.
+const SPAN_PATTERN = [4, 2, 2, 2, 2, 3, 3];
 
 export default async function UniversitiesPage() {
   // Compute-don't-claim: the per-campus room count derives from listing
   // coordinates at read (4c-B2), never a stored tag.
-  const [listings, dict] = await Promise.all([
+  const [universities, listings, dict] = await Promise.all([
+    getAllUniversities(),
     getAllListings(),
     getDictionary(),
   ]);
   const t = dict.universities;
-  const countFor = (uniId: string) =>
-    listings.filter((l) => isNearCampus(l.lat, l.lng, uniId)).length;
+  const idx = buildUniIndex(universities);
+  const countFor = (slug: string) =>
+    listings.filter((l) => isNearCampus(l.lat, l.lng, slug, NEAR_CAMPUS_RADIUS_KM, idx))
+      .length;
 
   return (
     <>
@@ -52,23 +55,22 @@ export default async function UniversitiesPage() {
         </header>
 
         <ul className="uni-mosaic">
-          {UNIVERSITIES.map((uni, i) => {
-            const count = countFor(uni.id);
-            const content = UNIVERSITY_CONTENT[uni.id];
+          {universities.map((uni, i) => {
+            const count = countFor(uni.slug);
             return (
               <li
                 key={uni.id}
-                className={`uni-tile u-span-${SPANS[i]}`}
+                className={`uni-tile u-span-${SPAN_PATTERN[i % SPAN_PATTERN.length]}`}
                 style={{ "--i": i } as React.CSSProperties}
               >
-                <Link href={`/universities/${uni.id}`} className="uni-tile-link">
+                <Link href={`/universities/${uni.slug}`} className="uni-tile-link">
                   <div
                     className="uni-tile-photo"
                     role="img"
                     aria-label={format(t.campusAria, { name: uni.name })}
                     style={
-                      content
-                        ? { backgroundImage: `url(${content.photo})` }
+                      uni.photo
+                        ? { backgroundImage: `url(${uni.photo})` }
                         : undefined
                     }
                   >

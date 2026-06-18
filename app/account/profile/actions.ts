@@ -2,11 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { createActionClient } from "@/lib/supabase/server";
-import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getUniversityBySlug } from "@/lib/data/universities";
 import { getDictionary } from "@/lib/i18n/server";
 
 const VALID_GENDERS = new Set(["female", "male", "mixed"]);
-const VALID_UNIVERSITY_IDS = new Set(UNIVERSITIES.map((u) => u.id));
 
 export async function updateProfileAction(
   formData: FormData,
@@ -23,7 +22,7 @@ export async function updateProfileAction(
   if (!displayName) {
     return { error: a.displayNameRequired };
   }
-  if (universityIdRaw && !VALID_UNIVERSITY_IDS.has(universityIdRaw)) {
+  if (universityIdRaw && !(await getUniversityBySlug(universityIdRaw))) {
     return { error: a.pickUniversity };
   }
 

@@ -18,12 +18,11 @@ import { PricePopover } from "./price-popover";
 import { MoreFiltersSheet } from "./more-filters-sheet";
 import { SaveSearchButton } from "./save-search-button";
 import { SearchForm } from "@/components/home/search-form";
-import { UNIVERSITIES } from "@/lib/seed/universities";
 import { formatPrice } from "@/lib/utils";
 import { useDict } from "@/lib/i18n/context";
 import { format } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
-import type { Area, Gender } from "@/lib/types";
+import type { Area, Gender, University } from "@/lib/types";
 import type { AreaLookup } from "@/lib/saved-search-summary";
 
 type ListingsDict = Dictionary["listings"];
@@ -37,6 +36,7 @@ interface FilterBarProps {
   viewerGender?: Gender;
   areaLookup: AreaLookup;
   areas: Area[];
+  universities: University[];
 }
 
 function genderChipLabel(l: ListingsDict, g: Gender): string {
@@ -167,6 +167,7 @@ export function FilterBar({
   viewerGender,
   areaLookup,
   areas,
+  universities,
 }: FilterBarProps) {
   const l = useDict().listings;
   const router = useRouter();
@@ -237,7 +238,7 @@ export function FilterBar({
                 <SearchForm
                   variant="popover"
                   areas={areas}
-                  universities={UNIVERSITIES}
+                  universities={universities}
                   baseParams={params}
                   onSubmitNavigate={() => setLocOpen(false)}
                 />

@@ -9,6 +9,7 @@
     "lint": "eslint && npm run lint:service-role-containment",
     "typecheck": "tsc --noEmit",
     "seed:3ba": "node --experimental-strip-types --env-file=.env.local scripts/seed-3ba.mjs",
+    "seed:universities": "node --experimental-strip-types --env-file=.env.local scripts/seed-universities.mjs",
     "rls-test:3ba": "node --env-file=.env.local scripts/rls-test-3ba.mjs",
     "derive-id-map:3bb1": "node --experimental-strip-types scripts/derive-id-map-3bb1.mjs",
     "seed:3bb1": "node --experimental-strip-types --env-file=.env.local scripts/seed-3bb1.mjs",

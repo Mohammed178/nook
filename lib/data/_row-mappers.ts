@@ -12,6 +12,7 @@ import type {
   ListingStatus,
   ListingType,
   Locale,
+  UniversityRecord,
 } from "@/lib/types";
 
 export interface AreaRow {
@@ -25,6 +26,54 @@ export interface AreaRow {
   nearby_university_ids: string[];
   vibe: string | null;
 }
+
+// universities table (migration 0022). Editorial prose lives in the row (folded
+// in from the retired lib/seed/university-content.ts source); the seed file is
+// kept only as the migration source + the sync proximity fallback.
+export interface UniversityRow {
+  id: string;
+  slug: string;
+  name: string;
+  short_name: string;
+  city: string;
+  state: string;
+  lat: number;
+  lng: number;
+  student_count: number | null;
+  campus_type: "public" | "private" | null;
+  description: string;
+  transit: string[];
+  campus_features: string[];
+  website: string;
+  photo_url: string;
+  photo_file: string;
+  deleted_at: string | null;
+}
+
+export function rowToUniversity(r: UniversityRow): UniversityRecord {
+  return {
+    id: r.id,
+    slug: r.slug,
+    name: r.name,
+    shortName: r.short_name,
+    city: r.city,
+    state: r.state,
+    lat: r.lat,
+    lng: r.lng,
+    studentCount: r.student_count ?? undefined,
+    campusType: r.campus_type ?? undefined,
+    description: r.description,
+    transit: r.transit,
+    campusFeatures: r.campus_features,
+    website: r.website,
+    photo: r.photo_url,
+    photoFile: r.photo_file,
+    deletedAt: r.deleted_at ?? undefined,
+  };
+}
+
+export const UNIVERSITY_COLS =
+  "id, slug, name, short_name, city, state, lat, lng, student_count, campus_type, description, transit, campus_features, website, photo_url, photo_file, deleted_at";
 
 export interface AgentRow {
   id: string;

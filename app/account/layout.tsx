@@ -30,6 +30,7 @@ export default async function AccountLayout({
           email={user?.email ?? ""}
           agentStatus={user?.agentStatus}
           agencyName={user?.agencyName}
+          isAdmin={user?.isAdmin}
           dict={dict}
         />
         <main className="account-content">{children}</main>

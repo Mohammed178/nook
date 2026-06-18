@@ -2,25 +2,29 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/nook/icon";
-import { UNIVERSITIES } from "@/lib/seed/universities";
+import type { University } from "@/lib/types";
 import { useDict } from "@/lib/i18n/context";
 
 interface UniversitySearchProps {
   name: string;
   defaultValue?: string;
   placeholder?: string;
+  /** DB-backed campus list (id = slug, the stored university_id value). Passed
+   * from the server parent so admin-added campuses appear here too (0022). */
+  universities: University[];
 }
 
 export function UniversitySearch({
   name,
   defaultValue = "",
   placeholder,
+  universities,
 }: UniversitySearchProps) {
   const t = useDict().uniSearch;
   const placeholderText = placeholder ?? t.placeholder;
   const [selectedId, setSelectedId] = useState<string>(defaultValue);
   const [query, setQuery] = useState<string>(() => {
-    const u = UNIVERSITIES.find((x) => x.id === defaultValue);
+    const u = universities.find((x) => x.id === defaultValue);
     return u ? u.name : "";
   });
   const [open, setOpen] = useState(false);
@@ -30,14 +34,14 @@ export function UniversitySearch({
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return UNIVERSITIES;
-    return UNIVERSITIES.filter(
+    if (!q) return universities;
+    return universities.filter(
       (u) =>
         u.name.toLowerCase().includes(q) ||
         u.shortName.toLowerCase().includes(q) ||
         u.city.toLowerCase().includes(q),
     );
-  }, [query]);
+  }, [query, universities]);
 
   useEffect(() => {
     if (!open) return;

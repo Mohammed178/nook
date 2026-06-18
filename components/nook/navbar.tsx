@@ -6,7 +6,7 @@ import { AccountMenu } from "./account-menu";
 import { LanguageSwitcher } from "@/components/nook/language-switcher";
 import { getCurrentUser } from "@/lib/auth";
 import { getAllAreas } from "@/lib/data/areas";
-import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { getDictionary } from "@/lib/i18n/server";
 
 interface NavbarProps {
@@ -23,9 +23,10 @@ interface NavbarProps {
 }
 
 export async function Navbar({ active = "home", transparent = false }: NavbarProps) {
-  const [user, areas, dict] = await Promise.all([
+  const [user, areas, universities, dict] = await Promise.all([
     getCurrentUser(),
     getAllAreas(),
+    getAllUniversities(),
     getDictionary(),
   ]);
 
@@ -36,10 +37,11 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
     { id: "universities", label: dict.nav.universities, href: "/universities" },
     { id: "essentials", label: dict.nav.essentials, href: "/essentials" },
     { id: "help", label: dict.nav.help, href: "/help" },
-    { id: "admin", label: dict.nav.admin, href: "/admin/agents" },
   ];
 
-  const visibleLinks = links.filter((l) => l.id !== "admin" || user?.isAdmin);
+  // Admin surfaces (agent approvals, universities) moved off the top nav into the
+  // account sidebar (admin-gated), so the public nav no longer branches on role.
+  const visibleLinks = links;
 
   return (
     <header className={`topnav${transparent ? " transparent" : ""}`}>
@@ -60,7 +62,10 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
             </Link>
           ))}
         </nav>
-        <NavSearchTrigger areas={areas} universities={UNIVERSITIES} />
+        <NavSearchTrigger
+          areas={areas}
+          universities={toSearchUniversities(universities)}
+        />
         <div className="nav-right">
           <LanguageSwitcher variant="menu" />
           {user ? (

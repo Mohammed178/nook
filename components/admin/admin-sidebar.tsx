@@ -9,8 +9,8 @@ import { useDict } from "@/lib/i18n/context";
 // Forked from account-sidebar (Q5): account-sidebar hardcodes the /account NAV
 // and is not parameterised. This reuses the .account-sidebar / .account-nav*
 // CSS classes (structural vertical-nav primitives), zero new sidebar CSS.
-// MVP NAV is a single item; the array stays so adding admin sections later is a
-// one-line change.
+// Admin entry points (agent approvals, universities) live in the account sidebar
+// (admin-gated); within /admin this rail still lists them so section nav persists.
 interface NavItem {
   href: string;
   label: string;
@@ -35,6 +35,7 @@ export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
 
   const NAV: NavItem[] = [
     { href: "/admin/agents", label: a.pendingAgents, icon: "shield" },
+    { href: "/admin/universities", label: a.uni.nav, icon: "school" },
   ];
 
   return (

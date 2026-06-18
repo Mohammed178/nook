@@ -18,6 +18,7 @@ interface AccountSidebarProps {
   email: string;
   agentStatus?: AgentStatus;
   agencyName?: string;
+  isAdmin?: boolean;
   dict: Dictionary;
 }
 
@@ -32,6 +33,7 @@ export function AccountSidebar({
   email,
   agentStatus,
   agencyName,
+  isAdmin,
   dict,
 }: AccountSidebarProps) {
   const n = dict.accountNav;
@@ -96,6 +98,38 @@ export function AccountSidebar({
             >
               <Icon name="shield" size={16} />
               <span>{n.applicationStatus}</span>
+            </Link>
+          </li>
+        ) : null}
+        {isAdmin ? (
+          <li>
+            <Link
+              href="/admin/agents"
+              className={`account-nav-item${
+                pathname.startsWith("/admin/agents") ? " active" : ""
+              }`}
+              aria-current={
+                pathname.startsWith("/admin/agents") ? "page" : undefined
+              }
+            >
+              <Icon name="shield" size={16} />
+              <span>{dict.admin.pendingAgents}</span>
+            </Link>
+          </li>
+        ) : null}
+        {isAdmin ? (
+          <li>
+            <Link
+              href="/admin/universities"
+              className={`account-nav-item${
+                pathname.startsWith("/admin/universities") ? " active" : ""
+              }`}
+              aria-current={
+                pathname.startsWith("/admin/universities") ? "page" : undefined
+              }
+            >
+              <Icon name="school" size={16} />
+              <span>{dict.admin.uni.nav}</span>
             </Link>
           </li>
         ) : null}

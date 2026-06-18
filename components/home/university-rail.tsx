@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { UNIVERSITIES } from "@/lib/seed/universities";
-import { UNIVERSITY_CONTENT } from "@/lib/seed/university-content";
+import { getAllUniversities } from "@/lib/data/universities";
 import { getAllListings } from "@/lib/data/listings";
-import { isNearCampus } from "@/lib/distance";
+import { buildUniIndex, isNearCampus, NEAR_CAMPUS_RADIUS_KM } from "@/lib/distance";
 import { formatPrice } from "@/lib/utils";
 import { getDictionary } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
@@ -65,21 +64,24 @@ export async function UniversityRail() {
   // Compute-don't-claim: counts and from-prices are derived from listing
   // coordinates at read, the same numbers the /universities pages show.
   // Photos are the real campus photographs from the guide content.
-  const [listings, dict] = await Promise.all([
+  const [universities, listings, dict] = await Promise.all([
+    getAllUniversities(),
     getAllListings(),
     getDictionary(),
   ]);
   const h = dict.home;
-  const items: RailItem[] = UNIVERSITIES.flatMap((u) => {
-    const content = UNIVERSITY_CONTENT[u.id];
-    if (!content) return [];
-    const near = listings.filter((l) => isNearCampus(l.lat, l.lng, u.id));
+  const idx = buildUniIndex(universities);
+  const items: RailItem[] = universities.flatMap((u) => {
+    if (!u.photo) return [];
+    const near = listings.filter((l) =>
+      isNearCampus(l.lat, l.lng, u.slug, NEAR_CAMPUS_RADIUS_KM, idx),
+    );
     return [
       {
-        id: u.id,
+        id: u.slug,
         shortName: u.shortName,
         city: u.city,
-        photo: railPhoto(content.photo),
+        photo: railPhoto(u.photo),
         count: near.length,
         fromPrice: near.length
           ? Math.min(...near.map((l) => l.priceMonthly))

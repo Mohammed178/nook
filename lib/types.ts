@@ -17,6 +17,33 @@ export interface University {
   campusType?: "public" | "private";
 }
 
+/**
+ * DB-backed university (migration 0022). Superset of the lean `University`
+ * (which the sync proximity/seed paths still use) plus the editorial content
+ * that used to live in `lib/seed/university-content.ts`. `id` is the UUIDv5
+ * primary key (frozen NS_NOOK namespace); `slug` is the URL-stable token
+ * (e.g. "um") that hrefs, the `?university=` filter, and proximity keys use.
+ * Returned by `lib/data/universities.ts`. Admin-managed via /admin/universities.
+ */
+export interface UniversityRecord extends University {
+  /** URL-stable token (e.g. "um"). For the seeded ten, equals the legacy id. */
+  slug: string;
+  /** Two-to-three plain sentences a student house-hunter needs. */
+  description: string;
+  /** Nearest rail/BRT stops by name. Coarse, no walk-time claims. */
+  transit: string[];
+  /** On-campus facts useful when choosing where to live. */
+  campusFeatures: string[];
+  /** Official site, https. */
+  website: string;
+  /** Campus photograph URL (hotlink-stable, e.g. Wikimedia Commons thumb). */
+  photo: string;
+  /** Commons file name backing `photo`, rendered as the attribution link. */
+  photoFile: string;
+  /** Soft-delete timestamp. Set → hidden from public reads. null → live. */
+  deletedAt?: string;
+}
+
 export interface Area {
   /** Internal primary key. Post-3b-A: UUIDv5 derived from the legacy seed
    * id under a frozen namespace. Used for DB joins; 3b-B FK targets land here. */

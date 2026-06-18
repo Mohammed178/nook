@@ -11,8 +11,8 @@ import {
   UniversityMap,
   type UniMapListing,
 } from "@/components/universities/university-map";
-import { UNIVERSITIES, UNIVERSITY_BY_ID } from "@/lib/seed/universities";
-import { UNIVERSITY_CONTENT } from "@/lib/seed/university-content";
+import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getUniversityBySlug } from "@/lib/data/universities";
 import { getAllListings } from "@/lib/data/listings";
 import { getAllAreas } from "@/lib/data/areas";
 import { attachListingRelations } from "@/lib/data/listings-relations";
@@ -29,13 +29,18 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const uni = UNIVERSITY_BY_ID[id];
-  const [{ meta }, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const [uni, { meta }, locale] = await Promise.all([
+    getUniversityBySlug(id),
+    getDictionary(),
+    getLocale(),
+  ]);
   if (!uni) return { title: meta.universityNotFound };
   return {
     title: format(meta.universityTitle, { uni: uni.shortName }),
-    description: localizeUniversityContent(id, UNIVERSITY_CONTENT[id], locale)
-      .description.slice(0, 160),
+    description: localizeUniversityContent(id, uni, locale).description.slice(
+      0,
+      160,
+    ),
   };
 }
 
@@ -47,9 +52,9 @@ export default async function UniversityPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const uni = UNIVERSITY_BY_ID[id];
-  const content = UNIVERSITY_CONTENT[id];
-  if (!uni || !content) notFound();
+  const uni = await getUniversityBySlug(id);
+  if (!uni) notFound();
+  const content = uni;
 
   // Compute-don't-claim (4c-B2): every number on this page derives from
   // coordinates at read, room count, from-price, per-listing km. Nothing here
@@ -228,7 +233,7 @@ export default async function UniversityPage({
 
             {near.length > 0 && (
               <Link
-                href={`/listings?university=${uni.id}`}
+                href={`/listings?university=${uni.slug}`}
                 className="btn btn-primary btn-lg campus-rail-cta"
               >
                 {format(t.browseRoomsNear, {
@@ -245,7 +250,7 @@ export default async function UniversityPage({
           <div className="section-h">
             <h2>{format(t.closestRooms, { uni: uni.shortName })}</h2>
             {near.length > 0 && (
-              <Link href={`/listings?university=${uni.id}`} className="more">
+              <Link href={`/listings?university=${uni.slug}`} className="more">
                 {t.browseAll}
               </Link>
             )}

@@ -6,6 +6,7 @@ import { UniversitySearch } from "@/components/auth/university-search";
 import { GenderPicker } from "@/components/account/gender-picker";
 import { updateProfileAction } from "@/app/account/profile/actions";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
+import type { University } from "@/lib/types";
 
 interface ProfileInitial {
   display_name: string;
@@ -19,6 +20,7 @@ interface ProfileInitial {
 interface ProfileFormProps {
   initial: ProfileInitial;
   dict: Dictionary;
+  universities: University[];
 }
 
 const PHONE_PREFIX = "+60";
@@ -29,7 +31,7 @@ function stripPrefix(raw: string): string {
   return trimmed;
 }
 
-export function ProfileForm({ initial, dict }: ProfileFormProps) {
+export function ProfileForm({ initial, dict, universities }: ProfileFormProps) {
   const a = dict.account;
   const c = dict.common;
   const [error, setError] = useState<string | null>(null);
@@ -164,7 +166,11 @@ export function ProfileForm({ initial, dict }: ProfileFormProps) {
         <legend className="profile-legend">{a.preferences}</legend>
         <div className="field">
           <label className="label" htmlFor="pf-university">{a.university}</label>
-          <UniversitySearch name="university_id" defaultValue={initial.university_id} />
+          <UniversitySearch
+            name="university_id"
+            defaultValue={initial.university_id}
+            universities={universities}
+          />
           <div className="help">{a.universityHelp}</div>
         </div>
         <div className="field">

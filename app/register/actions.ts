@@ -1,11 +1,10 @@
 "use server";
 
 import { createActionClient } from "@/lib/supabase/server";
-import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getUniversityBySlug } from "@/lib/data/universities";
 import { getDictionary } from "@/lib/i18n/server";
 
 const VALID_GENDERS = new Set(["female", "male", "mixed"]);
-const VALID_UNIVERSITY_IDS = new Set(UNIVERSITIES.map((u) => u.id));
 
 export async function signUpAction(
   formData: FormData,
@@ -30,9 +29,11 @@ export async function signUpAction(
     return { error: t.mustAgreeTerms };
   }
 
-  // Validate against seed list before sending. No FK in DB; this is the
-  // gate (see migration 0003 for rationale).
-  if (universityIdRaw && !VALID_UNIVERSITY_IDS.has(universityIdRaw)) {
+  // Validate the slug against the live universities table (0022) before sending.
+  // No FK in DB; this is the gate (see migration 0003 for rationale). The public
+  // RLS read only returns live (non-deleted) campuses, so a hidden campus is
+  // correctly rejected.
+  if (universityIdRaw && !(await getUniversityBySlug(universityIdRaw))) {
     return { error: t.pickUniversity };
   }
   const universityId = universityIdRaw || null;

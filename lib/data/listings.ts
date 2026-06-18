@@ -14,10 +14,12 @@ import {
   type ListingSearchParams,
 } from "@/lib/listings-search";
 import {
+  buildUniIndex,
   isNearCampus,
   nearestCampus,
   NEAR_CAMPUS_RADIUS_KM,
 } from "@/lib/distance";
+import { getAllUniversities } from "@/lib/data/universities";
 
 // THE fetch seam (Option A). Today: fetch every row and let the unchanged
 // in-memory applyFilters / applySort do the work. The listings table is
@@ -68,11 +70,22 @@ export async function getFilteredListings(
   p: ListingSearchParams,
   viewerGender?: Gender,
 ): Promise<Listing[]> {
+  // Build the live campus index (0022) so the ?university= filter and distance
+  // sort include admin-added campuses, not just the seed ten. Fetched only when
+  // a campus actually drives the result (filter set or distance sort) to avoid a
+  // needless round-trip on a plain price/area browse.
+  const needsUnis = p.university != null || defaultSort(p) === "distance";
+  const idx = needsUnis ? buildUniIndex(await getAllUniversities()) : undefined;
   const filterParams = p.area
     ? { ...p, area: await areaSlugToUuid(p.area) }
     : p;
-  const filtered = applyFilters(await getAllListings(), filterParams, viewerGender);
-  return applySort(filtered, defaultSort(p), p.university);
+  const filtered = applyFilters(
+    await getAllListings(),
+    filterParams,
+    viewerGender,
+    idx,
+  );
+  return applySort(filtered, defaultSort(p), p.university, idx);
 }
 
 // Maps an `?area=` slug to its area UUID. Falls back to the slug itself when no

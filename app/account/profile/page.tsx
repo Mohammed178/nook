@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/account/profile-form";
+import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { getDictionary } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,13 +19,14 @@ export default async function ProfilePage() {
     redirect("/login?redirect=/account/profile");
   }
 
-  const [{ data: profile }, dict] = await Promise.all([
+  const [{ data: profile }, dict, universities] = await Promise.all([
     supabase
       .from("profiles")
       .select("display_name, email, phone, country, university_id, gender_preference")
       .eq("id", user.id)
       .maybeSingle(),
     getDictionary(),
+    getAllUniversities(),
   ]);
   const a = dict.account;
 
@@ -38,6 +40,7 @@ export default async function ProfilePage() {
 
       <ProfileForm
         dict={dict}
+        universities={toSearchUniversities(universities)}
         initial={{
           display_name: profile?.display_name ?? "",
           email: profile?.email ?? user.email ?? "",

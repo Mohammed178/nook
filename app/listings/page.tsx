@@ -4,7 +4,7 @@ import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
 import { FilterBar } from "@/components/listings/filter-bar";
 import { ListingsBody } from "@/components/listings/listings-body";
-import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
+import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { getAllAreas } from "@/lib/data/areas";
 import { attachListingRelations } from "@/lib/data/listings-relations";
 import { getFilteredListings } from "@/lib/data/listings";
@@ -85,17 +85,21 @@ export default async function ListingsPage({
 }) {
   const sp = await searchParams;
   const params = parseListingSearchParams(sp);
-  const label = resolveLocationLabel(params);
   const sort = defaultSort(params);
   const currentQuery = preserveQueryString(sp);
 
-  const [savedIds, user, dict] = await Promise.all([
+  const [savedIds, user, dict, universities] = await Promise.all([
     getFavouriteIds(),
     getCurrentUser(),
     getDictionary(),
+    getAllUniversities(),
   ]);
   const l = dict.listings;
   const signedIn = user !== null;
+  // slug→University map for label resolution + map centring, includes
+  // admin-added campuses (0022). Keyed by slug (the ?university= token).
+  const uniByKey = new Map(universities.map((u) => [u.slug, u]));
+  const label = resolveLocationLabel(params, uniByKey);
 
   let viewerGender: Gender | undefined;
   if (user) {
@@ -122,9 +126,9 @@ export default async function ListingsPage({
 
   let mapCenter: [number, number] = KLANG_VALLEY_CENTER;
   let mapZoom = 11;
-  if (params.university && UNIVERSITY_BY_ID[params.university]) {
-    const u = UNIVERSITY_BY_ID[params.university];
-    mapCenter = [u.lat, u.lng];
+  const filterUni = params.university ? uniByKey.get(params.university) : undefined;
+  if (filterUni) {
+    mapCenter = [filterUni.lat, filterUni.lng];
     mapZoom = 13;
   } else if (params.area && areaLookup[params.area]) {
     const a = areaLookup[params.area];
@@ -144,6 +148,7 @@ export default async function ListingsPage({
         viewerGender={viewerGender}
         areaLookup={areaLookup}
         areas={areas}
+        universities={toSearchUniversities(universities)}
       />
 
       <div className="breadcrumb">

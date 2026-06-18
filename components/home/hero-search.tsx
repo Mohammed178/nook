@@ -3,12 +3,16 @@ import { Navbar } from "@/components/nook/navbar";
 import { SearchForm } from "@/components/home/search-form";
 import { HeroDeck } from "@/components/home/hero-deck";
 import { getAllAreas } from "@/lib/data/areas";
-import { UNIVERSITIES } from "@/lib/seed/universities";
+import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { HERO_DECK, QUICK_CHIPS } from "@/lib/home-content";
 import { getDictionary } from "@/lib/i18n/server";
 
 export async function HeroSearch() {
-  const [areas, dict] = await Promise.all([getAllAreas(), getDictionary()]);
+  const [areas, universities, dict] = await Promise.all([
+    getAllAreas(),
+    getAllUniversities(),
+    getDictionary(),
+  ]);
   const h = dict.home;
   return (
     <section className="hero">
@@ -21,7 +25,7 @@ export async function HeroSearch() {
           <SearchForm
             variant="hero"
             areas={areas}
-            universities={UNIVERSITIES}
+            universities={toSearchUniversities(universities)}
             placeholderHints={h.searchHints}
           />
 

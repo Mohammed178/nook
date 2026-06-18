@@ -8,8 +8,15 @@ import { UniversitySearch } from "@/components/auth/university-search";
 import { GenderPicker } from "@/components/account/gender-picker";
 import { signUpAction } from "@/app/register/actions";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
+import type { University } from "@/lib/types";
 
-export function RegisterForm({ dict }: { dict: Dictionary }) {
+export function RegisterForm({
+  dict,
+  universities,
+}: {
+  dict: Dictionary;
+  universities: University[];
+}) {
   const t = dict.auth;
   const router = useRouter();
   const [showPw, setShowPw] = useState(false);
@@ -88,7 +95,7 @@ export function RegisterForm({ dict }: { dict: Dictionary }) {
 
         <div className="field">
           <label className="label">{t.university}</label>
-          <UniversitySearch name="university_id" />
+          <UniversitySearch name="university_id" universities={universities} />
         </div>
 
         <div className="field">
