@@ -57,8 +57,7 @@ export function Footer({ dict }: { dict: Dictionary }) {
             <h4>{f.forAgents}</h4>
             <ul>
               <li><Link href="/agents/register">{f.listProperty}</Link></li>
-              <li><Link href="/verification">{f.verification}</Link></li>
-              <li><Link href="/pricing">{f.pricing}</Link></li>
+              <li><Link href="/help">{f.verification}</Link></li>
               <li><Link href="/login">{f.agentLogin}</Link></li>
             </ul>
           </div>

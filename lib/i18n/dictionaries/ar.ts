@@ -62,7 +62,6 @@ const ar: Dictionary = {
     forAgents: "للوكلاء",
     listProperty: "أضف عقارًا",
     verification: "التحقّق",
-    pricing: "الأسعار",
     agentLogin: "دخول الوكلاء",
     companyLegal: "الشركة والشؤون القانونية",
     about: "من نحن",

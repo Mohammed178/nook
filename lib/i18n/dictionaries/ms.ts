@@ -61,7 +61,6 @@ const ms: Dictionary = {
     forAgents: "Untuk ejen",
     listProperty: "Senaraikan hartanah",
     verification: "Pengesahan",
-    pricing: "Harga",
     agentLogin: "Log masuk ejen",
     companyLegal: "Syarikat & undang-undang",
     about: "Tentang",

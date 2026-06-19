@@ -65,7 +65,6 @@ const en = {
     forAgents: "For agents",
     listProperty: "List a property",
     verification: "Verification",
-    pricing: "Pricing",
     agentLogin: "Agent login",
     companyLegal: "Company & legal",
     about: "About",
