@@ -2637,8 +2637,13 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   border-radius: var(--r-md); overflow: hidden;
 }
 .map-host.map-picker-host { height: 320px; }
-.map-coord-fields { display: flex; gap: var(--s-4); flex-wrap: wrap; }
-.map-coord-fields .field { flex: 1; min-width: 140px; }
+.map-link-field { width: 100%; }
+.map-link-row { display: flex; gap: var(--s-3); align-items: stretch; }
+.map-link-row .input { flex: 1; min-width: 0; }
+.map-link-row .btn { flex-shrink: 0; white-space: nowrap; }
+@media (max-width: 28rem) {
+  .map-link-row { flex-direction: column; }
+}
 .map-readout {
   font-size: var(--t-sm); color: var(--ink-500);
   font-variant-numeric: tabular-nums; margin: 0;

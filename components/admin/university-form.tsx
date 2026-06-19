@@ -4,10 +4,12 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import {
   createUniversityAction,
   updateUniversityAction,
 } from "@/app/admin/universities/actions";
+import { resolveMapsLinkAction } from "@/lib/maps/actions";
 import type { UniversityRecord } from "@/lib/types";
 
 interface UniversityFormProps {
@@ -17,14 +19,52 @@ interface UniversityFormProps {
 }
 
 export function UniversityForm({ mode, initial }: UniversityFormProps) {
-  const u = useDict().admin.uni;
+  const dict = useDict();
+  const u = dict.admin.uni;
+  const m = dict.mapPicker;
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // Location is set by pasting a Google Maps link (resolved to coordinates),
+  // not by typing raw lat/lng. The resolved point fills the hidden lat/lng the
+  // server action still parses; the readout confirms it before submit.
+  const [lat, setLat] = useState<number | null>(initial?.lat ?? null);
+  const [lng, setLng] = useState<number | null>(initial?.lng ?? null);
+  const [link, setLink] = useState("");
+  const [resolving, setResolving] = useState(false);
+  const [coordMsg, setCoordMsg] = useState<
+    { kind: "ok" | "err"; text: string } | null
+  >(null);
+  const hasPoint = lat != null && lng != null;
+
+  function onResolveLink() {
+    if (link.trim() === "") {
+      setCoordMsg({ kind: "err", text: m.linkEmpty });
+      return;
+    }
+    setCoordMsg(null);
+    setResolving(true);
+    startTransition(async () => {
+      const result = await resolveMapsLinkAction(link);
+      setResolving(false);
+      if (result.error || result.lat == null || result.lng == null) {
+        setCoordMsg({ kind: "err", text: result.error ?? m.linkEmpty });
+        return;
+      }
+      setLat(Number(result.lat.toFixed(6)));
+      setLng(Number(result.lng.toFixed(6)));
+      setCoordMsg({ kind: "ok", text: m.linkFound });
+    });
+  }
+
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    if (lat == null || lng == null) {
+      setCoordMsg({ kind: "err", text: m.linkEmpty });
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
       const action =
@@ -107,34 +147,55 @@ export function UniversityForm({ mode, initial }: UniversityFormProps) {
           </div>
         </div>
 
-        <div className="profile-row">
-          <div className="field">
-            <label className="label" htmlFor="uf-lat">{u.fLat}</label>
+        <div className="field">
+          <label className="label" htmlFor="uf-maps-link">{m.linkLabel}</label>
+          <div className="map-link-row">
             <input
-              id="uf-lat"
-              className="input"
-              name="lat"
-              type="number"
-              step="any"
-              required
-              defaultValue={initial ? String(initial.lat) : ""}
+              id="uf-maps-link"
+              className="input force-ltr"
+              type="url"
+              inputMode="url"
+              autoComplete="off"
+              placeholder={m.linkPlaceholder}
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onResolveLink();
+                }
+              }}
+              aria-describedby="uf-maps-link-help"
             />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onResolveLink}
+              disabled={resolving}
+            >
+              {resolving ? u.saving : m.useLink}
+            </button>
           </div>
-          <div className="field">
-            <label className="label" htmlFor="uf-lng">{u.fLng}</label>
-            <input
-              id="uf-lng"
-              className="input"
-              name="lng"
-              type="number"
-              step="any"
-              required
-              defaultValue={initial ? String(initial.lng) : ""}
-              aria-describedby="uf-coords-help"
-            />
-          </div>
+          <div className="help" id="uf-maps-link-help">{m.linkHelp}</div>
+          <p className="map-readout">
+            {hasPoint
+              ? format(m.selected, {
+                  lat: lat!.toFixed(6),
+                  lng: lng!.toFixed(6),
+                })
+              : m.noLocation}
+          </p>
+          {coordMsg ? (
+            <div
+              className={coordMsg.kind === "ok" ? "field-ok" : "field-err"}
+              role="alert"
+            >
+              {coordMsg.text}
+            </div>
+          ) : null}
+          <input type="hidden" name="lat" value={lat ?? ""} />
+          <input type="hidden" name="lng" value={lng ?? ""} />
         </div>
-        <div className="help" id="uf-coords-help">{u.fCoordsHint}</div>
 
         <div className="profile-row">
           <div className="field">

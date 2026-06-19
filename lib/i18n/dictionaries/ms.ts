@@ -954,11 +954,15 @@ const ms: Dictionary = {
     addPhoto: "Tambah foto",
   },
   mapPicker: {
-    pickFirst: "Pilih titik pada peta atau masukkan lat/lng dahulu.",
+    pickFirst: "Tampal pautan Google Maps dahulu.",
     locationSaved: "Lokasi disimpan.",
-    help: "Klik peta atau seret pin untuk menetapkan lokasi tepat. Anda juga boleh menaip koordinat di bawah. Koordinat diperlukan sebelum anda boleh menerbitkan.",
-    latitude: "Latitud",
-    longitude: "Longitud",
+    help: "Tampal pautan Google Maps untuk hartanah ini bagi menetapkan lokasinya. Pin di bawah mengesahkan lokasi — seret untuk penalaan halus. Lokasi diperlukan sebelum anda boleh menerbitkan.",
+    linkLabel: "Pautan Google Maps",
+    linkPlaceholder: "https://maps.app.goo.gl/…",
+    linkHelp: "Buka lokasi dalam Google Maps, ketik Kongsi, dan salin pautan — atau tampal URL dari bar alamat.",
+    useLink: "Guna pautan",
+    linkEmpty: "Tampal pautan Google Maps dahulu.",
+    linkFound: "Lokasi ditemui daripada pautan.",
     selected: "Dipilih: {lat}, {lng}",
     noLocation: "Belum ada lokasi ditetapkan.",
     saveLocation: "Simpan lokasi",
@@ -1117,6 +1121,11 @@ const ms: Dictionary = {
       "Senarai yang diterbitkan mesti mengekalkan sekurang-kurangnya satu foto.",
     photoNotFound: "Foto tidak ditemui, atau ia bukan milik anda untuk dibuang.",
     couldNotRemovePhoto: "Tidak dapat membuang foto. Cuba lagi.",
+    mapsLinkEmpty: "Tampal pautan Google Maps dahulu.",
+    mapsLinkUnparsed:
+      "Tidak menemui lokasi dalam pautan itu. Buka lokasi dalam Google Maps, salin pautan kongsi atau URL bar alamat, dan cuba lagi.",
+    mapsLinkResolveFailed:
+      "Tidak dapat membuka pautan itu. Semak sambungan anda dan cuba lagi.",
     needsPhotos:
       "Tambah sekurang-kurangnya satu foto (bahagian Foto) sebelum menerbitkan.",
     needsCoords:

@@ -948,11 +948,15 @@ const en = {
     addPhoto: "Add photo",
   },
   mapPicker: {
-    pickFirst: "Pick a point on the map or enter lat/lng first.",
+    pickFirst: "Add a Google Maps link first.",
     locationSaved: "Location saved.",
-    help: "Click the map or drag the pin to set the exact location. You can also type the coordinates below. Coordinates are required before you can publish.",
-    latitude: "Latitude",
-    longitude: "Longitude",
+    help: "Paste a Google Maps link for the property to set its location. The pin below confirms the spot — drag it to fine-tune. A location is required before you can publish.",
+    linkLabel: "Google Maps link",
+    linkPlaceholder: "https://maps.app.goo.gl/…",
+    linkHelp: "Open the place in Google Maps, tap Share, and copy the link — or paste the URL from the address bar.",
+    useLink: "Use link",
+    linkEmpty: "Paste a Google Maps link first.",
+    linkFound: "Location found from the link.",
     selected: "Selected: {lat}, {lng}",
     noLocation: "No location set yet.",
     saveLocation: "Save location",
@@ -1109,6 +1113,11 @@ const en = {
     lastPhoto: "A published listing must keep at least one photo.",
     photoNotFound: "Photo not found, or it is not yours to remove.",
     couldNotRemovePhoto: "Could not remove the photo. Try again.",
+    mapsLinkEmpty: "Paste a Google Maps link first.",
+    mapsLinkUnparsed:
+      "Couldn’t find a location in that link. Open the place in Google Maps, copy the share link or the address-bar URL, and try again.",
+    mapsLinkResolveFailed:
+      "Couldn’t open that link. Check your connection and try again.",
     needsPhotos: "Add at least one photo (Photos section) before publishing.",
     needsCoords:
       "Set the listing location (Location section) before publishing.",
