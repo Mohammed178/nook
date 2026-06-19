@@ -117,6 +117,20 @@ export default async function DashboardPage() {
   const areaName = (id: string) =>
     areas.find((a) => a.id === id)?.name ?? t.areaUnknown;
 
+  // Lifecycle counts from the already-fetched listings (no extra query). "Live"
+  // = published & visible (any non-draft status); "available" is the bookable
+  // subset of those; "drafts" are not listed yet; "archived" are soft-deleted.
+  const publishedCount = live.filter((l) => l.status !== "draft").length;
+  const availableCount = live.filter((l) => l.status === "available").length;
+  const draftCount = live.filter((l) => l.status === "draft").length;
+  const archivedCount = archived.length;
+  const stats = [
+    { tone: "live" as const, value: publishedCount, label: t.stats.live, hint: t.stats.liveHint },
+    { tone: "available" as const, value: availableCount, label: t.stats.available, hint: t.stats.availableHint },
+    { tone: "draft" as const, value: draftCount, label: t.stats.drafts, hint: t.stats.draftsHint },
+    { tone: "archived" as const, value: archivedCount, label: t.stats.archived, hint: t.stats.archivedHint },
+  ];
+
   return (
     <div className="dashboard-page">
       <header className="account-content-head">
@@ -131,6 +145,23 @@ export default async function DashboardPage() {
           {t.newListing}
         </Link>
       </header>
+
+      <ul className="dash-stats" aria-label={t.stats.aria}>
+        {stats.map((s, i) => (
+          <li
+            key={s.tone}
+            className="dash-stat"
+            style={{ "--i": i } as React.CSSProperties}
+          >
+            <span className="dash-stat-num">{s.value}</span>
+            <span className="dash-stat-label">
+              <span className={`dash-stat-dot dot-${s.tone}`} aria-hidden="true" />
+              {s.label}
+            </span>
+            <span className="dash-stat-hint">{s.hint}</span>
+          </li>
+        ))}
+      </ul>
 
       <section aria-labelledby="live-heading" className="dashboard-section">
         <h2 id="live-heading" className="dashboard-section-title">
