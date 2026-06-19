@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAgentListings } from "@/lib/data/agent-listings";
 import { getAllAreas } from "@/lib/data/areas";
 import type { Listing, ListingStatus } from "@/lib/types";
+import { Icon } from "@/components/nook/icon";
 import { ArchiveButton } from "@/components/agents/archive-button";
 import { restoreListingAction } from "@/app/agents/dashboard/listings/actions";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
@@ -125,10 +126,10 @@ export default async function DashboardPage() {
   const draftCount = live.filter((l) => l.status === "draft").length;
   const archivedCount = archived.length;
   const stats = [
-    { tone: "live" as const, value: publishedCount, label: t.stats.live, hint: t.stats.liveHint },
-    { tone: "available" as const, value: availableCount, label: t.stats.available, hint: t.stats.availableHint },
-    { tone: "draft" as const, value: draftCount, label: t.stats.drafts, hint: t.stats.draftsHint },
-    { tone: "archived" as const, value: archivedCount, label: t.stats.archived, hint: t.stats.archivedHint },
+    { key: "live", icon: "eye" as const, value: publishedCount, label: t.stats.live },
+    { key: "available", icon: "check-circle" as const, value: availableCount, label: t.stats.available },
+    { key: "drafts", icon: "list" as const, value: draftCount, label: t.stats.drafts },
+    { key: "archived", icon: "eye-off" as const, value: archivedCount, label: t.stats.archived },
   ];
 
   return (
@@ -149,16 +150,15 @@ export default async function DashboardPage() {
       <ul className="dash-stats" aria-label={t.stats.aria}>
         {stats.map((s, i) => (
           <li
-            key={s.tone}
+            key={s.key}
             className="dash-stat"
             style={{ "--i": i } as React.CSSProperties}
           >
             <span className="dash-stat-num">{s.value}</span>
             <span className="dash-stat-label">
-              <span className={`dash-stat-dot dot-${s.tone}`} aria-hidden="true" />
+              <Icon name={s.icon} size={15} className="ico" aria-hidden="true" />
               {s.label}
             </span>
-            <span className="dash-stat-hint">{s.hint}</span>
           </li>
         ))}
       </ul>

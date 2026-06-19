@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Icon } from "@/components/nook/icon";
 import { getAdminOverviewCounts } from "./_data";
 import { getDictionary } from "@/lib/i18n/server";
 
@@ -20,31 +21,27 @@ export default async function AdminPage() {
 
   const stats = [
     {
-      tone: "pending" as const,
+      icon: "shield" as const,
       value: counts.pendingAgents,
       label: o.pending,
-      hint: o.pendingHint,
       href: "/admin/agents",
     },
     {
-      tone: "live" as const,
+      icon: "check-circle" as const,
       value: counts.approvedAgents,
       label: o.approved,
-      hint: o.approvedHint,
       href: "/admin/agents",
     },
     {
-      tone: "available" as const,
+      icon: "school" as const,
       value: counts.liveUniversities,
       label: o.liveUniversities,
-      hint: o.liveUniversitiesHint,
       href: "/admin/universities",
     },
     {
-      tone: "archived" as const,
+      icon: "eye-off" as const,
       value: counts.hiddenUniversities,
       label: o.hiddenUniversities,
-      hint: o.hiddenUniversitiesHint,
       href: "/admin/universities",
     },
   ];
@@ -66,13 +63,9 @@ export default async function AdminPage() {
             <Link href={s.href} className="dash-stat-link">
               <span className="dash-stat-num">{s.value}</span>
               <span className="dash-stat-label">
-                <span
-                  className={`dash-stat-dot dot-${s.tone}`}
-                  aria-hidden="true"
-                />
+                <Icon name={s.icon} size={15} className="ico" aria-hidden="true" />
                 {s.label}
               </span>
-              <span className="dash-stat-hint">{s.hint}</span>
             </Link>
           </li>
         ))}
