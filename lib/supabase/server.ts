@@ -32,6 +32,29 @@ export async function createClient() {
 }
 
 /**
+ * Cookie-free anonymous read client. Carries no session, so it sees exactly the
+ * rows the public RLS policies expose to anon (approved agents, non-deleted
+ * areas/universities/listings) — identical to what the cookie client returns
+ * for these public tables. Crucially it never touches next/headers cookies(),
+ * so it is safe to call inside an `unstable_cache` scope (which forbids
+ * request-time APIs). Use ONLY for public, non-user-scoped reads.
+ */
+export function createPublicClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {},
+      },
+    },
+  );
+}
+
+/**
  * Action / Route Handler client. Cookie writes succeed.
  * Use inside `'use server'` functions or `app/api/.../route.ts`.
  */

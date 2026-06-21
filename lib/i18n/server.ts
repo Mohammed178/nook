@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import {
   DEFAULT_LOCALE,
@@ -17,12 +18,13 @@ const loaders: Record<Locale, () => Promise<Dictionary>> = {
   ar: () => import("./dictionaries/ar").then((m) => m.default),
 };
 
-/** Active locale from the cookie, falling back to the default. */
-export async function getLocale(): Promise<Locale> {
+/** Active locale from the cookie, falling back to the default. cache()d so the
+ * navbar, page body and generateMetadata share one cookie read per render. */
+export const getLocale = cache(async (): Promise<Locale> => {
   const store = await cookies();
   const value = store.get(LOCALE_COOKIE)?.value;
   return isLocale(value) ? value : DEFAULT_LOCALE;
-}
+});
 
 /** Load a dictionary. Defaults to the request's active locale when omitted. */
 export async function getDictionary(locale?: Locale): Promise<Dictionary> {

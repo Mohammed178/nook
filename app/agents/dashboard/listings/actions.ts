@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   createListing,
   updateListing,
@@ -155,6 +155,16 @@ function parseListingForm(
   };
 }
 
+// Revalidate the agent's own dashboard view AND bust the cross-request cache
+// behind getAllListings (public listings page, home rails, favourites/recent
+// resolution) so a create/edit/publish/photo/coords change surfaces publicly
+// without waiting on the 300s TTL.
+function revalidateListings(extraPath?: string): void {
+  if (extraPath) revalidatePath(extraPath);
+  revalidatePath("/agents/dashboard");
+  revalidateTag("listings", "max");
+}
+
 export async function createListingAction(
   fd: FormData,
 ): Promise<ListingActionResult> {
@@ -165,7 +175,7 @@ export async function createListingAction(
   const result = await createListing(parsed.input);
   if ("error" in result) return { error: result.error };
 
-  revalidatePath("/agents/dashboard");
+  revalidateListings();
   return { ok: true, id: result.id };
 }
 
@@ -181,7 +191,7 @@ export async function updateListingAction(
   const result = await updateListing(id, parsed.input);
   if (result.error) return { error: result.error };
 
-  revalidatePath("/agents/dashboard");
+  revalidateListings();
   return { ok: true };
 }
 
@@ -195,7 +205,7 @@ export async function softDeleteListingAction(fd: FormData): Promise<void> {
   if (!id) return;
   const result = await softDeleteListing(id);
   if (result.error) throw new Error(result.error);
-  revalidatePath("/agents/dashboard");
+  revalidateListings();
 }
 
 export async function restoreListingAction(fd: FormData): Promise<void> {
@@ -203,7 +213,7 @@ export async function restoreListingAction(fd: FormData): Promise<void> {
   if (!id) return;
   const result = await restoreListing(id);
   if (result.error) throw new Error(result.error);
-  revalidatePath("/agents/dashboard");
+  revalidateListings();
 }
 
 // ---------- Photo management (4c-B1) ----------
@@ -237,8 +247,7 @@ export async function addListingPhotoAction(
   const result = await addListingPhoto({ listingId, storagePath, altText: alt });
   if (!result.ok) return { error: result.error };
 
-  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
-  revalidatePath("/agents/dashboard");
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
   return { ok: true, id: result.id };
 }
 
@@ -263,8 +272,7 @@ export async function removeListingPhotoAction(
     return { error: e.couldNotRemovePhoto };
   }
 
-  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
-  revalidatePath("/agents/dashboard");
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
   return { ok: true };
 }
 
@@ -282,8 +290,7 @@ export async function setListingCoordsAction(
   const result = await setListingCoords(listingId, lat, lng);
   if (!result.ok) return { error: result.error };
 
-  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
-  revalidatePath("/agents/dashboard");
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
   return { ok: true };
 }
 
@@ -297,8 +304,7 @@ export async function publishListingAction(
 
   const result = await publishListing(listingId);
   if (result.ok) {
-    revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
-    revalidatePath("/agents/dashboard");
+    revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
     return { ok: true };
   }
 
@@ -322,7 +328,6 @@ export async function reorderListingPhotosAction(
   const result = await reorderListingPhotos(listingId, orderedPhotoIds);
   if (!result.ok) return { error: result.error };
 
-  revalidatePath(`/agents/dashboard/listings/${listingId}/edit`);
-  revalidatePath("/agents/dashboard");
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
   return { ok: true };
 }
