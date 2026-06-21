@@ -4075,6 +4075,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   height: 6px; border-radius: var(--r-pill); background: var(--ink-150); overflow: hidden;
 }
 .acct-meter-fill {
+  display: block;
   height: 100%; border-radius: var(--r-pill); background: var(--brand-500);
   width: var(--pct, 0%);
   transform-origin: left center;
