@@ -1,7 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createActionClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
@@ -160,6 +160,9 @@ function revalidate(slug?: string): void {
   revalidatePath("/admin/universities");
   revalidatePath("/universities");
   if (slug) revalidatePath(`/universities/${slug}`);
+  // Bust the cross-request cache backing getAllUniversities (navbar search,
+  // listings filter, distance sort) so admin edits surface immediately.
+  revalidateTag("universities", "max");
 }
 
 export async function createUniversityAction(

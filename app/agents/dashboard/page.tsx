@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAgentListings } from "@/lib/data/agent-listings";
 import { getAllAreas } from "@/lib/data/areas";
 import type { Listing, ListingStatus } from "@/lib/types";
+import { Icon } from "@/components/nook/icon";
 import { ArchiveButton } from "@/components/agents/archive-button";
 import { restoreListingAction } from "@/app/agents/dashboard/listings/actions";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
@@ -117,6 +118,20 @@ export default async function DashboardPage() {
   const areaName = (id: string) =>
     areas.find((a) => a.id === id)?.name ?? t.areaUnknown;
 
+  // Lifecycle counts from the already-fetched listings (no extra query). "Live"
+  // = published & visible (any non-draft status); "available" is the bookable
+  // subset of those; "drafts" are not listed yet; "archived" are soft-deleted.
+  const publishedCount = live.filter((l) => l.status !== "draft").length;
+  const availableCount = live.filter((l) => l.status === "available").length;
+  const draftCount = live.filter((l) => l.status === "draft").length;
+  const archivedCount = archived.length;
+  const stats = [
+    { key: "live", icon: "eye" as const, value: publishedCount, label: t.stats.live },
+    { key: "available", icon: "check-circle" as const, value: availableCount, label: t.stats.available },
+    { key: "drafts", icon: "list" as const, value: draftCount, label: t.stats.drafts },
+    { key: "archived", icon: "eye-off" as const, value: archivedCount, label: t.stats.archived },
+  ];
+
   return (
     <div className="dashboard-page">
       <header className="account-content-head">
@@ -131,6 +146,22 @@ export default async function DashboardPage() {
           {t.newListing}
         </Link>
       </header>
+
+      <ul className="dash-stats" aria-label={t.stats.aria}>
+        {stats.map((s, i) => (
+          <li
+            key={s.key}
+            className="dash-stat"
+            style={{ "--i": i } as React.CSSProperties}
+          >
+            <span className="dash-stat-num">{s.value}</span>
+            <span className="dash-stat-label">
+              <Icon name={s.icon} size={15} className="ico" aria-hidden="true" />
+              {s.label}
+            </span>
+          </li>
+        ))}
+      </ul>
 
       <section aria-labelledby="live-heading" className="dashboard-section">
         <h2 id="live-heading" className="dashboard-section-title">

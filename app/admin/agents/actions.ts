@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createActionClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
@@ -91,6 +91,9 @@ async function decide(
 
   // 5. Revalidate the queue. No redirect (L-4a2.6 step 5).
   revalidatePath("/admin/agents");
+  // Approval/rejection changes agents_public membership; bust the cached set
+  // (home featured agents, listing relation lookups, agents directory).
+  revalidateTag("agents", "max");
 }
 
 export async function approveAgentAction(formData: FormData): Promise<void> {

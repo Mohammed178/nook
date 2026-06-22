@@ -1,7 +1,9 @@
-// Nook logomark, a doorway arch (the "nook") with a powder-blue lamp dot
-// inside, doubling as a lowercase "n". Slate-navy tile, warm-white line.
-// `default` sits on light surfaces; `inverse` sits on dark ones (footer,
-// auth panel) by flipping tile and line. The tile colour tracks --brand-500.
+// Nook logomark, a line-art "nook" scene — a dressed bed under a framed
+// landscape, beside a bookshelf with a plant — drawn in warm-white on a
+// slate-navy rounded tile. Served from /public/logo.svg. The illustration
+// bakes in the navy tile, so on dark surfaces (footer / auth panel, which
+// pass variant="inverse") it would blend into the panel; there we sit it on a
+// cream backing so it stays visible. The art itself is not recolourable here.
 
 interface LogoMarkProps {
   size?: number;
@@ -9,25 +11,34 @@ interface LogoMarkProps {
 }
 
 export function LogoMark({ size = 28, variant = "default" }: LogoMarkProps) {
-  const tile = variant === "inverse" ? "#F5EFEB" : "var(--brand-500, #2F4156)";
-  const line = variant === "inverse" ? "#2F4156" : "#F5EFEB";
-  return (
-    <svg
+  const radius = Math.round(size * 0.22);
+  const img = (
+    <img
+      src="/logo.svg"
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      alt="Nook"
       aria-hidden="true"
-      focusable="false"
-    >
-      <rect width="32" height="32" rx="9" fill={tile} />
-      <path
-        d="M9.5 23.5 V17 a6.5 6.5 0 0 1 13 0 v6.5"
-        fill="none"
-        stroke={line}
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <circle cx="16" cy="20.5" r="2.2" fill="#C8D9E6" />
-    </svg>
+      style={{ display: "block", borderRadius: radius }}
+    />
   );
+
+  if (variant === "inverse") {
+    // Cream backing + thin ring so the navy tile separates from a dark panel.
+    const pad = Math.max(2, Math.round(size * 0.08));
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          padding: pad,
+          background: "#F5EFEB",
+          borderRadius: radius + pad,
+        }}
+      >
+        {img}
+      </span>
+    );
+  }
+
+  return img;
 }

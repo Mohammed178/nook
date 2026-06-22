@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getAgentByUserId } from "@/lib/data/agents";
 import type { AgentStatus } from "@/lib/types";
@@ -32,7 +33,7 @@ export function isAdmin(
  * Server-side getUser. Returns null if not signed in.
  * Reads display_name from profiles table; falls back to email local-part.
  */
-export async function getCurrentUser(): Promise<AuthUser | null> {
+export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -64,4 +65,4 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     agentStatus: agent?.status,
     agencyName: agent?.agency,
   };
-}
+});

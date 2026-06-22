@@ -1,5 +1,6 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createClient, createPublicClient } from "@/lib/supabase/server";
 import type { University, UniversityRecord } from "@/lib/types";
 import {
   UNIVERSITY_COLS,
@@ -33,15 +34,23 @@ export function toSearchUniversities(
 // hidden campus; the admin queue (app/admin/universities/_data.ts) uses the
 // service-role client to see every row.
 
-export async function getAllUniversities(): Promise<UniversityRecord[]> {
-  const sb = await createClient();
-  const { data, error } = await sb
-    .from("universities")
-    .select(UNIVERSITY_COLS)
-    .order("name");
-  if (error || !data) return [];
-  return (data as UniversityRow[]).map(rowToUniversity);
-}
+// unstable_cache: universities are seed + admin-managed reference data that
+// rarely changes, so cache the full set across requests. Uses the cookie-free
+// public client (no request-time APIs allowed inside a cache scope). Busted on
+// admin university writes via revalidateTag("universities"); 300s TTL backstop.
+export const getAllUniversities = unstable_cache(
+  async (): Promise<UniversityRecord[]> => {
+    const sb = createPublicClient();
+    const { data, error } = await sb
+      .from("universities")
+      .select(UNIVERSITY_COLS)
+      .order("name");
+    if (error || !data) return [];
+    return (data as UniversityRow[]).map(rowToUniversity);
+  },
+  ["all-universities"],
+  { tags: ["universities"], revalidate: 300 },
+);
 
 export async function getUniversityBySlug(
   slug: string,

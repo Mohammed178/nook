@@ -34,6 +34,7 @@ export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const NAV: NavItem[] = [
+    { href: "/admin", label: a.overview.nav, icon: "grid" },
     { href: "/admin/agents", label: a.pendingAgents, icon: "shield" },
     { href: "/admin/universities", label: a.uni.nav, icon: "school" },
   ];
@@ -54,8 +55,12 @@ export function AdminSidebar({ displayName, email }: AdminSidebarProps) {
       </header>
       <ul className="account-nav">
         {NAV.map((item) => {
+          // /admin is the overview root; match it exactly so it does not light
+          // up on every /admin/* subpage. Section items use prefix matching.
           const active =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+            item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <li key={item.href}>
               <Link

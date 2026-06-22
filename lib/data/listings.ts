@@ -1,5 +1,6 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_cache } from "next/cache";
+import { createClient, createPublicClient } from "@/lib/supabase/server";
 import {
   LISTING_COLS,
   rowToListing,
@@ -26,12 +27,21 @@ import { getAllUniversities } from "@/lib/data/universities";
 // seed-sized so this is cheap. If listing count grows large, swap the internals
 // here from "fetch all" to "fetch filtered" WITHOUT touching components or the
 // search-params logic, see LATE_CATCHES LC-06.
-export async function getAllListings(): Promise<Listing[]> {
-  const sb = await createClient();
-  const { data, error } = await sb.from("listings").select(LISTING_COLS);
-  if (error || !data) return [];
-  return (data as ListingRow[]).map(rowToListing);
-}
+// unstable_cache: the public listings set changes only on agent create/edit/
+// publish/photo/coords mutations. Cache it across requests via the cookie-free
+// public client (RLS exposes the same public rows to anon; gender filtering is
+// applied in-memory downstream, not via the session). Busted on those mutations
+// via revalidateTag("listings"); 300s TTL backstop.
+export const getAllListings = unstable_cache(
+  async (): Promise<Listing[]> => {
+    const sb = createPublicClient();
+    const { data, error } = await sb.from("listings").select(LISTING_COLS);
+    if (error || !data) return [];
+    return (data as ListingRow[]).map(rowToListing);
+  },
+  ["all-listings"],
+  { tags: ["listings"], revalidate: 300 },
+);
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
   const sb = await createClient();

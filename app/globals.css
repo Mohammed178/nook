@@ -336,7 +336,7 @@ img { display: block; max-width: 100%; }
 .nav-right { display: flex; align-items: center; gap: 8px; }
 
 /* Condensed search pill, non-home pages only (gated by usePathname in component) */
-.nav-search-pill-wrap { position: relative; flex: 0 1 320px; min-width: 0; }
+.nav-search-pill-wrap { position: relative; flex: 0 1 300px; min-width: 0; }
 .nav-search-pill {
   display: inline-flex; align-items: center; gap: 8px;
   width: 100%; height: 40px; padding: 4px 6px 4px 16px;
@@ -2694,6 +2694,49 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   color: var(--ink-700); margin: 16px 0 8px;
 }
 
+/* Dashboard stat grid — shared by the agent dashboard and /admin overview.
+   Same card language as the /account overview tiles (.acct-stat: tabular
+   headline numeral, icon-led label, hairline cells, cascade rise-in, brand-50
+   hover) but flexes its column count via auto-fit so it works at 3 or 4 tiles.
+   Hairlines come from a 1px grid gap over an ink backing, so cells stay clean
+   regardless of how the row wraps. */
+.dash-stats {
+  list-style: none; margin: 0 0 var(--s-8); padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1px; background: var(--ink-150);
+  border: 1px solid var(--ink-200); border-radius: var(--r-lg); overflow: hidden;
+}
+.dash-stat {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 34px 32px; background: var(--paper);
+  animation: uni-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+/* Link variant (admin tiles) — fill the cell so the whole card is the target. */
+.dash-stat-link {
+  display: flex; flex-direction: column; gap: 14px;
+  color: inherit; text-decoration: none;
+  margin: -34px -32px; padding: 34px 32px;
+  transition: background 140ms;
+}
+.dash-stat-link:hover { background: var(--brand-50); text-decoration: none; }
+.dash-stat-num {
+  font-size: clamp(30px, 3.6vw, 44px); font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1; color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.dash-stat-link:hover .dash-stat-num { color: var(--brand-700); }
+.dash-stat-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: var(--t-sm); font-weight: 600; color: var(--ink-700);
+}
+.dash-stat-label .ico { color: var(--ink-400); }
+.dash-stat-link:hover .dash-stat-label .ico { color: var(--brand-500); }
+@media (prefers-reduced-motion: reduce) {
+  .dash-stat { animation: none; }
+  .dash-stat-link { transition: none; }
+}
+
 .dashboard-section { margin-bottom: var(--s-8); }
 .dashboard-section-title {
   font-size: var(--t-sm); font-weight: 600; color: var(--ink-800);
@@ -4032,6 +4075,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   height: 6px; border-radius: var(--r-pill); background: var(--ink-150); overflow: hidden;
 }
 .acct-meter-fill {
+  display: block;
   height: 100%; border-radius: var(--r-pill); background: var(--brand-500);
   width: var(--pct, 0%);
   transform-origin: left center;
