@@ -363,6 +363,70 @@ export async function addListingPhoto(
   return { ok: true, id: data.id as string };
 }
 
+export interface AddListingPhotosItem {
+  storagePath: string;
+  altText: string;
+}
+
+export interface AddedListingPhoto {
+  id: string;
+  storagePath: string;
+  sortOrder: number;
+}
+
+// Batch sibling of addListingPhoto: records several already-uploaded objects in a
+// SINGLE multi-row INSERT (one round-trip, one RLS check, one revalidate upstream)
+// instead of N sequential add calls. sort_order is assigned max(existing)+1..+N in
+// the given order. The caller is expected to cap N (the manager caps a batch at 4
+// and the whole listing at MAX_PHOTOS). A concurrent batch on the SAME listing
+// collides on the deferred unique (listing_id, sort_order) -> 23505 -> error (no
+// silent corruption). Ownership is enforced by the owner-insert with-check policy.
+// Returns the inserted rows mapped back by storage_path so the client can append
+// them with their real ids + sort order.
+export async function addListingPhotos(
+  listingId: string,
+  items: AddListingPhotosItem[],
+): Promise<{ ok: true; photos: AddedListingPhoto[] } | { ok: false; error: string }> {
+  if (items.length === 0) return { ok: true, photos: [] };
+  const sb = await createActionClient();
+
+  const { data: maxRow, error: maxErr } = await sb
+    .from("listing_photos")
+    .select("sort_order")
+    .eq("listing_id", listingId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (maxErr) return { ok: false, error: (await getDictionary()).errors.couldNotReadPhotos };
+
+  const base = (maxRow?.sort_order ?? -1) + 1;
+  const rows = items.map((it, i) => ({
+    listing_id: listingId,
+    storage_path: it.storagePath,
+    alt_text: it.altText,
+    sort_order: base + i,
+  }));
+
+  const { data, error } = await sb
+    .from("listing_photos")
+    .insert(rows)
+    .select("id, storage_path, sort_order");
+  if (error || !data) return { ok: false, error: (await getDictionary()).errors.couldNotAddPhoto };
+
+  const byPath = new Map(
+    data.map((r) => [r.storage_path as string, r]),
+  );
+  const photos = items.map((it) => {
+    const r = byPath.get(it.storagePath)!;
+    return {
+      id: r.id as string,
+      storagePath: it.storagePath,
+      sortOrder: r.sort_order as number,
+    };
+  });
+  return { ok: true, photos };
+}
+
 // Deletes a photo. The last-photo trigger (NK002) blocks removing the only photo
 // of an available listing. A non-owned / missing id matches 0 rows (RLS), no error.
 export async function removeListingPhoto(
@@ -419,6 +483,114 @@ export async function reorderListingPhotos(
     .upsert(rows, { onConflict: "id" });
   if (error) return { ok: false, error: (await getDictionary()).errors.couldNotReorderPhotos };
   return { ok: true };
+}
+
+// ---------- Videos (4d) ----------
+// Sibling of the photo functions. Videos are optional and capped at 2 per
+// listing; the cap is enforced in the DB (NK003 trigger), surfaced here as a
+// typed reason. No last-video trigger (videos are not a publish precondition).
+
+export interface AddListingVideosItem {
+  storagePath: string;
+  title: string;
+}
+
+export interface AddedListingVideo {
+  id: string;
+  storagePath: string;
+  sortOrder: number;
+}
+
+// Records up to 2 already-uploaded objects in one multi-row insert. The DB cap
+// trigger rejects the row(s) that would exceed 2 with errcode NK003, surfaced as
+// reason 'cap'. Ownership is enforced by the owner-insert with-check policy.
+export async function addListingVideos(
+  listingId: string,
+  items: AddListingVideosItem[],
+): Promise<
+  | { ok: true; videos: AddedListingVideo[] }
+  | { ok: false; reason: "cap" | "error" }
+> {
+  if (items.length === 0) return { ok: true, videos: [] };
+  const sb = await createActionClient();
+
+  const { data: maxRow, error: maxErr } = await sb
+    .from("listing_videos")
+    .select("sort_order")
+    .eq("listing_id", listingId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (maxErr) return { ok: false, reason: "error" };
+
+  const base = (maxRow?.sort_order ?? -1) + 1;
+  const rows = items.map((it, i) => ({
+    listing_id: listingId,
+    storage_path: it.storagePath,
+    title: it.title,
+    sort_order: base + i,
+  }));
+
+  const { data, error } = await sb
+    .from("listing_videos")
+    .insert(rows)
+    .select("id, storage_path, sort_order");
+  if (error || !data) {
+    if (error?.code === "NK003") return { ok: false, reason: "cap" };
+    return { ok: false, reason: "error" };
+  }
+
+  const byPath = new Map(data.map((r) => [r.storage_path as string, r]));
+  const videos = items.map((it) => {
+    const r = byPath.get(it.storagePath)!;
+    return {
+      id: r.id as string,
+      storagePath: it.storagePath,
+      sortOrder: r.sort_order as number,
+    };
+  });
+  return { ok: true, videos };
+}
+
+// Deletes a video. A non-owned / missing id matches 0 rows (RLS), reported as
+// not_found. No last-video guard, videos are optional.
+export async function removeListingVideo(
+  videoId: string,
+): Promise<{ ok: true } | { ok: false; reason: "not_found" | "error" }> {
+  const sb = await createActionClient();
+  const { data, error } = await sb
+    .from("listing_videos")
+    .delete()
+    .eq("id", videoId)
+    .select("id");
+  if (error) return { ok: false, reason: "error" };
+  if (!data || data.length === 0) return { ok: false, reason: "not_found" };
+  return { ok: true };
+}
+
+export interface ListingVideo {
+  id: string;
+  storagePath: string;
+  title: string;
+  sortOrder: number;
+}
+
+// The listing's videos in display order, for the edit-page video manager. Owner-
+// read RLS scopes it to the caller's own listing.
+export async function getListingVideos(listingId: string): Promise<ListingVideo[]> {
+  const sb = await createClient();
+  const { data, error } = await sb
+    .from("listing_videos")
+    .select("id, storage_path, title, sort_order")
+    .eq("listing_id", listingId)
+    .order("sort_order", { ascending: true });
+  if (error || !data) return [];
+  return data.map((v) => ({
+    id: v.id as string,
+    storagePath: v.storage_path as string,
+    title: v.title as string,
+    sortOrder: v.sort_order as number,
+  }));
 }
 
 export interface ListingPhoto {

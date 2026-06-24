@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import {
   getAgentListingById,
   getListingPhotos,
+  getListingVideos,
 } from "@/lib/data/agent-listings";
 import { getAllAreas } from "@/lib/data/areas";
 import { ListingForm } from "@/components/agents/listing-form";
 import { PhotoManager } from "@/components/agents/photo-manager";
+import { VideoManager } from "@/components/agents/video-manager";
 import { MapPicker } from "@/components/agents/map-picker";
 import { PublishControl } from "@/components/agents/publish-control";
 import { getDictionary } from "@/lib/i18n/server";
@@ -23,10 +25,11 @@ export default async function EditListingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [listing, areas, photos, dict] = await Promise.all([
+  const [listing, areas, photos, videos, dict] = await Promise.all([
     getAgentListingById(id),
     getAllAreas(),
     getListingPhotos(id),
+    getListingVideos(id),
     getDictionary(),
   ]);
   const t = dict.agents;
@@ -51,6 +54,11 @@ export default async function EditListingPage({
       <section className="dashboard-form-section" aria-labelledby="photos-heading">
         <h2 id="photos-heading">{t.photos}</h2>
         <PhotoManager listingId={listing.id} initialPhotos={photos} />
+      </section>
+
+      <section className="dashboard-form-section" aria-labelledby="videos-heading">
+        <h2 id="videos-heading">{t.videos}</h2>
+        <VideoManager listingId={listing.id} initialVideos={videos} />
       </section>
 
       <section className="dashboard-form-section" aria-labelledby="details-heading">
