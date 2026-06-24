@@ -431,6 +431,12 @@ const ms: Dictionary = {
     whatsapp: "WhatsApp",
     call: "Panggil",
   },
+  priceSignal: {
+    good: "Harga baik",
+    around: "Sekitar pasaran",
+    above: "Atas pasaran",
+    caption: "Berdasarkan {n} senarai serupa di sini · median {median}",
+  },
   accountLists: {
     recentTitle: "Terkini",
     noRecent: "Belum ada senarai terkini.",

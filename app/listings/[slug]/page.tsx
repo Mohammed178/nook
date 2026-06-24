@@ -9,7 +9,13 @@ import { HeartButton } from "@/components/nook/heart-button";
 import { Gallery } from "@/components/listings/gallery";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
 import { ViewTracker } from "@/components/listings/view-tracker";
-import { getListingBySlug, getSimilarListings } from "@/lib/data/listings";
+import {
+  getAllListings,
+  getListingBySlug,
+  getSimilarListings,
+} from "@/lib/data/listings";
+import { buildPriceSignals } from "@/lib/data/price-intel";
+import { PriceSignalBadge } from "@/components/nook/price-signal-badge";
 import listingsIdMap from "@/scripts/.id-map-3bb1.json";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
@@ -134,6 +140,11 @@ export default async function ListingDetailPage({
   const similarListings = await getSimilarListings(listing, 4);
   const similar = await attachListingRelations(similarListings);
 
+  // Fair Price signals (features.md #1) over the full live market. One map backs
+  // both this listing's price-block badge and the similar-rooms cards.
+  const priceSignals = buildPriceSignals(await getAllListings());
+  const priceSignal = priceSignals.get(listing.id) ?? null;
+
   const paragraphs = listing.description.split("\n\n").filter(Boolean);
   const budgetDiff =
     parsed.priceMax != null ? parsed.priceMax - listing.priceMonthly : 0;
@@ -212,6 +223,14 @@ export default async function ListingDetailPage({
             </div>
             {withinBudget && (
               <span className="pill pill-within pill-lg">{withinBudget}</span>
+            )}
+            {priceSignal && (
+              <PriceSignalBadge
+                signal={priceSignal}
+                t={dict.priceSignal}
+                size="lg"
+                showCaption
+              />
             )}
           </div>
 
@@ -332,6 +351,8 @@ export default async function ListingDetailPage({
                     agent={item.agent}
                     area={item.area}
                     card={dict.card}
+                    priceSignal={priceSignals.get(item.listing.id)}
+                    priceSignalLabels={dict.priceSignal}
                     currentQuery={currentQuery}
                   />
                 ))}

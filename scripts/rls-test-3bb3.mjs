@@ -84,12 +84,12 @@ async function main() {
   // ----------------------------------------------------------------
   // A1, schema/state stability (behavioural)
   // ----------------------------------------------------------------
-  step("A1, listings = 18 rows + area_id/agent_id are uuid (re-run to compare hash)");
+  step("A1, listings = 28 rows + area_id/agent_id are uuid (re-run to compare hash)");
   const { count, error: ce } = await admin
     .from("listings")
     .select("*", { count: "exact", head: true });
   if (ce) fail(`listings count: ${ce.message}`);
-  if (count !== 18) fail(`expected 18 listings, got ${count}`);
+  if (count !== 28) fail(`expected 28 listings, got ${count}`);
 
   const colProof = {};
   for (const col of ["area_id", "agent_id"]) {

@@ -1,7 +1,7 @@
 // Targeted cleanup of LEAKED rls-test fixtures (Phase 4c-B1 follow-up).
 //
 // Why this exists: rls-test-3bb2 / 3bb3 assert a pristine, freshly-seeded DB
-// (recent_views empty; exactly 18 listings). An interrupted test run can leave
+// (recent_views empty; exactly 28 seed listings). An interrupted test run can leave
 // residue behind, an ephemeral auth user + its agent + its listings, and the
 // 3bb2 cascade-probe rows. This script removes ONLY that residue, by the
 // harness's ephemeral signature, and NOTHING else.
@@ -11,7 +11,7 @@
 //   * DRY-RUN BY DEFAULT, prints what it would delete and exits. Pass --apply
 //     to actually delete. The operator reviews the dry-run first.
 //   * Scoped strictly to the ephemeral signature below. It refuses to delete any
-//     listing whose id is one of the 18 seed UUIDv5 ids (belt-and-braces guard).
+//     listing whose id is one of the seed UUIDv5 ids (belt-and-braces guard).
 //   * It deliberately does NOT delete "any listing not in the seed set", that
 //     would also nuke a real agent draft created during manual UI testing. If a
 //     non-ephemeral extra row remains after this, it is real data, not residue:
@@ -45,7 +45,7 @@ for (const [k, v] of Object.entries({ NEXT_PUBLIC_SUPABASE_URL: URL, SUPABASE_SE
 }
 const sb = createClient(URL, SRK, { auth: { persistSession: false } });
 
-// The 18 seed listing ids, NEVER delete these.
+// The seed listing ids, NEVER delete these.
 const SEED_IDS = new Set(LISTINGS.map((l) => uuidv5(l.id, NS_NOOK)));
 
 // Ephemeral email signatures used by the harnesses.

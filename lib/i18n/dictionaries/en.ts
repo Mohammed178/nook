@@ -427,6 +427,12 @@ const en = {
     whatsapp: "WhatsApp",
     call: "Call",
   },
+  priceSignal: {
+    good: "Good deal",
+    around: "Around market",
+    above: "Above market",
+    caption: "Based on {n} similar listings here · median {median}",
+  },
   accountLists: {
     recentTitle: "Recent",
     noRecent: "No recent listings yet.",
