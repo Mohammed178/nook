@@ -928,6 +928,11 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   margin: 0 -24px; padding: 4px 0;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  /* The marquee is a physical left-sliding track. Pin it to LTR geometry so the
+     flex origin and translateX(-50%) behave identically under dir="rtl" (where
+     the reversed flow otherwise pushes the cards off-screen). Card text re-asserts
+     rtl below. */
+  direction: ltr;
 }
 .uni-track {
   display: flex; gap: 20px; width: max-content;
@@ -960,6 +965,9 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .uni-card .name { position: absolute; bottom: 8px; left: 10px; color: #fff; font-weight: 700; font-size: 14px; z-index: 1; letter-spacing: -.005em; }
 .uni-card .body { padding: 10px 2px 0; }
+/* Rail geometry is forced LTR above; restore rtl reading for Arabic card text. */
+[dir="rtl"] .uni-card .body { direction: rtl; text-align: right; }
+[dir="rtl"] .uni-card .name { left: auto; right: 10px; }
 .uni-card .count { font-size: 12px; color: var(--ink-700); font-weight: 600; line-height: 1.3; }
 .uni-card .price { font-size: 11px; color: var(--ink-500); margin-top: 4px; line-height: 1.3; }
 
