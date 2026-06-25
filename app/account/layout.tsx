@@ -28,6 +28,7 @@ export default async function AccountLayout({
         <AccountSidebar
           displayName={user?.displayName ?? "Account"}
           email={user?.email ?? ""}
+          avatarUrl={user?.avatarUrl}
           agentStatus={user?.agentStatus}
           agencyName={user?.agencyName}
           isAdmin={user?.isAdmin}

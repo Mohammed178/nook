@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Icon } from "@/components/nook/icon";
 import { UniversitySearch } from "@/components/auth/university-search";
 import { GenderPicker } from "@/components/account/gender-picker";
+import { AvatarUploader } from "@/components/account/avatar-uploader";
 import { updateProfileAction } from "@/app/account/profile/actions";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import type { University } from "@/lib/types";
@@ -21,6 +22,8 @@ interface ProfileFormProps {
   initial: ProfileInitial;
   dict: Dictionary;
   universities: University[];
+  userId: string;
+  initialAvatarUrl: string | null;
 }
 
 const PHONE_PREFIX = "+60";
@@ -31,7 +34,13 @@ function stripPrefix(raw: string): string {
   return trimmed;
 }
 
-export function ProfileForm({ initial, dict, universities }: ProfileFormProps) {
+export function ProfileForm({
+  initial,
+  dict,
+  universities,
+  userId,
+  initialAvatarUrl,
+}: ProfileFormProps) {
   const a = dict.account;
   const c = dict.common;
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +84,13 @@ export function ProfileForm({ initial, dict, universities }: ProfileFormProps) {
   }
 
   return (
+    <>
+    <AvatarUploader
+      userId={userId}
+      initialAvatarUrl={initialAvatarUrl}
+      displayName={initial.display_name || initial.email}
+      dict={dict}
+    />
     <form
       onSubmit={onSubmit}
       onChange={() => {
@@ -210,5 +226,6 @@ export function ProfileForm({ initial, dict, universities }: ProfileFormProps) {
         </span>
       </div>
     </form>
+    </>
   );
 }

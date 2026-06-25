@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/account/profile-form";
 import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
+import { publicAvatarUrl } from "@/lib/data/_row-mappers";
 import { getDictionary } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,7 +23,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, dict, universities] = await Promise.all([
     supabase
       .from("profiles")
-      .select("display_name, email, phone, country, university_id, gender_preference")
+      .select("display_name, email, phone, country, university_id, gender_preference, avatar_url")
       .eq("id", user.id)
       .maybeSingle(),
     getDictionary(),
@@ -41,6 +42,10 @@ export default async function ProfilePage() {
       <ProfileForm
         dict={dict}
         universities={toSearchUniversities(universities)}
+        userId={user.id}
+        initialAvatarUrl={
+          profile?.avatar_url ? publicAvatarUrl(profile.avatar_url) : null
+        }
         initial={{
           display_name: profile?.display_name ?? "",
           email: profile?.email ?? user.email ?? "",

@@ -231,6 +231,15 @@ export function publicVideoUrl(storagePath: string): string {
   return `${base}/storage/v1/object/public/${LISTING_VIDEOS_BUCKET}/${storagePath}`;
 }
 
+// Profile avatars (migration 0030). profiles.avatar_url stores a storage PATH
+// ({user_id}/{uuid}.{ext}); this resolves it to a public URL for <img src>. The
+// path segments are uuid-based, so no URL-encoding is required.
+const AVATARS_BUCKET = "avatars";
+export function publicAvatarUrl(storagePath: string): string {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  return `${base}/storage/v1/object/public/${AVATARS_BUCKET}/${storagePath}`;
+}
+
 export interface ListingRow {
   id: string;
   slug: string;

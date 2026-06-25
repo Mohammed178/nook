@@ -16,6 +16,7 @@ interface NavItem {
 interface AccountSidebarProps {
   displayName: string;
   email: string;
+  avatarUrl?: string;
   agentStatus?: AgentStatus;
   agencyName?: string;
   isAdmin?: boolean;
@@ -31,6 +32,7 @@ function initials(name: string): string {
 export function AccountSidebar({
   displayName,
   email,
+  avatarUrl,
   agentStatus,
   agencyName,
   isAdmin,
@@ -51,9 +53,21 @@ export function AccountSidebar({
   return (
     <aside className="account-sidebar" aria-label={n.navAria}>
       <header className="account-sidebar-head">
-        <span className="account-sidebar-avatar" aria-hidden="true">
-          {initials(displayName)}
-        </span>
+        {avatarUrl ? (
+          // Avatar is a public-bucket URL on an arbitrary Supabase host;
+          // next/image remote patterns are not configured for it, and this is a
+          // small fixed-size image, so a plain <img> is the right call.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="account-sidebar-avatar account-sidebar-avatar-img"
+            src={avatarUrl}
+            alt=""
+          />
+        ) : (
+          <span className="account-sidebar-avatar" aria-hidden="true">
+            {initials(displayName)}
+          </span>
+        )}
         <div className="account-sidebar-id">
           <div className="account-sidebar-name">{displayName}</div>
           <div className="account-sidebar-email" title={email}>
