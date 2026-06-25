@@ -6,7 +6,15 @@ import { createActionClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
 import { slugify } from "@/lib/slugify";
+import { haversineKm } from "@/lib/distance";
 import { getDictionary } from "@/lib/i18n/server";
+import { format } from "@/lib/i18n/config";
+
+// Two campuses closer than this are treated as the same physical location. A
+// university footprint is large, but distinct campuses in one city are normally
+// >200 m apart, so this catches "same place, slightly different map pin" without
+// false-flagging genuine neighbours.
+const DUPLICATE_RADIUS_KM = 0.2;
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -156,6 +164,48 @@ async function deriveUniqueSlug(
   }
 }
 
+type DuplicateHit =
+  | { kind: "name"; name: string }
+  | { kind: "location"; name: string };
+
+// Guards a create/edit against the campuses already LISTED (deleted_at IS NULL,
+// matching "currently listed"). A name clash (case-insensitive on either the
+// full name or the short name, since the short name drives the slug) or a
+// location within DUPLICATE_RADIUS_KM of an existing pin is a duplicate. On edit
+// the row being saved is excluded by slug so re-saving it is never a self-clash.
+// Name takes priority over location when both would match.
+async function findDuplicate(
+  admin: ReturnType<typeof createAdminClient>,
+  values: UniValues,
+  excludeSlug?: string,
+): Promise<DuplicateHit | null> {
+  const { data } = await admin
+    .from("universities")
+    .select("slug, name, short_name, lat, lng")
+    .is("deleted_at", null);
+  const rows = (data ?? []).filter((r) => r.slug !== excludeSlug);
+
+  const newName = values.name.trim().toLowerCase();
+  const newShort = values.short_name.trim().toLowerCase();
+  for (const r of rows) {
+    const rName = String(r.name ?? "").trim().toLowerCase();
+    const rShort = String(r.short_name ?? "").trim().toLowerCase();
+    if (rName === newName || rShort === newShort) {
+      return { kind: "name", name: r.name as string };
+    }
+  }
+
+  for (const r of rows) {
+    if (r.lat == null || r.lng == null) continue;
+    const km = haversineKm(values.lat, values.lng, Number(r.lat), Number(r.lng));
+    if (km <= DUPLICATE_RADIUS_KM) {
+      return { kind: "location", name: r.name as string };
+    }
+  }
+
+  return null;
+}
+
 function revalidate(slug?: string): void {
   revalidatePath("/admin/universities");
   revalidatePath("/universities");
@@ -177,6 +227,17 @@ export async function createUniversityAction(
   }
 
   const admin = createAdminClient();
+
+  const dup = await findDuplicate(admin, parsed.values);
+  if (dup) {
+    return {
+      error:
+        dup.kind === "name"
+          ? format(u.errDuplicateName, { name: dup.name })
+          : format(u.errDuplicateLocation, { name: dup.name }),
+    };
+  }
+
   const slug = await deriveUniqueSlug(
     admin,
     parsed.values.short_name,
@@ -211,6 +272,17 @@ export async function updateUniversityAction(
   }
 
   const admin = createAdminClient();
+
+  const dup = await findDuplicate(admin, parsed.values, slug);
+  if (dup) {
+    return {
+      error:
+        dup.kind === "name"
+          ? format(u.errDuplicateName, { name: dup.name })
+          : format(u.errDuplicateLocation, { name: dup.name }),
+    };
+  }
+
   const { data, error } = await admin
     .from("universities")
     .update({ ...parsed.values, updated_at: new Date().toISOString() })

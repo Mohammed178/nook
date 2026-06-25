@@ -1135,6 +1135,8 @@ const ms: Dictionary = {
       errWebsite: "Masukkan URL laman web https yang sah.",
       errPhotoUrl: "Masukkan URL foto yang sah.",
       errPhotoFile: "Fail atribusi foto diperlukan.",
+      errDuplicateName: "Universiti bernama “{name}” sudah disenaraikan.",
+      errDuplicateLocation: "Lokasi itu sudah digunakan oleh “{name}”.",
       errForbidden: "Anda tidak mempunyai kebenaran untuk berbuat demikian.",
       errNotFound: "Universiti tidak dijumpai.",
     },

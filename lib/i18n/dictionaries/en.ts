@@ -1129,6 +1129,8 @@ const en = {
       errWebsite: "Enter a valid https website URL.",
       errPhotoUrl: "Enter a valid photo URL.",
       errPhotoFile: "Photo attribution file is required.",
+      errDuplicateName: "A university called “{name}” is already listed.",
+      errDuplicateLocation: "That location is already used by “{name}”.",
       errForbidden: "You do not have permission to do that.",
       errNotFound: "University not found.",
     },

@@ -1110,6 +1110,8 @@ const ar: Dictionary = {
       errWebsite: "أدخل رابط موقع https صالح.",
       errPhotoUrl: "أدخل رابط صورة صالح.",
       errPhotoFile: "ملف إسناد الصورة مطلوب.",
+      errDuplicateName: "توجد جامعة باسم «{name}» مُدرجة بالفعل.",
+      errDuplicateLocation: "هذا الموقع مستخدم بالفعل من قبل «{name}».",
       errForbidden: "ليس لديك إذن للقيام بذلك.",
       errNotFound: "الجامعة غير موجودة.",
     },
