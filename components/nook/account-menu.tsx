@@ -9,10 +9,11 @@ import type { AgentStatus } from "@/lib/types";
 
 interface AccountMenuProps {
   displayName: string;
+  avatarUrl?: string;
   agentStatus?: AgentStatus;
 }
 
-export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
+export function AccountMenu({ displayName, avatarUrl, agentStatus }: AccountMenuProps) {
   const m = useDict().accountMenu;
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -44,9 +45,20 @@ export function AccountMenu({ displayName, agentStatus }: AccountMenuProps) {
         aria-expanded={open}
         aria-haspopup="menu"
       >
-        <span className="account-avatar" aria-hidden="true">
-          {initial}
-        </span>
+        {avatarUrl ? (
+          // Public-bucket URL on a Supabase host; next/image remote patterns are
+          // not set up for it and this is a small fixed-size image.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="account-avatar account-avatar-img"
+            src={avatarUrl}
+            alt=""
+          />
+        ) : (
+          <span className="account-avatar" aria-hidden="true">
+            {initial}
+          </span>
+        )}
         <span className="account-name">{displayName}</span>
         <Icon name="chevron-down" size={14} />
       </button>

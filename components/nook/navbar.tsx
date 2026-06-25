@@ -71,6 +71,7 @@ export async function Navbar({ active = "home", transparent = false }: NavbarPro
           {user ? (
             <AccountMenu
               displayName={user.displayName}
+              avatarUrl={user.avatarUrl}
               agentStatus={user.agentStatus}
             />
           ) : (

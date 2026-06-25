@@ -1823,6 +1823,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   display: inline-flex; align-items: center; justify-content: center;
   font-size: var(--t-sm); font-weight: 700;
 }
+.account-avatar-img { object-fit: cover; background: var(--ink-100); }
 .account-name { font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topnav.transparent .account-trigger {
   background: rgba(255, 255, 255, 0.92);
