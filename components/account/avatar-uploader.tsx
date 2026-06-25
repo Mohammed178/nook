@@ -4,17 +4,20 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Icon } from "@/components/nook/icon";
+import { AvatarCropper } from "@/components/account/avatar-cropper";
 import {
   updateAvatarAction,
   removeAvatarAction,
 } from "@/app/account/profile/actions";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-// Profile avatar picker. The browser uploads the image straight to the avatars
-// bucket under {userId}/{uuid}.{ext} (storage RLS gates the write to the caller's
-// own folder), then a server action records the path on profiles.avatar_url and
-// removes the previous object. Client type/size checks are UX (fail fast); the
-// bucket's mime allow-list + 5 MiB limit (migration 0030) are the real ceiling.
+// Profile avatar picker. The user clicks the avatar (or the Upload button),
+// picks an image, then frames it in the crop modal; only the cropped square is
+// uploaded to the avatars bucket under {userId}/{uuid}.{ext} (storage RLS gates
+// the write to the caller's own folder), after which a server action records the
+// path on profiles.avatar_url and removes the previous object. Client type/size
+// checks are UX (fail fast); the bucket's mime allow-list + 5 MiB limit
+// (migration 0030) are the real ceiling.
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const EXT_BY_TYPE: Record<string, string> = {
@@ -47,9 +50,16 @@ export function AvatarUploader({
   const a = dict.account;
   const router = useRouter();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function openPicker() {
+    if (pending) return;
+    setError(null);
+    fileInputRef.current?.click();
+  }
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setError(null);
@@ -65,15 +75,22 @@ export function AvatarUploader({
       setError(a.avatarTooLarge);
       return;
     }
+    // Hand off to the crop modal; upload happens only after the user frames it.
+    setCropFile(file);
+  }
 
+  // Uploads the cropped square produced by the cropper.
+  function onCropConfirm(blob: Blob, type: string) {
+    setCropFile(null);
+    setError(null);
     startTransition(async () => {
       const supabase = createClient();
-      const ext = EXT_BY_TYPE[file.type] ?? "jpg";
+      const ext = EXT_BY_TYPE[type] ?? "webp";
       const path = `${userId}/${crypto.randomUUID()}.${ext}`;
 
       const { error: uploadErr } = await supabase.storage
         .from(BUCKET)
-        .upload(path, file, { contentType: file.type, upsert: false });
+        .upload(path, blob, { contentType: type, upsert: false });
       if (uploadErr) {
         setError(a.avatarUploadFailed);
         return;
@@ -107,43 +124,40 @@ export function AvatarUploader({
 
   return (
     <div className="avatar-uploader">
-      <div className="avatar-preview">
+      <button
+        type="button"
+        className="avatar-preview avatar-preview-btn"
+        onClick={openPicker}
+        disabled={pending}
+        aria-label={avatarUrl ? a.avatarEdit : a.avatarUpload}
+      >
         {avatarUrl ? (
           // Public-bucket URL on a Supabase host; next/image remote patterns are
           // not set up for it and this is a small fixed-size image.
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            className="avatar-preview-img"
-            src={avatarUrl}
-            alt={a.avatarAlt}
-          />
+          <img className="avatar-preview-img" src={avatarUrl} alt={a.avatarAlt} />
         ) : (
           <span className="avatar-preview-initials" aria-hidden="true">
             {initials(displayName)}
           </span>
         )}
-      </div>
+        <span className="avatar-preview-overlay" aria-hidden="true">
+          <Icon name="camera" size={18} />
+        </span>
+      </button>
 
       <div className="avatar-uploader-body">
-        <label className="label" htmlFor="avatar-file">
-          {a.avatarLabel}
-        </label>
+        <span className="label">{a.avatarLabel}</span>
         <div className="avatar-uploader-actions">
-          <label
-            className={`btn btn-secondary btn-sm${pending ? " is-disabled" : ""}`}
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={openPicker}
+            disabled={pending}
           >
             <Icon name="camera" size={14} />
             {avatarUrl ? a.avatarChange : a.avatarUpload}
-            <input
-              id="avatar-file"
-              ref={fileInputRef}
-              className="visually-hidden"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={onFileChange}
-              disabled={pending}
-            />
-          </label>
+          </button>
           {avatarUrl ? (
             <button
               type="button"
@@ -162,6 +176,26 @@ export function AvatarUploader({
           </div>
         ) : null}
       </div>
+
+      <input
+        ref={fileInputRef}
+        className="visually-hidden"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={onFileChange}
+        disabled={pending}
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+
+      {cropFile ? (
+        <AvatarCropper
+          file={cropFile}
+          dict={dict}
+          onCancel={() => setCropFile(null)}
+          onConfirm={onCropConfirm}
+        />
+      ) : null}
     </div>
   );
 }

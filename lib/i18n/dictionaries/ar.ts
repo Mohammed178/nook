@@ -107,6 +107,10 @@ const ar: Dictionary = {
     avatarUploadFailed: "فشل الرفع. حاول مرة أخرى.",
     avatarSaveFailed: "تعذّر حفظ صورتك. حاول مرة أخرى.",
     avatarInvalid: "تعذّر استخدام هذا الملف كصورة شخصية.",
+    avatarEdit: "تعديل صورة الملف الشخصي",
+    avatarCropTitle: "حدّد موضع صورتك",
+    avatarCropHelp: "اسحب لإعادة التموضع، واستخدم شريط التمرير للتكبير.",
+    avatarZoom: "تكبير",
   },
   accountNav: {
     navAria: "تنقّل الحساب",

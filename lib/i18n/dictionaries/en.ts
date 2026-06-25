@@ -111,6 +111,10 @@ const en = {
     avatarUploadFailed: "Upload failed. Please try again.",
     avatarSaveFailed: "Could not save your photo. Please try again.",
     avatarInvalid: "That file could not be used as an avatar.",
+    avatarEdit: "Edit profile photo",
+    avatarCropTitle: "Position your photo",
+    avatarCropHelp: "Drag to reposition, and use the slider to zoom.",
+    avatarZoom: "Zoom",
   },
   accountNav: {
     navAria: "Account navigation",

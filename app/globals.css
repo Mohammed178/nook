@@ -2209,6 +2209,117 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   margin-block: var(--s-2);
 }
 .avatar-uploader-actions .btn { cursor: pointer; }
+
+/* Clickable avatar preview: resets button chrome, reveals a camera overlay on
+   hover/focus to signal it edits the photo. */
+.avatar-preview-btn {
+  position: relative;
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.avatar-preview-btn:disabled { cursor: default; opacity: 0.7; }
+.avatar-preview-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.avatar-preview-btn:hover .avatar-preview-overlay,
+.avatar-preview-btn:focus-visible .avatar-preview-overlay {
+  opacity: 1;
+}
+.avatar-preview-btn:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+/* Avatar crop modal (square pan/zoom, dependency-free). */
+.cropper {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-4);
+}
+.cropper-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+.cropper-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--ink-200);
+  padding: var(--s-6);
+  width: min(92vw, 384px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+.cropper-title {
+  margin: 0;
+  font-size: var(--t-lg);
+  align-self: flex-start;
+}
+.cropper-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--ink-900);
+  touch-action: none; /* pointer drag owns the gesture */
+  cursor: grab;
+  user-select: none;
+}
+.cropper-stage:active { cursor: grabbing; }
+.cropper-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  max-width: none; /* width/height are set inline in natural*scale px */
+  pointer-events: none;
+  user-select: none;
+}
+.cropper-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.cropper-zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  color: var(--ink-600);
+}
+.cropper-zoom input[type="range"] { flex: 1; cursor: pointer; }
+.cropper-help {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--ink-600);
+  text-align: center;
+}
+.cropper-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  width: 100%;
+}
 .profile-section {
   margin: 0;
   padding: 0;

@@ -108,6 +108,10 @@ const ms: Dictionary = {
     avatarUploadFailed: "Muat naik gagal. Sila cuba lagi.",
     avatarSaveFailed: "Tidak dapat menyimpan foto anda. Sila cuba lagi.",
     avatarInvalid: "Fail itu tidak boleh digunakan sebagai avatar.",
+    avatarEdit: "Sunting foto profil",
+    avatarCropTitle: "Susun kedudukan foto anda",
+    avatarCropHelp: "Seret untuk ubah kedudukan, dan guna gelangsar untuk zum.",
+    avatarZoom: "Zum",
   },
   accountNav: {
     navAria: "Navigasi akaun",
