@@ -43,18 +43,23 @@ export function AvatarCropper({
 }: AvatarCropperProps) {
   const a = dict.account;
   const c = dict.common;
-  // The cropper is mounted with one fixed file (the parent remounts it per pick),
-  // so the object URL is created once and only revoked on unmount.
-  const [url] = useState(() => URL.createObjectURL(file));
+  const [url, setUrl] = useState<string>("");
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
   const [busy, setBusy] = useState(false);
   const dragRef = useRef<Point | null>(null);
 
-  // Load the image to read natural dimensions, then centre it. All state is set
-  // from the (async) onload callback, never synchronously in the effect body.
+  // Create the object URL inside the effect (not a lazy initializer) so its
+  // create/revoke pair with each mount — under React StrictMode's dev double-
+  // mount, a URL made outside the effect would be revoked by the first cleanup
+  // and leave a dead src. The image is loaded to read natural dimensions, then
+  // centred; all state is set from the (async) onload callback, so this never
+  // sets state synchronously in the effect body.
   useEffect(() => {
+    const u = URL.createObjectURL(file);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUrl(u);
     const image = new Image();
     image.onload = () => {
       const bs = VIEWPORT / Math.min(image.naturalWidth, image.naturalHeight);
@@ -64,9 +69,9 @@ export function AvatarCropper({
       setZoom(1);
       setOffset({ x: (VIEWPORT - w) / 2, y: (VIEWPORT - h) / 2 });
     };
-    image.src = url;
-    return () => URL.revokeObjectURL(url);
-  }, [url]);
+    image.src = u;
+    return () => URL.revokeObjectURL(u);
+  }, [file]);
 
   // Cover scale: the smaller natural side fills the viewport at zoom 1.
   const baseScale = img
