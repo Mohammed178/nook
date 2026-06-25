@@ -7,6 +7,9 @@ import {
   softDeleteListing,
   restoreListing,
   addListingPhoto,
+  addListingPhotos,
+  addListingVideos,
+  removeListingVideo,
   removeListingPhoto,
   reorderListingPhotos,
   setListingCoords,
@@ -251,6 +254,43 @@ export async function addListingPhotoAction(
   return { ok: true, id: result.id };
 }
 
+// Batch sibling of addListingPhotoAction: records up to 4 already-uploaded
+// objects in one multi-row insert + one revalidate, instead of N sequential
+// round-trips. Every alt_text is required (NOT NULL + the a11y contract); if any
+// is blank the whole batch is rejected before a single row is written, so the
+// caller can surface it and the orphaned objects are rolled back client-side.
+export interface AddPhotosActionResult extends PhotoActionResult {
+  // The inserted rows (real id + sort order), in the submitted order, so the
+  // client appends them without a round-trip.
+  photos?: { id: string; storagePath: string; sortOrder: number }[];
+}
+
+export async function addListingPhotosAction(
+  listingId: string,
+  items: { storagePath: string; altText: string }[],
+): Promise<AddPhotosActionResult> {
+  const dict = await getDictionary();
+  if (!listingId || items.length === 0) {
+    return { error: dict.errors.missingPhotoDetails };
+  }
+  const cleaned = items.map((it) => ({
+    storagePath: it.storagePath,
+    altText: it.altText.trim(),
+  }));
+  if (cleaned.some((it) => !it.storagePath)) {
+    return { error: dict.errors.missingPhotoDetails };
+  }
+  if (cleaned.some((it) => !it.altText)) {
+    return { error: dict.photoManager.addAltText };
+  }
+
+  const result = await addListingPhotos(listingId, cleaned);
+  if (!result.ok) return { error: result.error };
+
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
+  return { ok: true, photos: result.photos };
+}
+
 // Deletes a photo row. For a draft, removing the last photo is allowed; the
 // last-photo trigger (NK002) only fires on an available listing, surfaced here
 // as a clear message rather than a thrown error.
@@ -270,6 +310,61 @@ export async function removeListingPhotoAction(
       return { error: e.photoNotFound };
     }
     return { error: e.couldNotRemovePhoto };
+  }
+
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
+  return { ok: true };
+}
+
+// ---------- Video management (4d) ----------
+// Bytes uploaded client-side (browser client + agent session → storage RLS).
+// These actions record / remove the listing_videos rows through the RLS-enforced
+// data layer. Cap of 2 is DB-enforced (NK003); surfaced here as a clear message.
+
+export interface AddVideosActionResult extends PhotoActionResult {
+  videos?: { id: string; storagePath: string; sortOrder: number }[];
+}
+
+export async function addListingVideosAction(
+  listingId: string,
+  items: { storagePath: string; title: string }[],
+): Promise<AddVideosActionResult> {
+  const dict = await getDictionary();
+  if (!listingId || items.length === 0) {
+    return { error: dict.errors.missingVideoDetails };
+  }
+  const cleaned = items.map((it) => ({
+    storagePath: it.storagePath,
+    title: it.title.trim(),
+  }));
+  if (cleaned.some((it) => !it.storagePath)) {
+    return { error: dict.errors.missingVideoDetails };
+  }
+  if (cleaned.some((it) => !it.title)) {
+    return { error: dict.videoManager.addTitleAll };
+  }
+
+  const result = await addListingVideos(listingId, cleaned);
+  if (!result.ok) {
+    if (result.reason === "cap") return { error: dict.errors.maxVideos };
+    return { error: dict.errors.couldNotAddVideo };
+  }
+
+  revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);
+  return { ok: true, videos: result.videos };
+}
+
+export async function removeListingVideoAction(
+  listingId: string,
+  videoId: string,
+): Promise<PhotoActionResult> {
+  const e = (await getDictionary()).errors;
+  if (!videoId) return { error: e.missingVideoId };
+
+  const result = await removeListingVideo(videoId);
+  if (!result.ok) {
+    if (result.reason === "not_found") return { error: e.videoNotFound };
+    return { error: e.couldNotRemoveVideo };
   }
 
   revalidateListings(`/agents/dashboard/listings/${listingId}/edit`);

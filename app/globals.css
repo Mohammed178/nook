@@ -242,6 +242,14 @@ img { display: block; max-width: 100%; }
 .pill-lg       { padding: 4px 10px; font-size: var(--t-xs); }
 .pill-pending  { background: var(--warning-50); color: var(--warning-700); }
 .pill-rejected { background: var(--danger-50); color: var(--danger-700); }
+/* Fair Price signal (features.md #1). State-Color: good = success,
+   around = neutral ink, above = warning. Computed band, never a stored tag. */
+.pill-deal-good   { background: var(--success-50); color: var(--success-700); }
+.pill-deal-around { background: var(--ink-100); color: var(--ink-700); }
+.pill-deal-above  { background: var(--warning-50); color: var(--warning-700); }
+.price-signal { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.price-signal-caption { font-size: var(--t-xs); color: var(--ink-500); }
+.card-signal-row { margin-top: 4px; }
 
 /* Agent application-status header (/agents/pending) */
 /* Agent application status (/agents/pending), centered single column, not the
@@ -2635,6 +2643,44 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .photo-add {
   display: flex; flex-direction: column; gap: var(--s-3);
   border-top: 1px solid var(--ink-200); padding-top: var(--s-5);
+}
+/* Staged-but-not-yet-uploaded files (multi-upload). One row per file: name,
+   its required alt input, and a remove control. */
+.photo-stage { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.photo-stage-row {
+  display: flex; align-items: flex-end; gap: var(--s-3);
+  padding: var(--s-3); border: 1px solid var(--ink-200);
+  border-radius: var(--r-md); background: var(--ink-100);
+}
+.photo-stage-name {
+  flex: 0 0 auto; max-width: 28%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--t-xs); color: var(--ink-500); padding-bottom: 10px;
+}
+.photo-stage-alt { flex: 1 1 auto; margin: 0; }
+
+/* Listing videos (4d). Wider tiles than photos, the player carries the aspect. */
+.video-grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--s-3);
+}
+.video-tile {
+  border: 1px solid var(--ink-200); border-radius: var(--r-md);
+  overflow: hidden; background: var(--ink-100);
+}
+.video-tile-player {
+  display: block; width: 100%; aspect-ratio: 16 / 9;
+  object-fit: cover; background: #000;
+}
+.video-tile-foot {
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+}
+.video-tile-title {
+  flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: var(--t-sm); color: var(--ink-700);
 }
 
 /* Map-picker + publish (4c-B2). Agent edit-page sibling sections. */

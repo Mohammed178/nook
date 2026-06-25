@@ -7,7 +7,8 @@ import { ListingsBody } from "@/components/listings/listings-body";
 import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { getAllAreas } from "@/lib/data/areas";
 import { attachListingRelations } from "@/lib/data/listings-relations";
-import { getFilteredListings } from "@/lib/data/listings";
+import { getAllListings, getFilteredListings } from "@/lib/data/listings";
+import { buildPriceSignals } from "@/lib/data/price-intel";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -117,10 +118,15 @@ export default async function ListingsPage({
 
   const listings = await getFilteredListings(params, viewerGender);
 
-  const [areas, items] = await Promise.all([
+  const [areas, items, allListings] = await Promise.all([
     getAllAreas(),
     attachListingRelations(listings),
+    getAllListings(),
   ]);
+  // Fair Price signals (features.md #1) over the FULL live market, not the
+  // filtered subset — the distribution must reflect the whole area+type cohort.
+  // Serialised to a plain record for the client ListingsBody.
+  const priceSignals = Object.fromEntries(buildPriceSignals(allListings));
   // Keyed by slug, `params.area` carries the URL value (= area.slug).
   const areaLookup = Object.fromEntries(areas.map((a) => [a.slug, a]));
 
@@ -191,6 +197,7 @@ export default async function ListingsPage({
         sortLabel={sortLabelFor(sort, l, label.universityShort)}
         savedIds={savedIds}
         signedIn={signedIn}
+        priceSignals={priceSignals}
       />
     </>
   );

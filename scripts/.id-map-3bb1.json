@@ -72,6 +72,46 @@
     "lst-018": {
       "uuid": "07f209ad-63b7-5e82-ba76-e334796937e5",
       "slug": "studio-bangsar-um-luxe"
+    },
+    "lst-019": {
+      "uuid": "bb24af71-2ffa-5d1b-a1fd-a0b5b2d1546b",
+      "slug": "studio-cyberjaya-mmu-value"
+    },
+    "lst-020": {
+      "uuid": "84bbeb56-0900-598c-b092-d7116997fd8b",
+      "slug": "studio-cyberjaya-mmu-central"
+    },
+    "lst-021": {
+      "uuid": "87eac885-9e4e-5529-a215-c85ff18ae624",
+      "slug": "studio-cyberjaya-mmu-skyline"
+    },
+    "lst-022": {
+      "uuid": "e57b47a5-b581-5f4c-84c5-1b1cc11843f8",
+      "slug": "apartment-shah-alam-uitm-value"
+    },
+    "lst-023": {
+      "uuid": "f8ae81f8-617c-5f0b-9b58-acaeff794df4",
+      "slug": "apartment-shah-alam-uitm-garden"
+    },
+    "lst-024": {
+      "uuid": "eb8edfce-152f-59c8-9d1c-c49de04899d5",
+      "slug": "apartment-shah-alam-uitm-suite"
+    },
+    "lst-025": {
+      "uuid": "0134371e-09b9-5a1d-82ba-7ac9a6d58bd3",
+      "slug": "studio-bangsar-um-value"
+    },
+    "lst-026": {
+      "uuid": "183cd110-afe6-5942-ad92-ca09a97a0357",
+      "slug": "studio-bangsar-um-courtyard"
+    },
+    "lst-027": {
+      "uuid": "cde58d2e-7c6f-51e1-af0c-be17ff179439",
+      "slug": "studio-bangsar-um-residences"
+    },
+    "lst-028": {
+      "uuid": "bb926637-0e16-5d12-9f54-a3fdb9f3d7d1",
+      "slug": "studio-bangsar-um-signature"
     }
   }
 }

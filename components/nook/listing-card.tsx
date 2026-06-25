@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Icon } from "./icon";
 import { HeartButton } from "./heart-button";
+import { PriceSignalBadge } from "./price-signal-badge";
 import type { Agent, Area, Listing } from "@/lib/types";
+import type { PriceSignal } from "@/lib/data/price-intel";
 import { formatPrice } from "@/lib/utils";
 import { nearestCampus } from "@/lib/distance";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
@@ -20,6 +22,10 @@ interface ListingCardProps {
   agent: Agent | null;
   area: Area | null;
   card: Dictionary["card"];
+  /** Computed Fair Price signal (features.md #1); null/absent → no badge. */
+  priceSignal?: PriceSignal | null;
+  /** Labels for the price signal; required alongside priceSignal to render. */
+  priceSignalLabels?: Dictionary["priceSignal"];
   variant?: ListingCardVariant;
   href?: string;
   currentQuery?: string;
@@ -43,6 +49,8 @@ export function ListingCard({
   agent,
   area,
   card: c,
+  priceSignal,
+  priceSignalLabels,
   variant = "vertical",
   href,
   currentQuery,
@@ -69,6 +77,12 @@ export function ListingCard({
         uni: UNIVERSITY_BY_ID[nearestCmp.uniId]?.shortName ?? c.campus,
       })
     : "";
+  // Fair Price badge (features.md #1) — renders only when a signal was computed
+  // (cohort big enough) and its labels were supplied.
+  const signalBadge =
+    priceSignal && priceSignalLabels ? (
+      <PriceSignalBadge signal={priceSignal} t={priceSignalLabels} />
+    ) : null;
 
   if (variant === "mini") {
     return (
@@ -115,6 +129,7 @@ export function ListingCard({
             {formatPrice(listing.priceMonthly)}
             <span className="per"> {c.perMonth}</span>
           </div>
+          {signalBadge && <div className="card-signal-row">{signalBadge}</div>}
           <div className="lc-title">{listing.title}</div>
           <div className="meta">
             <Icon name="pin" size={12} />
@@ -211,6 +226,7 @@ export function ListingCard({
             {formatPrice(listing.priceMonthly)}
             <span className="per">{c.perMonth}</span>
           </div>
+          {signalBadge}
         </div>
         <div className="card-title">{listing.title}</div>
         <div className="card-addr">

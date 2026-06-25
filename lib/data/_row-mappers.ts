@@ -214,6 +214,14 @@ export function publicPhotoUrl(storagePath: string): string {
   return `${base}/storage/v1/object/public/${LISTING_PHOTOS_BUCKET}/${storagePath}`;
 }
 
+// Same public-object URL shape for the listing-videos bucket (4d). Paths are
+// uuid-based ({listing_id}/{video_uuid}.{ext}), so no URL-encoding is required.
+const LISTING_VIDEOS_BUCKET = "listing-videos";
+export function publicVideoUrl(storagePath: string): string {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  return `${base}/storage/v1/object/public/${LISTING_VIDEOS_BUCKET}/${storagePath}`;
+}
+
 export interface ListingRow {
   id: string;
   slug: string;
