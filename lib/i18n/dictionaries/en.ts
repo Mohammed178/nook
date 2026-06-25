@@ -612,6 +612,7 @@ const en = {
     inTheArea: "In the area",
     aboutAgent: "About this agent",
     similarRooms: "Similar rooms",
+    videoTour: "Video tour",
     bovaepLicensed: "BOVAEP-licensed",
     bovaepNum: "BOVAEP {licence}",
     whatsapp: "WhatsApp",

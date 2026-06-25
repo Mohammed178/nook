@@ -2683,6 +2683,24 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   font-size: var(--t-sm); color: var(--ink-700);
 }
 
+/* Public detail "Video tour" (4d). Two-up on wide, single column on narrow;
+   the player carries a 16/9 frame so the grid stays even before metadata loads.
+   Logical props (margin-inline) keep it correct under RTL (Arabic). */
+.detail-video-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--s-4);
+}
+.detail-video { margin: 0; }
+.detail-video-player {
+  display: block; width: 100%; aspect-ratio: 16 / 9;
+  border-radius: var(--r-md); background: #000;
+  border: 1px solid var(--ink-200);
+}
+.detail-video-cap {
+  margin-block-start: var(--s-2);
+  font-size: var(--t-sm); color: var(--ink-700);
+}
+
 /* Map-picker + publish (4c-B2). Agent edit-page sibling sections. */
 .map-picker { display: flex; flex-direction: column; gap: var(--s-4); align-items: flex-start; }
 .map-picker > * { width: 100%; }

@@ -203,6 +203,15 @@ export interface ListingPhotoRow {
   sort_order: number;
 }
 
+// Embedded listing_videos row (4d). title is the a11y caption (NOT NULL), shown
+// publicly as the video's label. Visibility follows the parent listing via the
+// listing_videos public-read RLS (non-draft only), same as photos.
+export interface ListingVideoRow {
+  storage_path: string;
+  title: string;
+  sort_order: number;
+}
+
 // Builds the public URL for a listing-photos storage object. Mirrors Supabase's
 // public-object URL format, /storage/v1/object/public/{bucket}/{path}, so it
 // needs no Supabase client (keeps this module pure and usable from .mjs tests).
@@ -255,6 +264,9 @@ export interface ListingRow {
   // sorts by sort_order and resolves each storage_path to a public URL, so the
   // domain Listing.photos shape (resolved-URL string[]) is unchanged.
   listing_photos: ListingPhotoRow[];
+  // Videos embed (4d). Absent on listings with no videos → the mapper guards
+  // with ?? [] (the embed yields [] when the table has rows for none).
+  listing_videos: ListingVideoRow[];
   description: string;
   agent_id: string;
   // numeric(2,1) arrives as a string from supabase-js, coerced below. Nullable
@@ -296,6 +308,11 @@ export function rowToListing(r: ListingRow): Listing {
     photos: [...r.listing_photos]
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((p) => publicPhotoUrl(p.storage_path)),
+    // Same shape as photos: sort by sort_order, resolve to a public URL, carry
+    // the a11y title through. ?? [] tolerates a row with no videos embed.
+    videos: [...(r.listing_videos ?? [])]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((v) => ({ src: publicVideoUrl(v.storage_path), title: v.title })),
     description: r.description,
     agentId: r.agent_id,
     rating:
@@ -314,4 +331,4 @@ export function rowToListing(r: ListingRow): Listing {
 }
 
 export const LISTING_COLS =
-  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at, listing_photos(storage_path, sort_order)";
+  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at, listing_photos(storage_path, sort_order), listing_videos(storage_path, title, sort_order)";

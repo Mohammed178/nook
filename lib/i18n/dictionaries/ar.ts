@@ -602,6 +602,7 @@ const ar: Dictionary = {
     inTheArea: "في المنطقة",
     aboutAgent: "عن هذا الوكيل",
     similarRooms: "غرف مشابهة",
+    videoTour: "جولة بالفيديو",
     bovaepLicensed: "مرخّص من BOVAEP",
     bovaepNum: "BOVAEP {licence}",
     whatsapp: "واتساب",

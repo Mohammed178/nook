@@ -111,6 +111,13 @@ export interface ListingWithRelations {
   area: Area | null;
 }
 
+/** A listing video, as surfaced to the public detail page: a resolved public
+ * URL plus its accessible title (the a11y caption authored by the agent). */
+export interface ListingVideoMeta {
+  src: string;
+  title: string;
+}
+
 export interface Listing {
   id: string;
   slug: string;
@@ -149,6 +156,10 @@ export interface Listing {
   metresToCampus?: number;
   amenities: string[];
   photos: string[];
+  /** Resolved public video URLs + a11y titles, in sort order (4d). Optional:
+   * videos are not a publish precondition, so most listings carry none. Seed
+   * listings omit this; rowToListing emits [] when the listing has no videos. */
+  videos?: ListingVideoMeta[];
   description: string;
   /** Agent UUID (FK to agents.id) since 3b-B-3. Same primitive type, no longer
    * the legacy agent string id. */
