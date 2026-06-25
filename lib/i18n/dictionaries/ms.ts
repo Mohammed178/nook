@@ -617,7 +617,7 @@ const ms: Dictionary = {
     inTheArea: "Di kawasan ini",
     aboutAgent: "Tentang ejen ini",
     similarRooms: "Bilik serupa",
-    videoTour: "Lawatan video",
+    playVideo: "Main video {i}",
     bovaepLicensed: "Berlesen BOVAEP",
     bovaepNum: "BOVAEP {licence}",
     whatsapp: "WhatsApp",

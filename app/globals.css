@@ -2683,22 +2683,37 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   font-size: var(--t-sm); color: var(--ink-700);
 }
 
-/* Public detail "Video tour" (4d). Two-up on wide, single column on narrow;
-   the player carries a 16/9 frame so the grid stays even before metadata loads.
-   Logical props (margin-inline) keep it correct under RTL (Arabic). */
-.detail-video-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--s-4);
+/* Video tiles inside the detail gallery (4d). A video sits in the same mosaic
+   as the photos: the poster <video> covers the cell, a play badge marks it,
+   and the click opens the shared lightbox. */
+.g-video { overflow: hidden; }
+.g-video-poster {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  background: #000; pointer-events: none;
 }
-.detail-video { margin: 0; }
-.detail-video-player {
-  display: block; width: 100%; aspect-ratio: 16 / 9;
-  border-radius: var(--r-md); background: #000;
-  border: 1px solid var(--ink-200);
+.g-play {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55); color: #fff;
+  pointer-events: none;
 }
-.detail-video-cap {
-  margin-block-start: var(--s-2);
-  font-size: var(--t-sm); color: var(--ink-700);
+.g-play svg { margin-inline-start: 2px; } /* nudge the play glyph optically centre */
+.g-play-sm { width: 26px; height: 26px; }
+
+/* Video in the lightbox stage + its thumb. */
+.lightbox-video {
+  max-width: min(1100px, 92vw); max-height: 82vh;
+  width: auto; height: auto; border-radius: var(--r-md);
+  background: #000;
+}
+.lightbox-thumb-video { position: relative; background: #000; overflow: hidden; }
+.lightbox-thumb-poster {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  pointer-events: none;
 }
 
 /* Map-picker + publish (4c-B2). Agent edit-page sibling sections. */

@@ -180,7 +180,7 @@ export default async function ListingDetailPage({
         <span style={{ color: "var(--ink-700)", fontWeight: 600 }}>{listing.title}</span>
       </div>
 
-      <Gallery photos={listing.photos} title={listing.title} />
+      <Gallery photos={listing.photos} videos={listing.videos} title={listing.title} />
 
       <div className="detail-layout">
         <div className="detail-main">
@@ -278,30 +278,6 @@ export default async function ListingDetailPage({
               <p key={i}>{p}</p>
             ))}
           </div>
-
-          {listing.videos && listing.videos.length > 0 && (
-            <div className="section">
-              <h2>{d.videoTour}</h2>
-              <div className="detail-video-grid">
-                {listing.videos.map((v, i) => (
-                  <figure key={i} className="detail-video">
-                    {/* Native controls, no autoplay; preload metadata only so
-                        the page does not pull video bytes until the user plays.
-                        src is a public-bucket URL (same model as photos). */}
-                    <video
-                      className="detail-video-player"
-                      src={v.src}
-                      controls
-                      preload="metadata"
-                      playsInline
-                      aria-label={v.title}
-                    />
-                    <figcaption className="detail-video-cap">{v.title}</figcaption>
-                  </figure>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="section">
             <h2>{d.whatsIncluded}</h2>

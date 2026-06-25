@@ -48,6 +48,7 @@ import {
   BookmarkPlus,
   List as ListIcon,
   Menu as MenuIcon,
+  Play,
   type LucideProps,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -105,6 +106,7 @@ export const ICON_NAMES = [
   "list",
   "bookmark",
   "menu",
+  "play",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
@@ -160,6 +162,7 @@ const MAP: Record<Exclude<IconName, "whatsapp" | "heart-fill">, React.ComponentT
   list: ListIcon,
   bookmark: BookmarkPlus,
   menu: MenuIcon,
+  play: Play,
 };
 
 interface IconProps extends Omit<LucideProps, "ref"> {
