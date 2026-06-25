@@ -60,6 +60,9 @@ next-env.d.ts
 /nook-cc-workflow-and-rituals.md
 /CLAUDE.md
 
+# analytical feature backlog (scratch, not part of the app)
+/features.md
+
 # windows git-bash crash dumps
 *.stackdump
 
