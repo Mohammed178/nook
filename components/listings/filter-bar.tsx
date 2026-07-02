@@ -207,6 +207,7 @@ export function FilterBar({
   }
 
   const advancedCount = advancedFilterCount(params);
+  const view = params.view ?? "list";
   const chips = appliedChips(params, l);
   const genderDismissed = params.genderOverride === "off";
   const showGenderChip = viewerGender !== undefined;
@@ -288,10 +289,22 @@ export function FilterBar({
           <SaveSearchButton query={params} signedIn={signedIn} areaLookup={areaLookup} />
 
           <div className="view-toggle">
-            <button type="button" className="active" aria-label={l.listView}>
+            <button
+              type="button"
+              className={view === "list" ? "active" : ""}
+              aria-pressed={view === "list"}
+              aria-label={l.listView}
+              onClick={() => applyPartial({ view: undefined })}
+            >
               <Icon name="list" size={14} /> {l.list}
             </button>
-            <button type="button" aria-label={l.mapView} disabled>
+            <button
+              type="button"
+              className={view === "map" ? "active" : ""}
+              aria-pressed={view === "map"}
+              aria-label={l.mapView}
+              onClick={() => applyPartial({ view: "map" })}
+            >
               <Icon name="map" size={14} /> {l.map}
             </button>
           </div>

@@ -150,14 +150,20 @@ export function ListingCard({
 
   if (variant === "map") {
     return (
-      <div className="card card-map" style={{ boxShadow: "var(--shadow-modal)" }}>
+      <Link
+        href={linkHref}
+        className="card card-map"
+        style={{ boxShadow: "var(--shadow-modal)" }}
+      >
         <div className={`card-photo${photoEmptyClass}`} style={photoStyle}>
           {!photo && <Icon name="camera" size={20} aria-hidden />}
           <div className="badges-tl">
-            <span className="pill pill-verified">
-              <Icon name="check" size={10} />
-              {c.verified}
-            </span>
+            {agent?.status === "approved" && (
+              <span className="pill pill-verified">
+                <Icon name="check" size={10} />
+                {c.verified}
+              </span>
+            )}
           </div>
         </div>
         <div className="card-body">
@@ -185,7 +191,7 @@ export function ListingCard({
             )}
           </div>
         </div>
-      </div>
+      </Link>
     );
   }
 

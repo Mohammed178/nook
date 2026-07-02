@@ -194,6 +194,7 @@ export default async function ListingsPage({
         currentQuery={currentQuery}
         mapCenter={mapCenter}
         mapZoom={mapZoom}
+        view={params.view ?? "list"}
         sortLabel={sortLabelFor(sort, l, label.universityShort)}
         savedIds={savedIds}
         signedIn={signedIn}

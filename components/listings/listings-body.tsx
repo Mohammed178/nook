@@ -10,6 +10,7 @@ import { buildListingsHref } from "@/lib/listings-search";
 import { useDict } from "@/lib/i18n/context";
 import { riseIn, spring, staggerDelay } from "@/lib/motion";
 import type { ListingWithRelations } from "@/lib/types";
+import type { ListingsView } from "@/lib/listings-search";
 import type { PriceSignal } from "@/lib/data/price-intel";
 
 const ListingsMap = dynamic(
@@ -42,6 +43,8 @@ interface ListingsBodyProps {
   currentQuery: string;
   mapCenter: [number, number];
   mapZoom: number;
+  /** "map" = full-bleed map-only view; "list" = split list + inline square map. */
+  view: ListingsView;
   sortLabel: string;
   savedIds: string[];
   signedIn: boolean;
@@ -54,6 +57,7 @@ export function ListingsBody({
   currentQuery,
   mapCenter,
   mapZoom,
+  view,
   sortLabel,
   savedIds,
   signedIn,
@@ -91,6 +95,21 @@ export function ListingsBody({
             </Link>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (view === "map") {
+    return (
+      <div className="body-maponly">
+        <ListingsMap
+          items={items}
+          center={mapCenter}
+          zoom={mapZoom}
+          activeId={activeId}
+          setActiveId={setActiveId}
+          currentQuery={currentQuery}
+        />
       </div>
     );
   }

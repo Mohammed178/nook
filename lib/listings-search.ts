@@ -12,6 +12,7 @@ import {
 
 export type SortKey = "priceAsc" | "priceDesc" | "distance" | "newest";
 export type GenderOverride = "off";
+export type ListingsView = "list" | "map";
 
 export interface ListingSearchParams {
   priceMin?: number;
@@ -33,6 +34,13 @@ export interface ListingSearchParams {
    * itself; gender is profile-only, never URL-borne.
    */
   genderOverride?: GenderOverride;
+  /**
+   * Presentation-only: which pane of the listings page is shown ("list" =
+   * split list + inline map, "map" = map-only). Never read by applyFilters /
+   * applySort, so it cannot perturb the in-memory search/filter path; it only
+   * drives layout. Absent = "list".
+   */
+  view?: ListingsView;
 }
 
 export interface RawSearchParams {
@@ -105,6 +113,9 @@ export function parseListingSearchParams(sp: RawSearchParams): ListingSearchPara
   const genderOverride: GenderOverride | undefined =
     str(sp.genderOverride) === "off" ? "off" : undefined;
 
+  const view: ListingsView | undefined =
+    str(sp.view) === "map" ? "map" : undefined;
+
   return {
     priceMin,
     priceMax,
@@ -119,6 +130,7 @@ export function parseListingSearchParams(sp: RawSearchParams): ListingSearchPara
     sort,
     from,
     genderOverride,
+    view,
   };
 }
 
@@ -143,6 +155,7 @@ export function serializeListingSearchParams(p: ListingSearchParams): string {
   if (p.sort) usp.set("sort", p.sort);
   if (p.from) usp.set("from", p.from);
   if (p.genderOverride === "off") usp.set("genderOverride", "off");
+  if (p.view === "map") usp.set("view", "map");
   return usp.toString();
 }
 
