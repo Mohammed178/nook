@@ -24,7 +24,8 @@
     "rls-test:agentflow": "node --experimental-strip-types --env-file=.env.local scripts/rls-test-agentflow.mjs",
     "promote-to-admin": "node --experimental-strip-types --env-file=.env.local scripts/promote-to-admin.mjs",
     "demote-from-admin": "node --experimental-strip-types --env-file=.env.local scripts/demote-from-admin.mjs",
-    "lint:service-role-containment": "node scripts/lint-service-role-containment.mjs"
+    "lint:service-role-containment": "node scripts/lint-service-role-containment.mjs",
+    "flow-test:account-deletion": "node --experimental-strip-types --env-file=.env.local scripts/flow-test-account-deletion.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

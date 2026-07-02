@@ -94,6 +94,12 @@ export default async function AgentPendingPage() {
               <Link href="/" className="btn btn-secondary verify-cta">
                 {t.continueToHome}
               </Link>
+              <Link
+                href="/account/profile#danger-zone"
+                className="verify-withdraw-link"
+              >
+                {dict.account.withdrawAndDelete}
+              </Link>
             </div>
           </>
         ) : (
@@ -165,6 +171,12 @@ export default async function AgentPendingPage() {
                     explicit way out instead of only the back-link up top. */}
                 <Link href="/" className="btn btn-secondary verify-cta">
                   {t.continueToHome}
+                </Link>
+                <Link
+                  href="/account/profile#danger-zone"
+                  className="verify-withdraw-link"
+                >
+                  {dict.account.withdrawAndDelete}
                 </Link>
               </div>
             </section>

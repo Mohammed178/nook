@@ -1,7 +1,8 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-// Service-role client. Bypasses RLS. Import only from app/admin/**/actions.ts.
+// Service-role client. Bypasses RLS. Import only from app/admin/**/actions.ts
+// and app/account/delete/actions.ts (self-service account deletion).
 // Enforced by `npm run lint:service-role-containment` (L-4a2.11). Uses the
 // service-role key (NOT NEXT_PUBLIC_), so it must never reach the client bundle,
 // the `server-only` import above is the bundle airbag; the lint is the location

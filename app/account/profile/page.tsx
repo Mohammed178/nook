@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { ProfileForm } from "@/components/account/profile-form";
+import { DeleteAccountDialog } from "@/components/account/delete-account-dialog";
 import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { publicAvatarUrl } from "@/lib/data/_row-mappers";
 import { getDictionary } from "@/lib/i18n/server";
@@ -60,6 +61,14 @@ export default async function ProfilePage() {
           gender_preference: profile?.gender_preference ?? "",
         }}
       />
+
+      {/* Danger zone: self-service hard deletion. Hidden for admins (product
+          rule, also refused server-side in deleteAccountAction). isAgent
+          selects the hijack-proof dialog variant (phrase + password); the
+          server re-derives agent status independently. */}
+      {me?.isAdmin ? null : (
+        <DeleteAccountDialog isAgent={!!me?.agentStatus} dict={dict} />
+      )}
     </>
   );
 }

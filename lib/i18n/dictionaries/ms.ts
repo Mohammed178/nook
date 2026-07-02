@@ -112,6 +112,30 @@ const ms: Dictionary = {
     avatarCropTitle: "Susun kedudukan foto anda",
     avatarCropHelp: "Seret untuk ubah kedudukan, dan guna gelangsar untuk zum.",
     avatarZoom: "Zum",
+    dangerZoneTitle: "Zon bahaya",
+    dangerZoneSub: "Padam akaun anda dan semua data berkaitan secara kekal.",
+    deleteAccount: "Padam akaun",
+    deleteDialogTitle: "Padam akaun anda?",
+    deleteDialogBodyStudent:
+      "Ini akan memadam profil, senarai disimpan, carian disimpan dan sejarah tontonan anda secara kekal. Tindakan ini tidak boleh dibatalkan.",
+    deleteDialogBodyAgent:
+      "Ini akan memadam profil ejen anda, semua penyenaraian anda termasuk foto dan video, dokumen pengesahan anda, dan akaun anda secara kekal. Tindakan ini tidak boleh dibatalkan.",
+    deleteConfirmPhrase: "padam akaun saya",
+    deleteConfirmLabel: 'Taip "{phrase}" untuk mengesahkan',
+    deletePasswordLabel: "Kata laluan anda",
+    deletePasswordHelp:
+      "Masukkan semula kata laluan anda untuk mengesahkan identiti anda.",
+    deleteCancel: "Batal",
+    deleteConfirmCta: "Padam secara kekal",
+    deleting: "Memadam…",
+    deleteFailed:
+      "Tidak dapat memadam akaun anda. Tiada apa-apa lagi yang dibuang — sila cuba lagi.",
+    deletePasswordWrong: "Kata laluan itu salah.",
+    deleteAdminRefused: "Akaun admin tidak boleh dipadam sendiri.",
+    withdrawAndDelete: "Tarik balik permohonan dan padam akaun",
+    goodbyeTitle: "Akaun anda telah dipadam",
+    goodbyeBody: "Data anda telah dibuang. Terima kasih kerana menggunakan Nook.",
+    goodbyeHome: "Kembali ke halaman utama",
   },
   accountNav: {
     navAria: "Navigasi akaun",
@@ -1312,6 +1336,7 @@ const ms: Dictionary = {
     listingNotFound: "Senarai tidak ditemui · Nook",
     signIn: "Log masuk · Nook",
     createAccount: "Cipta akaun pelajar anda · Nook",
+    goodbye: "Akaun dipadam · Nook",
     universities: "Universiti · Nook",
     universityNotFound: "Universiti tidak ditemui · Nook",
     areaTitle: "Bilik pelajar di {area} · Nook",

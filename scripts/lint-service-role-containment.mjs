@@ -20,14 +20,25 @@
 // Next/TS compilation, so .mjs scripts and .md docs can never be real importers,
 // scoping this way also keeps prose mentions out (no false-match on this file's
 // own prose, docs, or the rls-test fixture). Both exclude:
-//   :!app/admin/**, the only legitimate importer
+//   :!app/admin/**, admin server actions (original importer surface)
+//   :!app/account/delete/actions.ts, self-service account deletion (exact file)
 //   :!lib/supabase/admin.ts, the definition/export site itself
 // Residual: a *.ts comment literally containing `createAdminClient` would trip
 // Pattern B. Acceptable; documented here.
 
 import { spawnSync } from "node:child_process";
 
-const PATHS = ["*.ts", "*.tsx", ":!app/admin/**", ":!lib/supabase/admin.ts"];
+const PATHS = [
+  "*.ts",
+  "*.tsx",
+  ":!app/admin/**",
+  ":!lib/supabase/admin.ts",
+  // Self-service account deletion (0035): needs auth.admin.deleteUser plus
+  // hard deletes on tables with no owner UPDATE/DELETE policies (agents 0010,
+  // listings 0014). Exact-file allowlist entry, NOT a prefix — the rest of
+  // app/account/** stays contained.
+  ":!app/account/delete/actions.ts",
+];
 
 const PATTERNS = [
   { id: "A", label: "path-suffix `lib/supabase/admin`", term: "lib/supabase/admin" },

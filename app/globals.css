@@ -4993,3 +4993,56 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   border-color: var(--danger-700);
 }
 .reject-dialog-confirm:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ---- Danger zone (account deletion) ------------------------------------ */
+/* Reuses the .reject-dialog* skeleton for the confirmation dialog; only the
+   in-page section and its trigger are new. */
+.danger-zone {
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--danger);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  /* Anchor target (#danger-zone from /agents/pending): keep the section clear
+     of any sticky chrome when scrolled to. */
+  scroll-margin-top: 96px;
+}
+.danger-zone-title {
+  margin: 0 0 2px;
+  font-size: var(--t-md);
+  color: var(--danger-700);
+}
+.danger-zone-sub {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: var(--t-sm);
+}
+.danger-zone-btn {
+  border-color: var(--danger);
+  color: var(--danger-700);
+  background: transparent;
+  flex-shrink: 0;
+}
+.danger-zone-btn:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.danger-zone-help {
+  margin: 4px 0 0;
+  font-size: var(--t-xs);
+  color: var(--ink-500);
+}
+/* Quiet escape hatch on /agents/pending next to the CTA buttons. */
+.verify-withdraw-link {
+  align-self: center;
+  font-size: var(--t-sm);
+  color: var(--ink-500);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.verify-withdraw-link:hover { color: var(--danger-700); }
