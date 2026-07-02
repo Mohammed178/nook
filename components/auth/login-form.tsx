@@ -12,7 +12,12 @@ export function LoginForm({ dict }: { dict: Dictionary }) {
   const t = dict.auth;
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = safeRedirectPath(searchParams.get("redirect"));
+  // Explicit ?redirect wins (deep-link back after auth-gate bounce) — unless
+  // the action forces the destination: unverified (pending/rejected) agents
+  // always land on /agents/pending so they see their application state.
+  // Otherwise: approved agent → /agents/dashboard, student → /account.
+  const redirectParam = searchParams.get("redirect");
+  const redirectTo = redirectParam ? safeRedirectPath(redirectParam) : null;
 
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +33,11 @@ export function LoginForm({ dict }: { dict: Dictionary }) {
         setError(result.error);
         return;
       }
-      router.push(redirectTo);
+      const dest =
+        result?.forceRedirect && result.redirectTo
+          ? result.redirectTo
+          : (redirectTo ?? result?.redirectTo ?? "/account");
+      router.push(dest);
       router.refresh();
     });
   }

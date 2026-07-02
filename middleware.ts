@@ -13,7 +13,9 @@ export async function middleware(request: NextRequest) {
   // When dashboard routes land, "pending agent → /agents/pending" gating needs
   // the agent's status: query agents by user_id after updateSession returns.
   const isAgentGated =
-    pathname === "/agents/pending" || pathname.startsWith("/agents/dashboard");
+    pathname === "/agents/pending" ||
+    pathname === "/agents/verify" ||
+    pathname.startsWith("/agents/dashboard");
   const isAdminRoute = pathname.startsWith("/admin");
 
   if ((isAccountRoute || isAgentGated || isAdminRoute) && !user) {

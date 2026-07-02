@@ -4,6 +4,7 @@
 // output shape, change it here and the test catches drift automatically.
 import type {
   Agent,
+  AgentLicenceType,
   AgentStatus,
   Area,
   FurnishingLevel,
@@ -96,6 +97,13 @@ export interface AgentRow {
   years_active: number;
   bio: string | null;
   bovaep_licence: string | null;
+  // Verification columns (migration 0033). All nullable; phone_verified has a
+  // false default. Selected by AGENT_COLS for the self/admin paths.
+  licence_type: AgentLicenceType | null;
+  practising_state: string | null;
+  phone_verified: boolean;
+  phone_verified_at: string | null;
+  verification_submitted_at: string | null;
 }
 
 export function rowToArea(r: AreaRow): Area {
@@ -134,6 +142,11 @@ export function rowToAgent(r: AgentRow): Agent {
     yearsActive: r.years_active,
     bio: r.bio ?? undefined,
     bovaepLicence: r.bovaep_licence ?? undefined,
+    licenceType: r.licence_type ?? undefined,
+    practisingState: r.practising_state ?? undefined,
+    phoneVerified: r.phone_verified,
+    phoneVerifiedAt: r.phone_verified_at ?? undefined,
+    verificationSubmittedAt: r.verification_submitted_at ?? undefined,
   };
 }
 
@@ -166,7 +179,7 @@ export const AREA_COLS =
   "id, slug, name, city, state, lat, lng, nearby_university_ids, vibe";
 
 export const AGENT_COLS =
-  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence";
+  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence, licence_type, practising_state, phone_verified, phone_verified_at, verification_submitted_at";
 
 // Public read surface (Phase H2). The `agents_public` view (migration 0020) exposes
 // only these safe columns for approved, non-deleted agents, no user_id, status,

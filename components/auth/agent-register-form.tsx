@@ -4,28 +4,46 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
-import { signUpAgentAction } from "@/app/agents/register/actions";
+import {
+  signUpAgentAction,
+  completeAgentProfileAction,
+} from "@/app/agents/register/actions";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function AgentRegisterForm({ dict }: { dict: Dictionary }) {
+// mode="full": fresh registration (account + agents row). mode="complete":
+// orphan recovery for a signed-in user with no agents row — same profile
+// fields, no login email / password (the account already exists).
+export function AgentRegisterForm({
+  dict,
+  mode = "full",
+}: {
+  dict: Dictionary;
+  mode?: "full" | "complete";
+}) {
   const t = dict.agentAuth;
   const a = dict.auth;
   const router = useRouter();
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const complete = mode === "complete";
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await signUpAgentAction(fd);
+      const result = complete
+        ? await completeAgentProfileAction(fd)
+        : await signUpAgentAction(fd);
       if (result?.error) {
         setError(result.error);
         return;
       }
-      router.push("/agents/pending");
+      // Straight into the verification stepper (licence → documents → phone
+      // OTP → terms → submit) so registration flows into the full process;
+      // /agents/pending is the read-only status view reachable from there.
+      router.push("/agents/verify");
       router.refresh();
     });
   }
@@ -33,8 +51,8 @@ export function AgentRegisterForm({ dict }: { dict: Dictionary }) {
   return (
     <>
       <span className="auth-kicker">{t.kicker}</span>
-      <h2>{t.title}</h2>
-      <p className="auth-sub">{t.sub}</p>
+      <h2>{complete ? t.completeTitle : t.title}</h2>
+      <p className="auth-sub">{complete ? t.completeSub : t.sub}</p>
 
       {error ? <div className="auth-error">{error}</div> : null}
 
@@ -85,21 +103,23 @@ export function AgentRegisterForm({ dict }: { dict: Dictionary }) {
           <div className="help">{t.bovaepHelp}</div>
         </div>
 
-        <div className="field">
-          <label className="label" htmlFor="agent-email">
-            {t.loginEmail}
-          </label>
-          <input
-            id="agent-email"
-            className="input force-ltr"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder={t.loginEmailPlaceholder}
-          />
-          <div className="help">{t.loginEmailHelp}</div>
-        </div>
+        {complete ? null : (
+          <div className="field">
+            <label className="label" htmlFor="agent-email">
+              {t.loginEmail}
+            </label>
+            <input
+              id="agent-email"
+              className="input force-ltr"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder={t.loginEmailPlaceholder}
+            />
+            <div className="help">{t.loginEmailHelp}</div>
+          </div>
+        )}
 
         <div className="field">
           <label className="label" htmlFor="agent-contact-email">
@@ -146,31 +166,33 @@ export function AgentRegisterForm({ dict }: { dict: Dictionary }) {
           <div className="help">{t.whatsappHelp}</div>
         </div>
 
-        <div className="field">
-          <label className="label" htmlFor="agent-password">
-            {a.password}
-          </label>
-          <div className="pw-wrap">
-            <input
-              id="agent-password"
-              className="input"
-              name="password"
-              type={showPw ? "text" : "password"}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              placeholder={a.passwordMinPlaceholder}
-            />
-            <button
-              type="button"
-              className="toggle-eye"
-              onClick={() => setShowPw((v) => !v)}
-              aria-label={showPw ? a.hidePassword : a.showPassword}
-            >
-              <Icon name={showPw ? "eye-off" : "eye"} size={16} />
-            </button>
+        {complete ? null : (
+          <div className="field">
+            <label className="label" htmlFor="agent-password">
+              {a.password}
+            </label>
+            <div className="pw-wrap">
+              <input
+                id="agent-password"
+                className="input"
+                name="password"
+                type={showPw ? "text" : "password"}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                placeholder={a.passwordMinPlaceholder}
+              />
+              <button
+                type="button"
+                className="toggle-eye"
+                onClick={() => setShowPw((v) => !v)}
+                aria-label={showPw ? a.hidePassword : a.showPassword}
+              >
+                <Icon name={showPw ? "eye-off" : "eye"} size={16} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         <label className="check-row">
           <input type="checkbox" name="terms" required />
@@ -185,19 +207,21 @@ export function AgentRegisterForm({ dict }: { dict: Dictionary }) {
           className="btn btn-primary btn-block auth-submit"
           disabled={pending}
         >
-          {pending ? t.submitting : t.submit}
+          {pending ? t.submitting : complete ? t.completeSubmit : t.submit}
         </button>
       </form>
 
-      <div className="auth-bottom">
-        <span>
-          {t.alreadyRegistered} <Link href="/login">{a.signIn}</Link>
-        </span>
-        <span>
-          {t.lookingForRoom}{" "}
-          <Link href="/register">{a.createStudentAccount}</Link>
-        </span>
-      </div>
+      {complete ? null : (
+        <div className="auth-bottom">
+          <span>
+            {t.alreadyRegistered} <Link href="/login">{a.signIn}</Link>
+          </span>
+          <span>
+            {t.lookingForRoom}{" "}
+            <Link href="/register">{a.createStudentAccount}</Link>
+          </span>
+        </div>
+      )}
     </>
   );
 }

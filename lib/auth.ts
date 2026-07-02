@@ -61,7 +61,13 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   // existing per-render DB work; reuses the user above, no second auth.getUser().
   // undefined for students (no agents row). The JWT-claim optimisation that would
   // remove this query is deferred (LC-18).
-  const agent = await getAgentByUserId(user.id);
+  //
+  // Soft-deleted (withdrawn) agents surface as students here: every agent
+  // surface (pending page, verify, dashboard) bounces them anyway, so exposing
+  // agentStatus would only render dead nav links (e.g. the account-menu
+  // "Application status" item pointing at a page that redirects home).
+  const agentRow = await getAgentByUserId(user.id);
+  const agent = agentRow && !agentRow.deletedAt ? agentRow : null;
 
   return {
     id: user.id,

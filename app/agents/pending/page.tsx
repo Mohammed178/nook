@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { Icon } from "@/components/nook/icon";
 import { getCurrentUser } from "@/lib/auth";
 import { getAgentByUserId } from "@/lib/data/agents";
+import {
+  getAgentConsentsForCurrentUser,
+  getAgentDocumentsForCurrentUser,
+} from "@/lib/data/agent-verification";
 import { signOutAction } from "@/app/account/actions";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
@@ -30,16 +34,31 @@ export default async function AgentPendingPage() {
   ]);
   if (!user) redirect("/login"); // also enforced by middleware
   const t = dict.agents;
+  const v = dict.agentVerify;
 
   const agent = await getAgentByUserId(user.id);
   if (!agent) redirect("/"); // student / non-agent
-  if (agent.deletedAt) redirect("/"); // F4, withdrawn/removed (soft-deleted) → no status page
-  if (agent.status === "approved") redirect("/"); // approved → away (no dashboard yet)
+  if (agent.deletedAt) redirect("/"); // F4, withdrawn (soft-deleted)
+  if (agent.status === "approved") redirect("/"); // approved → away
 
   const rejected = agent.status === "rejected";
-  // submittedAt is non-null on the self path (getAgentByUserId uses the full
-  // AGENT_COLS mapper); the type is optional only for public-view agents (H2).
   const submitted = formatSubmitted(agent.submittedAt!, locale);
+
+  // Verification progress (only computed for pending, the rejected branch
+  // doesn't surface it — reapply path is separate, not in this seal).
+  const [docs, consents] = rejected
+    ? [[], []]
+    : await Promise.all([
+        getAgentDocumentsForCurrentUser(),
+        getAgentConsentsForCurrentUser(),
+      ]);
+  const licenceOk =
+    !!agent.licenceType && !!agent.practisingState && !!agent.bovaepLicence;
+  const docsOk = docs.length >= 1;
+  const phoneOk = agent.phoneVerified === true;
+  const termsOk = consents.some((c) => c.consentType === "verified_agent_terms");
+  const allReady = licenceOk && docsOk && phoneOk && termsOk;
+  const verificationSubmitted = !!agent.verificationSubmittedAt;
 
   return (
     <div className="auth-shell auth-status-shell">
@@ -53,7 +72,11 @@ export default async function AgentPendingPage() {
         <span
           className={`pill ${rejected ? "pill-rejected" : "pill-pending"} auth-status-pill`}
         >
-          {rejected ? t.applicationRejected : t.underReview}
+          {rejected
+            ? t.applicationRejected
+            : verificationSubmitted
+              ? t.underReview
+              : t.finishVerification}
         </span>
 
         {rejected ? (
@@ -67,14 +90,84 @@ export default async function AgentPendingPage() {
                 : ""}
             </p>
             <p>{t.reapplyBody}</p>
+            <div className="verify-cta-row">
+              <Link href="/" className="btn btn-secondary verify-cta">
+                {t.continueToHome}
+              </Link>
+            </div>
           </>
         ) : (
           <>
-            <h2>{t.underReview}</h2>
-            <p className="auth-status-meta">{format(t.submitted, { date: submitted })}</p>
-            <p>
-              {format(t.underReviewBody, { date: submitted, email: agent.email ?? "" })}
+            {/* Copy is honest about the actual state: before the final
+                verification submit this is a to-do list, not a review queue.
+                "Under review" only once verification_submitted_at is set. */}
+            <h2>{verificationSubmitted ? t.underReview : t.finishVerification}</h2>
+            {/* "Submitted" is only true once the final verification submit
+                happened; before that the date is just account creation. */}
+            <p className="auth-status-meta">
+              {format(verificationSubmitted ? t.submitted : t.memberSince, {
+                date: submitted,
+              })}
             </p>
+            <p>
+              {format(
+                verificationSubmitted ? t.underReviewBody : t.finishVerificationBody,
+                { date: submitted, email: agent.email ?? "" },
+              )}
+            </p>
+
+            <section className="verify-status-block" aria-label={v.progressAria}>
+              <h3 className="verify-status-h">{v.statusHeading}</h3>
+              <ul className="verify-status-chips">
+                <li>
+                  <span
+                    className={`verify-chip verify-chip-${licenceOk ? "ok" : "missing"}`}
+                  >
+                    <Icon name={licenceOk ? "check" : "x"} size={12} aria-hidden />
+                    <span>{v.chipLicence}</span>
+                  </span>
+                </li>
+                <li>
+                  <span
+                    className={`verify-chip verify-chip-${docsOk ? "ok" : "missing"}`}
+                  >
+                    <Icon name={docsOk ? "check" : "x"} size={12} aria-hidden />
+                    <span>{v.chipDocs}</span>
+                  </span>
+                </li>
+                <li>
+                  <span
+                    className={`verify-chip verify-chip-${phoneOk ? "ok" : "missing"}`}
+                  >
+                    <Icon name={phoneOk ? "check" : "x"} size={12} aria-hidden />
+                    <span>{v.chipPhone}</span>
+                  </span>
+                </li>
+                <li>
+                  <span
+                    className={`verify-chip verify-chip-${termsOk ? "ok" : "missing"}`}
+                  >
+                    <Icon name={termsOk ? "check" : "x"} size={12} aria-hidden />
+                    <span>{v.chipTerms}</span>
+                  </span>
+                </li>
+              </ul>
+              {verificationSubmitted ? (
+                <p className="verify-status-msg">{v.statusSubmittedBody}</p>
+              ) : null}
+              <div className="verify-cta-row">
+                {verificationSubmitted ? null : (
+                  <Link href="/agents/verify" className="btn btn-primary verify-cta">
+                    {allReady ? v.statusReviewCta : v.statusContinueCta}
+                  </Link>
+                )}
+                {/* Browsing stays open while the application is in flight —
+                    explicit way out instead of only the back-link up top. */}
+                <Link href="/" className="btn btn-secondary verify-cta">
+                  {t.continueToHome}
+                </Link>
+              </div>
+            </section>
           </>
         )}
 

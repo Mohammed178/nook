@@ -1,6 +1,7 @@
 export type ListingType = "room" | "studio" | "apartment" | "house";
 export type ListingStatus = "draft" | "available" | "reserved" | "rented";
 export type AgentStatus = "pending" | "approved" | "rejected";
+export type AgentLicenceType = "REN" | "REA" | "PEA";
 export type FurnishingLevel = "unfurnished" | "partial" | "full";
 export type Gender = "male" | "female" | "mixed";
 export type Locale = "en" | "ms" | "ar";
@@ -88,6 +89,15 @@ export interface Agent {
   yearsActive: number;
   bio?: string;
   bovaepLicence?: string;
+  // Verification fields (migration 0033). Optional because they live on the
+  // base table only — `agents_public` (Phase H2) does not surface any of them,
+  // so rowToPublicAgent leaves them undefined. The self path (rowToAgent,
+  // AGENT_COLS) and the admin queue (service-role) carry them.
+  licenceType?: AgentLicenceType;
+  practisingState?: string;
+  phoneVerified?: boolean;
+  phoneVerifiedAt?: string;
+  verificationSubmittedAt?: string;
 }
 
 export type NearbyPOIKind =

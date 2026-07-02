@@ -1229,15 +1229,27 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 /* Body split */
 .body-split {
-  display: grid; grid-template-columns: 1fr 540px;
+  display: grid; grid-template-columns: 1fr 460px;
   max-width: 100%; gap: 0;
 }
 .list-pane { padding: 16px 24px 64px; min-width: 0; }
+/* Medium square map: sticky to the top of the right column (align-self:start so
+   it does not stretch to the tall list row); the list scrolls past it. The map
+   host gets aspect-ratio 1/1 so its height tracks the column width = a square. */
 .map-pane {
-  position: sticky; top: calc(var(--nav-h) + var(--filter-h));
-  height: calc(100vh - var(--nav-h) - var(--filter-h));
-  border-left: 1px solid var(--ink-200);
+  position: sticky; top: calc(var(--nav-h) + var(--filter-h) + 16px);
+  align-self: start;
+  padding: 16px 24px 0 0;
 }
+.map-pane .map-host {
+  aspect-ratio: 1 / 1; height: auto;
+  border: 1px solid var(--ink-200); border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+/* Map-only view (view=map): full-bleed map under the filter bar, no list. */
+.body-maponly { height: calc(100vh - var(--nav-h) - var(--filter-h)); }
+.body-maponly .map-host { height: 100%; border-radius: 0; }
 
 .list-meta {
   display: flex; align-items: center; justify-content: space-between;
@@ -1305,7 +1317,12 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .body-split { grid-template-columns: 1fr; }
   .map-toggle-floating { display: inline-flex; }
   .body-split.show-map .list-pane { display: none; }
-  .body-split.show-map .map-pane { display: block; position: static; height: calc(100vh - var(--nav-h) - var(--filter-h)); border-left: none; }
+  .body-split.show-map .map-pane { display: block; position: static; height: calc(100vh - var(--nav-h) - var(--filter-h)); padding: 0; }
+  /* Swapped-in mobile map fills the pane: undo the desktop square. */
+  .body-split.show-map .map-host {
+    aspect-ratio: auto; height: 100%;
+    border: none; border-radius: 0;
+  }
 }
 
 /* Price-range popover */
@@ -4723,7 +4740,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
    panels overflow and jump. dvh tracks the actually-visible area. */
 @supports (height: 100dvh) {
   .auth-shell { min-height: 100dvh; }
-  .map-pane { height: calc(100dvh - var(--nav-h) - var(--filter-h)); }
+  .body-maponly { height: calc(100dvh - var(--nav-h) - var(--filter-h)); }
   .body-split.show-map .map-pane {
     height: calc(100dvh - var(--nav-h) - var(--filter-h));
   }
@@ -4742,3 +4759,237 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .admin-uni-fullname { display: block; color: var(--ink-600); font-size: var(--t-xs); margin-top: 2px; }
 .uni-admin-form { display: flex; flex-direction: column; gap: var(--s-6); max-width: 760px; }
 .uni-admin-textarea { min-height: 92px; resize: vertical; line-height: 1.5; font-family: inherit; }
+
+/* ── Agent verification · /agents/verify ──────────────────────────────── */
+/* Terracotta accent token. Used only on the verify-flow heading numerals +
+   icons, never on body text (DESIGN rule). Contrast: #C85A2A on #FFFFFF is
+   AA-large only; reserved for the step-number badge and icon glyphs. */
+:root { --accent-terracotta: #C85A2A; }
+
+.verify-container { max-width: 880px; padding-top: 24px; padding-bottom: 64px; }
+.verify-head { margin: 12px 0 28px; }
+.verify-head h1 { margin: 6px 0 6px; }
+.verify-sub { color: var(--ink-700); line-height: 1.55; max-width: 60ch; }
+
+.verify-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 720px) { .verify-shell { grid-template-columns: 1fr; } }
+
+.verify-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 96px;
+  padding: 12px;
+  border: 1px solid var(--ink-150);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.verify-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.verify-step {
+  border: 1px solid var(--ink-150);
+  border-radius: 12px;
+  padding: 20px 22px;
+  background: #fff;
+}
+.verify-step header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.verify-step header h2 { margin: 0; font-size: var(--t-lg); }
+.verify-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-terracotta);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--t-sm);
+}
+.verify-step-sub { color: var(--ink-600); margin: 0 0 14px; line-height: 1.5; }
+.verify-saved { margin-left: 12px; color: var(--success-700); font-size: var(--t-sm); display: inline-flex; align-items: center; gap: 4px; }
+
+.verify-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: var(--t-xs);
+  line-height: 1.2;
+  font-weight: 500;
+}
+/* D7 / WCAG 1.4.1: both states carry an icon AND a text label; colour is not
+   the sole channel. success-50/700 and ink-100/800 both meet AA contrast. */
+.verify-chip-ok      { background: var(--success-50); color: var(--success-700); }
+.verify-chip-missing { background: var(--ink-100);    color: var(--ink-800); }
+
+.verify-doc-block { display: flex; flex-direction: column; gap: 12px; }
+.verify-doc-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.verify-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--success-50);
+  border-radius: 6px;
+  color: var(--success-700);
+  font-size: var(--t-sm);
+}
+.verify-doc-label { font-weight: 500; }
+.verify-doc-path { color: var(--ink-600); font-size: var(--t-xs); margin-left: auto; }
+
+.verify-otp { display: flex; flex-direction: column; gap: 16px; }
+.verify-otp-done {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 6px;
+  background: var(--success-50); color: var(--success-700);
+  font-size: var(--t-sm);
+}
+.verify-otp-hint {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ink-600); font-size: var(--t-xs); margin: 8px 0 0;
+}
+
+.verify-consent { display: flex; flex-direction: column; gap: 12px; }
+.verify-consent-version { color: var(--ink-600); font-size: var(--t-xs); margin: 0; }
+
+.verify-precondition-list {
+  list-style: none; margin: 0 0 16px; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+.verify-submitted {
+  text-align: center;
+  padding: 48px 24px;
+  border: 1px solid var(--success-50);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--success-700);
+}
+.verify-submitted h2 { margin: 12px 0 8px; }
+
+/* /agents/pending status strip */
+.verify-status-block {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ink-150);
+}
+.verify-status-h { font-size: var(--t-md); margin: 0 0 10px; }
+.verify-status-chips { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.verify-status-msg { color: var(--success-700); font-size: var(--t-sm); margin: 0; }
+.verify-cta { display: inline-flex; align-items: center; justify-content: center; }
+.verify-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+/* ── Admin · agent queue extensions ───────────────────────────────────── */
+/* The 11-column agent queue is wider than the shell on most screens; the base
+   .admin-queue-wrap clips (overflow: hidden, for the border-radius), which cut
+   the trailing columns off entirely. Scope the horizontal scroll to the wrap
+   that CONTAINS the wide table (:has) so the universities queue keeps the
+   original clipping behaviour. min-width keeps the columns readable instead of
+   letting the table crush itself to fit. */
+.admin-queue-wrap:has(.admin-queue-table-wide) { overflow-x: auto; }
+.admin-queue-table-wide { font-size: var(--t-xs); min-width: 1280px; }
+.admin-queue-table-wide th, .admin-queue-table-wide td { padding: 8px 10px; vertical-align: top; }
+.admin-queue-row-ready { background: var(--success-50); }
+.admin-chip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.admin-doc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.admin-doc-row { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-xs); }
+.admin-doc-label { color: var(--ink-700); }
+.admin-doc-link { padding: 2px 8px; font-size: var(--t-xs); }
+.admin-doc-empty { color: var(--ink-500); font-size: var(--t-xs); }
+.admin-doc-error { color: var(--danger); font-size: var(--t-xs); margin-left: 6px; }
+
+/* ── Admin · reject confirmation dialog ───────────────────────────────── */
+/* Native <dialog>: the element is the backdrop-click target, the panel is the
+   styled card inside. Entrance = soft pop (translate + scale), backdrop = dim
+   + blur. Colors ride the existing danger scale, no new palette. */
+.reject-dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  width: min(460px, calc(100vw - 32px));
+  margin: auto;
+  /* The dialog lives inside the actions <td>; the top layer moves it visually
+     but CSS inheritance still follows the DOM, so the cell's nowrap/text
+     styles leak in. Reset the ones that matter for flowing copy. */
+  white-space: normal;
+  text-align: start;
+}
+.reject-dialog::backdrop {
+  /* static rgba, not color-mix(): the CSS pipeline resolved
+     color-mix(var(--ink-900)…) to the raw var and lost the alpha. */
+  background: rgba(28, 25, 23, 0.45);
+  backdrop-filter: blur(3px);
+}
+.reject-dialog[open] { animation: reject-dialog-pop 220ms cubic-bezier(0.16, 1, 0.3, 1); }
+.reject-dialog[open]::backdrop { animation: reject-dialog-fade 180ms ease; }
+@keyframes reject-dialog-pop {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes reject-dialog-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reject-dialog[open], .reject-dialog[open]::backdrop { animation: none; }
+}
+.reject-dialog-panel {
+  /* --paper, not --surface: --surface is referenced elsewhere but never
+     defined (falls back to transparent — the table showed through). */
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  border-top: 4px solid var(--danger);
+  padding: 26px 28px 24px;
+  box-shadow: 0 24px 64px rgba(28, 25, 23, 0.3);
+}
+.reject-dialog-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--danger-50);
+  color: var(--danger-700);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.reject-dialog-title { margin: 14px 0 2px; font-size: var(--t-xl); }
+.reject-dialog-agency { margin: 0; color: var(--ink-500); font-size: var(--t-sm); }
+.reject-dialog-body {
+  margin: 10px 0 16px;
+  color: var(--ink-700);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+}
+.reject-dialog-reason { resize: vertical; min-height: 84px; }
+.reject-dialog-count {
+  text-align: end;
+  font-size: var(--t-xs);
+  color: var(--ink-500);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.reject-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.reject-dialog-confirm {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.reject-dialog-confirm:hover:not(:disabled) {
+  background: var(--danger-700);
+  border-color: var(--danger-700);
+}
+.reject-dialog-confirm:disabled { opacity: 0.55; cursor: not-allowed; }

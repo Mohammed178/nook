@@ -107,3 +107,33 @@ export async function rejectAgentAction(formData: FormData): Promise<void> {
     String(formData.get("reason") ?? ""),
   );
 }
+
+// Short-TTL signed URL for an agent_documents storage object. Admin-only,
+// service-role (the bucket is private, no public read policy). 60-second TTL
+// is intentional: the link is meant to be clicked once from the queue, not
+// shared. The agent_documents row id is validated as UUID then resolved to a
+// storage_path via the service-role read.
+export async function getAgentDocumentLinkAction(
+  documentId: string,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  if (!UUID_RE.test(documentId)) return { ok: false, error: "Invalid document id" };
+  const supabase = await createActionClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!isAdmin(user)) return { ok: false, error: "Forbidden" };
+
+  const admin = createAdminClient();
+  const { data: row, error: rowErr } = await admin
+    .from("agent_documents")
+    .select("storage_path, deleted_at")
+    .eq("id", documentId)
+    .maybeSingle();
+  if (rowErr || !row || row.deleted_at) return { ok: false, error: "Not found" };
+
+  const { data: signed, error: signErr } = await admin.storage
+    .from("agent-documents")
+    .createSignedUrl(row.storage_path, 60); // 60s TTL
+  if (signErr || !signed?.signedUrl) {
+    return { ok: false, error: "Could not sign URL" };
+  }
+  return { ok: true, url: signed.signedUrl };
+}

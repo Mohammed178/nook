@@ -24,6 +24,10 @@ interface ProfileFormProps {
   universities: University[];
   userId: string;
   initialAvatarUrl: string | null;
+  /** Agents share this page but the student-only preference fields
+   * (university, roommate gender) make no sense for them — hidden, not
+   * disabled: there is nothing for an agent to see there. */
+  isAgent?: boolean;
 }
 
 const PHONE_PREFIX = "+60";
@@ -40,6 +44,7 @@ export function ProfileForm({
   universities,
   userId,
   initialAvatarUrl,
+  isAgent = false,
 }: ProfileFormProps) {
   const a = dict.account;
   const c = dict.common;
@@ -178,27 +183,29 @@ export function ProfileForm({
         </div>
       </fieldset>
 
-      <fieldset className="profile-section">
-        <legend className="profile-legend">{a.preferences}</legend>
-        <div className="field">
-          <label className="label" htmlFor="pf-university">{a.university}</label>
-          <UniversitySearch
-            name="university_id"
-            defaultValue={initial.university_id}
-            universities={universities}
-          />
-          <div className="help">{a.universityHelp}</div>
-        </div>
-        <div className="field">
-          <span className="label">{a.roommatePreference}</span>
-          <GenderPicker
-            name="gender_preference"
-            defaultValue={initial.gender_preference}
-            ariaLabel={a.roommatePreference}
-          />
-          <div className="help">{a.roommateHelp}</div>
-        </div>
-      </fieldset>
+      {isAgent ? null : (
+        <fieldset className="profile-section">
+          <legend className="profile-legend">{a.preferences}</legend>
+          <div className="field">
+            <label className="label" htmlFor="pf-university">{a.university}</label>
+            <UniversitySearch
+              name="university_id"
+              defaultValue={initial.university_id}
+              universities={universities}
+            />
+            <div className="help">{a.universityHelp}</div>
+          </div>
+          <div className="field">
+            <span className="label">{a.roommatePreference}</span>
+            <GenderPicker
+              name="gender_preference"
+              defaultValue={initial.gender_preference}
+              ariaLabel={a.roommatePreference}
+            />
+            <div className="help">{a.roommateHelp}</div>
+          </div>
+        </fieldset>
+      )}
 
       <div className="profile-form-actions">
         <button
