@@ -432,12 +432,6 @@ const ar: Dictionary = {
     whatsapp: "واتساب",
     call: "اتصال",
   },
-  priceSignal: {
-    good: "سعر جيد",
-    around: "ضمن السوق",
-    above: "أعلى من السوق",
-    caption: "بناءً على {n} إعلانات مشابهة هنا · الوسيط {median}",
-  },
   accountLists: {
     recentTitle: "الأخيرة",
     noRecent: "لا توجد إعلانات حديثة بعد.",

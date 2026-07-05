@@ -10,7 +10,6 @@ import { buildListingsHref } from "@/lib/listings-search";
 import { useDict } from "@/lib/i18n/context";
 import { riseIn, spring, staggerDelay } from "@/lib/motion";
 import type { ListingWithRelations } from "@/lib/types";
-import type { PriceSignal } from "@/lib/data/price-intel";
 
 const ListingsMap = dynamic(
   () => import("./listings-map").then((m) => m.ListingsMap),
@@ -45,8 +44,6 @@ interface ListingsBodyProps {
   sortLabel: string;
   savedIds: string[];
   signedIn: boolean;
-  /** Fair Price signals keyed by listing id (features.md #1); absent → no badge. */
-  priceSignals?: Record<string, PriceSignal>;
 }
 
 export function ListingsBody({
@@ -57,7 +54,6 @@ export function ListingsBody({
   sortLabel,
   savedIds,
   signedIn,
-  priceSignals,
 }: ListingsBodyProps) {
   const dict = useDict();
   const l = dict.listings;
@@ -125,8 +121,6 @@ export function ListingsBody({
                   agent={agent}
                   area={area}
                   card={dict.card}
-                  priceSignal={priceSignals?.[listing.id]}
-                  priceSignalLabels={dict.priceSignal}
                   variant="horizontal"
                   currentQuery={currentQuery}
                   isActive={activeId === listing.id}

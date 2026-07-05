@@ -242,14 +242,6 @@ img { display: block; max-width: 100%; }
 .pill-lg       { padding: 4px 10px; font-size: var(--t-xs); }
 .pill-pending  { background: var(--warning-50); color: var(--warning-700); }
 .pill-rejected { background: var(--danger-50); color: var(--danger-700); }
-/* Fair Price signal (features.md #1). State-Color: good = success,
-   around = neutral ink, above = warning. Computed band, never a stored tag. */
-.pill-deal-good   { background: var(--success-50); color: var(--success-700); }
-.pill-deal-around { background: var(--ink-100); color: var(--ink-700); }
-.pill-deal-above  { background: var(--warning-50); color: var(--warning-700); }
-.price-signal { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.price-signal-caption { font-size: var(--t-xs); color: var(--ink-500); }
-.card-signal-row { margin-top: 4px; }
 
 /* Agent application-status header (/agents/pending) */
 /* Agent application status (/agents/pending), centered single column, not the
