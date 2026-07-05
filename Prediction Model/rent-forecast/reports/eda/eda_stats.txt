@@ -1,0 +1,112 @@
+======================================================================
+SECTION 1 — LOAD & SHAPE
+======================================================================
+Raw rows parsed: 43,680  ->  clean rows: 43,680
+Rows: 43,680   Columns: 43   Facilities: 520
+Date range: 2019-01-01 to 2025-12-01
+States: 10   Districts: 28
+Property types: ['Apartment', 'Condominium', 'SOHO', 'Serviced Apartment']
+Furnished levels: ['Fully Furnished', 'Partial', 'Unfurnished']
+
+======================================================================
+SECTION 2 — RENT DISTRIBUTION
+======================================================================
+current_rent_rm: min=440  median=1,980  mean=2,865  max=19,730  skew=2.23
+Quantiles (RM): 1%=740, 5%=940, 25%=1,420, 50%=1,980, 75%=2,990, 95%=8,650, 99%=11,702
+Median rent by state (RM): Kuala Lumpur=3,440, Penang=2,470, Selangor=1,900, Johor=1,760, Putrajaya=1,680, Sabah=1,510, Negeri Sembilan=1,310, Melaka=1,280, Sarawak=1,160, Perak=1,070
+Facilities per state: Selangor=179, Kuala Lumpur=171, Johor=41, Penang=34, Melaka=21, Perak=18, Sarawak=17, Sabah=16, Putrajaya=13, Negeri Sembilan=10
+
+======================================================================
+SECTION 3 — RENT TRENDS OVER TIME
+======================================================================
+Pre-COVID peak median: RM2,005
+COVID trough: 2020-12-01 at RM1,845 (-8.0% vs pre-COVID peak)
+Median rent by year (RM): 2019=1,910, 2020=1,940, 2021=1,910, 2022=1,890, 2023=1,990, 2024=2,060, 2025=2,160
+
+======================================================================
+SECTION 4 — RENT BY DISTRICT & PROPERTY ATTRIBUTES
+======================================================================
+Pearson r(floor_area, rent) = 0.527
+Median rent by furnished: Unfurnished=1,900, Partial=1,920, Fully Furnished=2,140
+Median rent by property_type: SOHO=1,310, Apartment=1,590, Serviced Apartment=1,960, Condominium=2,440
+Median rent by bedrooms: 1BR=1,220, 2BR=1,460, 3BR=2,280, 4BR=3,400
+
+======================================================================
+SECTION 5 — CORRELATIONS
+======================================================================
+Top +correlations with target:
+    next_month_rent_rm           r=+0.966
+    previous_month_rent          r=+0.966
+    previous_3m_average          r=+0.966
+    previous_6m_average          r=+0.965
+    average_income_area          r=+0.840
+    maintenance_fee_rm           r=+0.669
+    floor_area_sqft              r=+0.527
+    bedrooms                     r=+0.394
+Top -correlations with target:
+    distance_to_city_center_km   r=-0.386
+    crime_index                  r=-0.270
+    distance_to_lrt_km           r=-0.254
+    postcode                     r=-0.103
+    total_units                  r=-0.103
+    building_age                 r=-0.052
+Lag-feature pairwise correlations (all should be >0.95):
+    r(current_rent_rm, previous_month_rent) = 0.9659  <-- >0.95
+    r(current_rent_rm, previous_3m_average) = 0.9657  <-- >0.95
+    r(current_rent_rm, previous_6m_average) = 0.9651  <-- >0.95
+    r(previous_month_rent, previous_3m_average) = 0.9851  <-- >0.95
+    r(previous_month_rent, previous_6m_average) = 0.9759  <-- >0.95
+    r(previous_3m_average, previous_6m_average) = 0.9927  <-- >0.95
+
+======================================================================
+SECTION 6 — MISSING VALUE AUDIT
+======================================================================
+Columns with missing values (count, %):
+    school_rating                     129  (0.295%)
+    hospital_distance_km              119  (0.272%)
+    crime_index                       115  (0.263%)
+    occupancy_rate                    107  (0.245%)
+    shopping_mall_distance_km          97  (0.222%)
+Rows with >=1 NaN: 567 (1.298%)
+
+======================================================================
+SECTION 7 — SEASONALITY (rent growth by calendar month)
+======================================================================
+Mean MoM rent growth by month (%):
+    Jan: +2.945%
+    Feb: +1.135%
+    Mar: +1.514%
+    Apr: +2.115%
+    May: +1.611%
+    Jun: +0.936%
+    Jul: +1.450%
+    Aug: +2.378%
+    Sep: +2.388%
+    Oct: +1.663%
+    Nov: +0.404%
+    Dec: +1.380%
+Highest-growth months: ['Jan', 'Sep', 'Aug']
+(Plan section 4 claims Jan and Sep/Oct demand peaks.)
+
+======================================================================
+SECTION 8 — MACRO OVERLAY
+======================================================================
+corr(median rent, inflation_rate) over time = -0.043
+corr(median rent, opr_rate) over time = +0.498
+corr(median rent, cpi_index) over time = +0.837
+corr(median rent, unemployment_rate) over time = -0.517
+
+======================================================================
+SECTION 9 — PANEL INTEGRITY
+======================================================================
+Rows per facility: min=84  median=84  max=84  mean=84.00
+Facilities with exactly 84 rows: 520 / 520
+Distribution of rows-per-facility: 84rows×520fac
+Duplicate (facility_id, record_date) rows: 0
+Facilities with gaps in their monthly sequence: 0
+Total missing months across all facilities: 0
+Consistency check next_month_rent_rm(t) == current_rent_rm(t+1):
+    comparable consecutive pairs: 43,160
+    violations (|diff|>1e-06): 0 (0.000%)
+Target outliers (1.5*IQR rule): 5,897 (13.50%)  bounds=[-935, 5,345]
+Non-positive current_rent_rm rows: 0
