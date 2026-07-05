@@ -592,6 +592,18 @@ const ar: Dictionary = {
       security: "أمن",
       concierge: "كونسيرج",
     },
+    forecast: {
+      heading: "توقعات الإيجار لـ٣ أشهر",
+      rising: "في ارتفاع",
+      falling: "في انخفاض",
+      steady: "مستقر",
+      now: "الآن",
+      monthsShort: "+{n} شهر",
+      headline: "{change} متوقع خلال ٣ أشهر",
+      caption:
+        "مُقدَّر من متوسط Nook الحالي ({price}) باستخدام نموذج اتجاه السوق لـ٣ أشهر (R² الاختبار {r2}).",
+      chipAria: "توقع الإيجار لـ٣ أشهر: {change}",
+    },
   },
   listingDetail: {
     verifiedAgent: "وكيل موثّق",

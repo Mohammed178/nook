@@ -607,6 +607,18 @@ const ms: Dictionary = {
       security: "Keselamatan",
       concierge: "Konsierj",
     },
+    forecast: {
+      heading: "Unjuran sewa 3 bulan",
+      rising: "Meningkat",
+      falling: "Menurun",
+      steady: "Stabil",
+      now: "Kini",
+      monthsShort: "+{n} bln",
+      headline: "{change} dijangka dalam 3 bulan",
+      caption:
+        "Diunjur daripada median semasa Nook ({price}) menggunakan model aliran pasaran 3 bulan (R² ujian {r2}).",
+      chipAria: "Ramalan sewa 3 bulan: {change}",
+    },
   },
   listingDetail: {
     verifiedAgent: "Ejen disahkan",

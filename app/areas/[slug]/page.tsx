@@ -19,6 +19,11 @@ import {
 import { AREAS } from "@/lib/seed/areas";
 import { UNIVERSITIES } from "@/lib/seed/universities";
 import { AREA_CONTENT } from "@/lib/seed/area-content";
+import {
+  getAreaForecast,
+  getForecastMeta,
+  projectRent,
+} from "@/lib/data/rent-forecast";
 import { formatPrice } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -81,6 +86,32 @@ export default async function AreaPage({
   const amLabel = (k: string) => t.amenityLabels[k as keyof typeof t.amenityLabels] ?? amenityLabel(k);
 
   const stats = computeAreaStats(listings, area, UNIVERSITIES);
+
+  // 3-month rent outlook: the model provides a % change per horizon (synthetic
+  // panel, wrong absolute scale) which we rebase onto Nook's own median rent for
+  // the area. Only shown when the area has both a forecast and a real median.
+  const forecastData = getAreaForecast(area.slug);
+  const forecast =
+    forecastData && stats.medianPrice != null
+      ? (() => {
+          const base = stats.medianPrice;
+          const pct3 = forecastData.pctH3;
+          const trend = pct3 > 1 ? "up" : pct3 < -1 ? "down" : "flat";
+          return {
+            trend,
+            pct3,
+            change: `${pct3 > 0 ? "+" : ""}${pct3}%`,
+            r2: getForecastMeta().testR2.h3,
+            base,
+            steps: [
+              { key: "now", n: 0, rm: base },
+              { key: "h1", n: 1, rm: projectRent(base, forecastData.pctH1) },
+              { key: "h2", n: 2, rm: projectRent(base, forecastData.pctH2) },
+              { key: "h3", n: 3, rm: projectRent(base, forecastData.pctH3) },
+            ],
+          };
+        })()
+      : null;
 
   // Live listings in this area, cheapest first, backs the rooms grid + map.
   const areaListings = listings
@@ -206,6 +237,68 @@ export default async function AreaPage({
           <div className="uni-main">
             {stats.liveCount > 0 ? (
               <>
+                {forecast && (
+                  <section
+                    className="uni-section area-forecast"
+                    data-trend={forecast.trend}
+                  >
+                    <div className="area-forecast-head">
+                      <h2>{t.forecast.heading}</h2>
+                      <span
+                        className="area-forecast-badge"
+                        aria-label={format(t.forecast.headline, {
+                          change: forecast.change,
+                        })}
+                      >
+                        {forecast.trend !== "flat" && (
+                          <Icon
+                            name={
+                              forecast.trend === "down"
+                                ? "chevron-down"
+                                : "chevron-up"
+                            }
+                            size={13}
+                          />
+                        )}
+                        <span>
+                          {forecast.trend === "up"
+                            ? t.forecast.rising
+                            : forecast.trend === "down"
+                              ? t.forecast.falling
+                              : t.forecast.steady}
+                        </span>
+                        <span className="pct tabular force-ltr">
+                          {forecast.change}
+                        </span>
+                      </span>
+                    </div>
+                    <ol className="area-forecast-steps">
+                      {forecast.steps.map((s, i) => (
+                        <li
+                          key={s.key}
+                          className="area-forecast-step"
+                          style={{ "--i": i } as React.CSSProperties}
+                        >
+                          <span className="m">
+                            {s.n === 0
+                              ? t.forecast.now
+                              : format(t.forecast.monthsShort, { n: s.n })}
+                          </span>
+                          <span className="rm tabular">
+                            {formatPrice(s.rm)}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                    <p className="area-forecast-caption">
+                      {format(t.forecast.caption, {
+                        price: formatPrice(forecast.base),
+                        r2: forecast.r2,
+                      })}
+                    </p>
+                  </section>
+                )}
+
                 <section className="uni-section">
                   <h2>{t.theRoomsHere}</h2>
                   <p>

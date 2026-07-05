@@ -7,6 +7,7 @@ import { getAllListings } from "@/lib/data/listings";
 import { computeAllAreaStats } from "@/lib/data/area-stats";
 import { UNIVERSITIES } from "@/lib/seed/universities";
 import { AREA_CONTENT } from "@/lib/seed/area-content";
+import { getAreaForecast } from "@/lib/data/rent-forecast";
 import { formatPrice } from "@/lib/utils";
 import { getDictionary } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
@@ -86,6 +87,15 @@ export default async function AreasPage() {
           {stats.map((s, i) => {
             const nearest = s.nearbyCampuses[0];
             const photo = AREA_CONTENT[s.area.slug]?.photo;
+            const fc = getAreaForecast(s.area.slug);
+            const fcTrend = fc
+              ? Math.abs(fc.pctH3) <= 1
+                ? "flat"
+                : fc.pctH3 > 0
+                  ? "up"
+                  : "down"
+              : null;
+            const fcChange = fc ? `${fc.pctH3 > 0 ? "+" : ""}${fc.pctH3}%` : "";
             return (
               <li
                 key={s.area.id}
@@ -126,6 +136,27 @@ export default async function AreasPage() {
                           {format(t.fromPriceShort, {
                             price: formatPrice(s.fromPrice),
                           })}
+                        </span>
+                      )}
+                      {fc && (
+                        <span
+                          className="area-trend-chip force-ltr"
+                          data-trend={fcTrend}
+                          aria-label={format(t.forecast.chipAria, {
+                            change: fcChange,
+                          })}
+                        >
+                          {fcTrend !== "flat" && (
+                            <Icon
+                              name={
+                                fcTrend === "down"
+                                  ? "chevron-down"
+                                  : "chevron-up"
+                              }
+                              size={11}
+                            />
+                          )}
+                          {fcChange}
                         </span>
                       )}
                     </div>

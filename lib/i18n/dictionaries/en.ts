@@ -602,6 +602,18 @@ const en = {
       security: "Security",
       concierge: "Concierge",
     },
+    forecast: {
+      heading: "3-month rent outlook",
+      rising: "Trending up",
+      falling: "Trending down",
+      steady: "Holding steady",
+      now: "Now",
+      monthsShort: "+{n} mo",
+      headline: "{change} projected over 3 months",
+      caption:
+        "Projected from Nook's current median ({price}) using a 3-month market-trend model (test R² {r2}).",
+      chipAria: "3-month rent forecast: {change}",
+    },
   },
   listingDetail: {
     verifiedAgent: "Verified agent",
