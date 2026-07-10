@@ -4804,3 +4804,29 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .admin-uni-fullname { display: block; color: var(--ink-600); font-size: var(--t-xs); margin-top: 2px; }
 .uni-admin-form { display: flex; flex-direction: column; gap: var(--s-6); max-width: 760px; }
 .uni-admin-textarea { min-height: 92px; resize: vertical; line-height: 1.5; font-family: inherit; }
+
+/* ── Coming-soon stub (/about, /terms, /privacy) ─────────────────────────── */
+.coming-soon {
+  min-height: calc(100dvh - var(--nav-h) - 320px);
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 96px 24px 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--s-4);
+}
+.coming-soon .kicker {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-600);
+}
+.coming-soon h1 { font-size: var(--t-2xl); color: var(--ink-900); }
+.coming-soon p { color: var(--ink-600); line-height: 1.6; max-width: 46ch; }
+.coming-soon .btn { margin-top: var(--s-2); display: inline-flex; align-items: center; gap: 6px; }
+.auth-forgot { font-size: var(--t-xs); color: var(--ink-600); }
+.auth-forgot:hover { color: var(--ink-900); }

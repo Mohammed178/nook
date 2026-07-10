@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
+import { ShareButton } from "@/components/nook/share-button";
 import { ListingCard } from "@/components/nook/listing-card";
 import { getDictionary } from "@/lib/i18n/server";
 import { HeartButton } from "@/components/nook/heart-button";
@@ -202,9 +203,12 @@ export default async function ListingDetailPage({
                 signedIn={signedIn}
                 variant="icon"
               />
-              <button type="button" className="btn btn-icon" aria-label={d.share}>
-                <Icon name="share" size={16} />
-              </button>
+              <ShareButton
+                variant="icon"
+                title={listing.title}
+                label={d.share}
+                copiedLabel={dict.common.linkCopied}
+              />
             </div>
           </div>
 

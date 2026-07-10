@@ -133,8 +133,8 @@ export function RegisterForm({
         <label className="check-row">
           <input type="checkbox" name="terms" required />
           <span>
-            {t.termsAgree} <Link href="#">{t.termsOfService}</Link> {t.and}{" "}
-            <Link href="#">{t.privacyPolicy}</Link>{t.termsTail}
+            {t.termsAgree} <Link href="/terms">{t.termsOfService}</Link> {t.and}{" "}
+            <Link href="/privacy">{t.privacyPolicy}</Link>{t.termsTail}
           </span>
         </label>
 

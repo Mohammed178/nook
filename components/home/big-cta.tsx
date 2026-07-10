@@ -1,14 +1,26 @@
 import Link from "next/link";
 import { CountUp } from "@/components/motion/count-up";
 import { Magnetic } from "@/components/motion/magnetic";
-import { BIG_CTA_IMAGE_URL, BIG_CTA_STATS } from "@/lib/home-content";
+import { BIG_CTA_IMAGE_URL } from "@/lib/home-content";
+import { getHomeCounts } from "@/lib/data/home-stats";
 import { getDictionary } from "@/lib/i18n/server";
 
 // Closing band: asymmetric split echoing the hero, solid slate content panel
 // on the left, KL-at-night photograph on the right with the stats floating
 // over it as glass chips (the hero deck's floating-card motif, reprised).
 export async function BigCTA() {
-  const h = (await getDictionary()).home;
+  const [h, counts] = await Promise.all([
+    getDictionary().then((d) => d.home),
+    getHomeCounts(),
+  ]);
+  // First three are live DB counts (compute-don't-claim); "RM 0" is the
+  // product promise (students never pay commission), not a metric.
+  const stats = [
+    String(counts.roomsLive),
+    String(counts.verifiedAgents),
+    String(counts.campuses),
+    "RM 0",
+  ];
   return (
     <section className="home-container">
       <div className="big-cta">
@@ -46,16 +58,16 @@ export async function BigCTA() {
             {h.photoCredit}
           </a>
           <dl className="big-cta-stats">
-            {BIG_CTA_STATS.map((s, i) => (
+            {stats.map((value, i) => (
               <div
-                key={s.label}
+                key={h.bigCtaStatLabels[i]}
                 className="bcs-chip"
                 style={{ "--i": i } as React.CSSProperties}
               >
                 <dd>
-                  <CountUp value={s.value} />
+                  <CountUp value={value} />
                 </dd>
-                <dt>{h.bigCtaStatLabels[i] ?? s.label}</dt>
+                <dt>{h.bigCtaStatLabels[i]}</dt>
               </div>
             ))}
           </dl>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
-import { Icon } from "@/components/nook/icon";
+import { ShareButton } from "@/components/nook/share-button";
 import { FilterBar } from "@/components/listings/filter-bar";
 import { ListingsBody } from "@/components/listings/listings-body";
 import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
@@ -177,9 +177,11 @@ export default async function ListingsPage({
           ) : null}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button type="button" className="btn btn-secondary btn-sm">
-            <Icon name="share" size={14} /> {l.share}
-          </button>
+          <ShareButton
+            variant="sm"
+            label={l.share}
+            copiedLabel={dict.common.linkCopied}
+          />
         </div>
       </div>
 

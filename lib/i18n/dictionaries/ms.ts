@@ -30,6 +30,7 @@ const ms: Dictionary = {
     required: "Wajib",
     optional: "Pilihan",
     language: "Bahasa",
+    linkCopied: "Pautan disalin",
   },
   nav: {
     home: "Laman utama",
@@ -72,6 +73,11 @@ const ms: Dictionary = {
     copyright:
       "© 2026 Nook Sdn Bhd · Didaftarkan dengan BOVAEP di bawah E(3)1234",
     region: "Lembah Klang · Selangor + KL",
+  },
+  comingSoon: {
+    kicker: "Nook",
+    body: "Halaman ini sedang disiapkan. Kami lebih rela menulisnya dengan betul daripada menghantar pengisi — kembali semula tidak lama lagi.",
+    backHome: "Kembali ke laman utama",
   },
   account: {
     profileTitle: "Profil",
@@ -209,6 +215,28 @@ const ms: Dictionary = {
     passwordMin: "Kata laluan mesti sekurang-kurangnya 8 aksara.",
     mustAgreeTerms: "Anda mesti bersetuju dengan Terma Perkhidmatan untuk meneruskan.",
     pickUniversity: "Pilih universiti daripada senarai.",
+    forgotPassword: "Lupa kata laluan?",
+    forgotKicker: "Tetapkan semula kata laluan",
+    forgotTitle: "Tetapkan semula kata laluan anda",
+    forgotSub:
+      "Masukkan e-mel pendaftaran anda dan kami akan menghantar pautan untuk memilih kata laluan baharu.",
+    emailRequired: "Masukkan alamat e-mel anda.",
+    sendResetLink: "Hantar pautan tetapan semula",
+    sendingResetLink: "Sedang menghantar…",
+    resetLinkSent:
+      "Jika akaun wujud untuk e-mel itu, pautan tetapan semula sedang dihantar. Semak peti masuk anda.",
+    resetKicker: "Hampir siap",
+    resetTitle: "Pilih kata laluan baharu",
+    resetSub:
+      "Tetapkan kata laluan baharu untuk akaun anda. Anda akan kekal log masuk.",
+    newPassword: "Kata laluan baharu",
+    updatePassword: "Kemas kini kata laluan",
+    updatingPassword: "Sedang mengemas kini…",
+    passwordUpdated: "Kata laluan dikemas kini. Membawa anda ke akaun anda…",
+    resetLinkInvalid:
+      "Pautan tetapan semula ini tidak sah atau telah luput. Minta yang baharu di bawah.",
+    requestNewLink: "Minta pautan baharu",
+    backToLogin: "Kembali ke log masuk",
   },
   uniSearch: {
     placeholder: "Cari universiti anda…",
@@ -245,7 +273,7 @@ const ms: Dictionary = {
   home: {
     heroHeadline: "Cari bilik anda berhampiran kampus, tanpa kerumitan.",
     heroLede:
-      "12,000+ bilik disahkan di seluruh Lembah Klang. Foto dahulu, ejen disemak, pelajar sahaja. Pindah masuk menjelang semester depan.",
+      "Bilik disahkan di seluruh Lembah Klang — foto dahulu, ejen disemak, pelajar sahaja. Pindah masuk menjelang semester depan.",
     popular: "Popular:",
     deckPill: "Bilik berhampiran UM dari RM 650/bln",
     searchHints: [
@@ -258,20 +286,20 @@ const ms: Dictionary = {
       "Berhampiran UM",
       "Berhampiran UKM (Bangi)",
       "Berhampiran Sunway",
-      "Wanita sahaja",
+      "Studio",
       "Bawah RM 500",
       "Berperabot",
     ],
     statLabels: [
-      "Bilik disahkan di seluruh Lembah Klang",
-      "Ejen berlesen REN/PEA",
-      "Purata pertanyaan ke penyewaan",
+      "Bilik aktif sekarang",
+      "Ejen disahkan BOVAEP",
+      "Kampus diliputi",
     ],
     bigCtaStatLabels: [
-      "pencari bulanan",
+      "bilik aktif sekarang",
       "ejen disahkan",
-      "purata masa untuk disewa",
-      "komisen setiap sewaan",
+      "kampus diliputi",
+      "komisen untuk pelajar",
     ],
     uniOrArea: "Universiti, kawasan atau kata kunci",
     searchPlaceholder: "UM, Bangsar, atau “dekat LRT”…",
@@ -1235,6 +1263,8 @@ const ms: Dictionary = {
     registrationConfig:
       "Pendaftaran tidak dapat diselesaikan kerana isu konfigurasi pelayan. Cuba lagi nanti atau hubungi sokongan.",
     couldNotRegister: "Tidak dapat menyelesaikan pendaftaran. Cuba lagi.",
+    licenceAlreadyRegistered:
+      "Nombor lesen BOVAEP ini sudah didaftarkan di Nook. Log masuk sebaliknya, atau hubungi kami jika anda percaya ini satu kesilapan.",
     unknownListing: "Senarai tidak diketahui.",
     nameRequired: "Nama diperlukan.",
     nameTooLong: "Nama terlalu panjang (maks 100).",

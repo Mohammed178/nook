@@ -67,6 +67,26 @@ export async function signUpAgentAction(
   }
 
   const supabase = await createActionClient();
+
+  // 0034: duplicate-licence pre-check BEFORE signUp, via the SECURITY DEFINER
+  // licence_exists RPC (granted to anon; sees every status, unlike the RLS
+  // read). Without this, a duplicate licence failed only at the agents INSERT
+  // below — after the auth user was already created — leaving an orphaned,
+  // signed-in account with no agents row and no recovery path. A concurrent
+  // race can still slip past this check; the 0025 partial UNIQUE index remains
+  // the hard gate and the INSERT error path below still handles it.
+  const { data: licenceTaken, error: licenceErr } = await supabase.rpc(
+    "licence_exists",
+    { p_licence: bovaepLicence },
+  );
+  if (licenceErr) {
+    console.error(`[agent-register] licence_exists RPC failed: ${licenceErr.message}`);
+    return { error: e.couldNotRegister };
+  }
+  if (licenceTaken) {
+    return { error: e.licenceAlreadyRegistered };
+  }
+
   const { error: signUpError } = await supabase.auth.signUp({
     email,
     password,

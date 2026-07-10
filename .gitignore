@@ -62,6 +62,7 @@ next-env.d.ts
 
 # analytical feature backlog (scratch, not part of the app)
 /features.md
+/HANDIN_TODO.md
 
 # windows git-bash crash dumps
 *.stackdump
