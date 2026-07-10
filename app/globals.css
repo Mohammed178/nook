@@ -242,14 +242,6 @@ img { display: block; max-width: 100%; }
 .pill-lg       { padding: 4px 10px; font-size: var(--t-xs); }
 .pill-pending  { background: var(--warning-50); color: var(--warning-700); }
 .pill-rejected { background: var(--danger-50); color: var(--danger-700); }
-/* Fair Price signal (features.md #1). State-Color: good = success,
-   around = neutral ink, above = warning. Computed band, never a stored tag. */
-.pill-deal-good   { background: var(--success-50); color: var(--success-700); }
-.pill-deal-around { background: var(--ink-100); color: var(--ink-700); }
-.pill-deal-above  { background: var(--warning-50); color: var(--warning-700); }
-.price-signal { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.price-signal-caption { font-size: var(--t-xs); color: var(--ink-500); }
-.card-signal-row { margin-top: 4px; }
 
 /* Agent application-status header (/agents/pending) */
 /* Agent application status (/agents/pending), centered single column, not the
@@ -3398,6 +3390,76 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   color: var(--brand-500);
 }
 
+/* --- 3-month rent outlook (forecast model, rebased onto real median) --- */
+.area-forecast-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.area-forecast-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 99px;
+  font-size: var(--t-sm); font-weight: 600;
+  background: var(--ink-100); color: var(--ink-700);
+}
+.area-forecast-badge .pct { font-weight: 700; }
+.area-forecast[data-trend="up"] .area-forecast-badge {
+  background: var(--warning-50); color: var(--warning-700);
+}
+.area-forecast[data-trend="down"] .area-forecast-badge {
+  background: var(--success-50); color: var(--success-700);
+}
+
+.area-forecast-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--ink-150); border: 1px solid var(--ink-150);
+  border-radius: var(--r-md); overflow: hidden;
+}
+.area-forecast-step {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 14px 16px; background: var(--paper);
+  opacity: 0; transform: translateY(6px);
+  animation: area-fc-in 0.5s ease forwards;
+  animation-delay: calc(var(--i) * 60ms);
+}
+.area-forecast-step .m {
+  font-size: var(--t-xs); letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--ink-500); font-weight: 600;
+}
+.area-forecast-step .rm {
+  font-size: var(--t-lg); font-weight: 700; color: var(--ink-900);
+}
+.area-forecast-step:first-child .rm { color: var(--ink-600); }
+.area-forecast[data-trend="up"] .area-forecast-step:last-child .rm {
+  color: var(--warning-700);
+}
+.area-forecast[data-trend="down"] .area-forecast-step:last-child .rm {
+  color: var(--success-700);
+}
+.area-forecast-caption {
+  margin-top: 12px; font-size: var(--t-xs); color: var(--ink-500);
+  line-height: 1.5; max-width: 64ch;
+}
+@keyframes area-fc-in {
+  to { opacity: 1; transform: none; }
+}
+
+/* Trend chip on the areas mosaic tiles */
+.area-trend-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-variant-numeric: tabular-nums; font-weight: 700;
+  color: var(--ink-500);
+}
+.area-trend-chip[data-trend="up"] { color: var(--warning-700); }
+.area-trend-chip[data-trend="down"] { color: var(--success-700); }
+
+@media (prefers-reduced-motion: reduce) {
+  .area-forecast-step { animation: none; opacity: 1; transform: none; }
+}
+@media (max-width: 560px) {
+  .area-forecast-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 1024px) {
   .area-insights { gap: 18px 24px; }
 }
@@ -5046,3 +5108,29 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   text-underline-offset: 3px;
 }
 .verify-withdraw-link:hover { color: var(--danger-700); }
+
+/* ── Coming-soon stub (/about, /terms, /privacy) ─────────────────────────── */
+.coming-soon {
+  min-height: calc(100dvh - var(--nav-h) - 320px);
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 96px 24px 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--s-4);
+}
+.coming-soon .kicker {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-600);
+}
+.coming-soon h1 { font-size: var(--t-2xl); color: var(--ink-900); }
+.coming-soon p { color: var(--ink-600); line-height: 1.6; max-width: 46ch; }
+.coming-soon .btn { margin-top: var(--s-2); display: inline-flex; align-items: center; gap: 6px; }
+.auth-forgot { font-size: var(--t-xs); color: var(--ink-600); }
+.auth-forgot:hover { color: var(--ink-900); }

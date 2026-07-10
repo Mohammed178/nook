@@ -1,14 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Navbar } from "@/components/nook/navbar";
-import { Icon } from "@/components/nook/icon";
+import { ShareButton } from "@/components/nook/share-button";
 import { FilterBar } from "@/components/listings/filter-bar";
 import { ListingsBody } from "@/components/listings/listings-body";
 import { getAllUniversities, toSearchUniversities } from "@/lib/data/universities";
 import { getAllAreas } from "@/lib/data/areas";
 import { attachListingRelations } from "@/lib/data/listings-relations";
-import { getAllListings, getFilteredListings } from "@/lib/data/listings";
-import { buildPriceSignals } from "@/lib/data/price-intel";
+import { getFilteredListings } from "@/lib/data/listings";
 import { getFavouriteIds } from "@/lib/favourites";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -118,15 +117,10 @@ export default async function ListingsPage({
 
   const listings = await getFilteredListings(params, viewerGender);
 
-  const [areas, items, allListings] = await Promise.all([
+  const [areas, items] = await Promise.all([
     getAllAreas(),
     attachListingRelations(listings),
-    getAllListings(),
   ]);
-  // Fair Price signals (features.md #1) over the FULL live market, not the
-  // filtered subset — the distribution must reflect the whole area+type cohort.
-  // Serialised to a plain record for the client ListingsBody.
-  const priceSignals = Object.fromEntries(buildPriceSignals(allListings));
   // Keyed by slug, `params.area` carries the URL value (= area.slug).
   const areaLookup = Object.fromEntries(areas.map((a) => [a.slug, a]));
 
@@ -183,9 +177,11 @@ export default async function ListingsPage({
           ) : null}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button type="button" className="btn btn-secondary btn-sm">
-            <Icon name="share" size={14} /> {l.share}
-          </button>
+          <ShareButton
+            variant="sm"
+            label={l.share}
+            copiedLabel={dict.common.linkCopied}
+          />
         </div>
       </div>
 
@@ -198,7 +194,6 @@ export default async function ListingsPage({
         sortLabel={sortLabelFor(sort, l, label.universityShort)}
         savedIds={savedIds}
         signedIn={signedIn}
-        priceSignals={priceSignals}
       />
     </>
   );

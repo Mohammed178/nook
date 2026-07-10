@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-07-06",
+  "modelVersion": "1.0.0",
+  "asOf": "2025-12",
+  "testR2": {
+    "h1": 0.944,
+    "h2": 0.928,
+    "h3": 0.924
+  },
+  "areas": {
+    "bangsar": {
+      "match": "Bangsar",
+      "level": "district",
+      "n": 20,
+      "pctH1": 5.01,
+      "pctH2": 7.83,
+      "pctH3": 9.43
+    },
+    "cheras": {
+      "match": "Cheras",
+      "level": "district",
+      "n": 22,
+      "pctH1": 4.8,
+      "pctH2": 8.01,
+      "pctH3": 9.95
+    },
+    "setapak": {
+      "match": "Setapak",
+      "level": "district",
+      "n": 32,
+      "pctH1": 0.92,
+      "pctH2": 1.9,
+      "pctH3": 3.24
+    },
+    "subang-jaya": {
+      "match": "SS15",
+      "level": "district",
+      "n": 15,
+      "pctH1": 7.23,
+      "pctH2": 11.67,
+      "pctH3": 14.36
+    },
+    "shah-alam": {
+      "match": "Seksyen 7",
+      "level": "district",
+      "n": 20,
+      "pctH1": 2.22,
+      "pctH2": 4.57,
+      "pctH3": 6.46
+    },
+    "pj": {
+      "match": "Petaling Jaya",
+      "level": "city",
+      "n": 61,
+      "pctH1": 4.5,
+      "pctH2": 6.84,
+      "pctH3": 8.77
+    },
+    "cyberjaya": {
+      "match": "Cyberjaya",
+      "level": "city",
+      "n": 39,
+      "pctH1": 3.62,
+      "pctH2": 6.13,
+      "pctH3": 7.86
+    },
+    "bandar-sunway": {
+      "match": "Subang Jaya",
+      "level": "city",
+      "n": 31,
+      "pctH1": 5.34,
+      "pctH2": 9.6,
+      "pctH3": 12.25
+    },
+    "pantai-dalam": {
+      "match": "Bangsar",
+      "level": "district",
+      "n": 20,
+      "pctH1": 5.01,
+      "pctH2": 7.83,
+      "pctH3": 9.43
+    }
+  }
+}

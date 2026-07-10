@@ -34,6 +34,7 @@ const en = {
     required: "Required",
     optional: "Optional",
     language: "Language",
+    linkCopied: "Link copied",
   },
   nav: {
     home: "Home",
@@ -75,6 +76,11 @@ const en = {
     help: "Help",
     copyright: "© 2026 Nook Sdn Bhd · Registered with BOVAEP under E(3)1234",
     region: "Klang Valley · Selangor + KL",
+  },
+  comingSoon: {
+    kicker: "Nook",
+    body: "This page is on its way. We'd rather write it properly than ship filler — check back soon.",
+    backHome: "Back to home",
   },
   account: {
     profileTitle: "Profile",
@@ -233,6 +239,27 @@ const en = {
     passwordMin: "Password must be at least 8 characters.",
     mustAgreeTerms: "You must agree to the Terms of Service to continue.",
     pickUniversity: "Pick a university from the list.",
+    forgotPassword: "Forgot password?",
+    forgotKicker: "Reset password",
+    forgotTitle: "Reset your password",
+    forgotSub:
+      "Enter the email you signed up with and we'll send you a link to choose a new password.",
+    emailRequired: "Enter your email address.",
+    sendResetLink: "Send reset link",
+    sendingResetLink: "Sending…",
+    resetLinkSent:
+      "If an account exists for that email, a reset link is on its way. Check your inbox.",
+    resetKicker: "Almost there",
+    resetTitle: "Choose a new password",
+    resetSub: "Set a new password for your account. You'll stay signed in.",
+    newPassword: "New password",
+    updatePassword: "Update password",
+    updatingPassword: "Updating…",
+    passwordUpdated: "Password updated. Taking you to your account…",
+    resetLinkInvalid:
+      "This reset link is invalid or has expired. Request a new one below.",
+    requestNewLink: "Request a new link",
+    backToLogin: "Back to sign in",
   },
   uniSearch: {
     placeholder: "Search your university…",
@@ -382,7 +409,7 @@ const en = {
   home: {
     heroHeadline: "Find your room near campus, without the runaround.",
     heroLede:
-      "12,000+ verified rooms across the Klang Valley. Photo-first, agent-vetted, students only. Move in by next semester.",
+      "Verified rooms across the Klang Valley — photo-first, agent-vetted, students only. Move in by next semester.",
     popular: "Popular:",
     deckPill: "Rooms near UM from RM 650/mo",
     searchHints: [
@@ -395,20 +422,20 @@ const en = {
       "Near UM",
       "Near UKM (Bangi)",
       "Near Sunway",
-      "Female-only",
+      "Studios",
       "Under RM 500",
       "Furnished",
     ],
     statLabels: [
-      "Verified rooms across Klang Valley",
-      "REN/PEA-licensed agents",
-      "Average enquiry-to-tenancy",
+      "Rooms live right now",
+      "BOVAEP-verified agents",
+      "Campuses covered",
     ],
     bigCtaStatLabels: [
-      "monthly searchers",
+      "rooms live right now",
       "verified agents",
-      "avg time to rent",
-      "commission per rental",
+      "campuses covered",
+      "commission for students",
     ],
     uniOrArea: "University, area, or keyword",
     searchPlaceholder: "UM, Bangsar, or “near LRT”…",
@@ -578,12 +605,6 @@ const en = {
     whatsapp: "WhatsApp",
     call: "Call",
   },
-  priceSignal: {
-    good: "Good deal",
-    around: "Around market",
-    above: "Above market",
-    caption: "Based on {n} similar listings here · median {median}",
-  },
   accountLists: {
     recentTitle: "Recent",
     noRecent: "No recent listings yet.",
@@ -737,6 +758,18 @@ const en = {
       garden: "Garden",
       security: "Security",
       concierge: "Concierge",
+    },
+    forecast: {
+      heading: "3-month rent outlook",
+      rising: "Trending up",
+      falling: "Trending down",
+      steady: "Holding steady",
+      now: "Now",
+      monthsShort: "+{n} mo",
+      headline: "{change} projected over 3 months",
+      caption:
+        "Projected from Nook's current median ({price}) using a 3-month market-trend model (test R² {r2}).",
+      chipAria: "3-month rent forecast: {change}",
     },
   },
   listingDetail: {

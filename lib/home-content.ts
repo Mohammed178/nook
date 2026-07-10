@@ -1,20 +1,6 @@
-export interface HomeStat {
-  value: string;
-  label: string;
-}
-
-export const HOME_STATS: HomeStat[] = [
-  { value: "12,400+", label: "Verified rooms across Klang Valley" },
-  { value: "2,800", label: "REN/PEA-licensed agents" },
-  { value: "38h", label: "Average enquiry-to-tenancy" },
-];
-
-export const BIG_CTA_STATS: HomeStat[] = [
-  { value: "40k+", label: "monthly searchers" },
-  { value: "2,800", label: "verified agents" },
-  { value: "38h", label: "avg time to rent" },
-  { value: "RM 0", label: "commission per rental" },
-];
+// Homepage stats are COMPUTED at render (compute-don't-claim): see
+// lib/data/home-stats.ts. The old hardcoded HOME_STATS / BIG_CTA_STATS
+// marketing figures were removed — every number shown now derives from the DB.
 
 // Split-hero photo deck (3 stacked cards, right column)
 export const HERO_DECK: [string, string, string] = [
@@ -30,10 +16,6 @@ export const HERO_DECK_PILL = "Rooms near UM from RM 650/mo";
 export const BIG_CTA_IMAGE_URL =
   "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Kl-skyline-at-night-2022.jpg/1280px-Kl-skyline-at-night-2022.jpg";
 
-export const HERO_HEADLINE = "Find your room near campus, without the runaround.";
-export const HERO_LEDE =
-  "12,000+ verified rooms across the Klang Valley. Photo-first, agent-vetted, students only. Move in by next semester.";
-
 // Cycled by the hero search input's typewriter placeholder
 export const HERO_SEARCH_HINTS = [
   "UM, UKM, Bangsar…",
@@ -42,13 +24,16 @@ export const HERO_SEARCH_HINTS = [
   "Cyberjaya, move in June…",
 ];
 
+// Every href here must satisfy the URL filter contract in lib/listings-search.ts
+// (parseListingSearchParams). There is deliberately NO gender chip: gender is
+// identity-driven (profile preference), it has no URL param by design.
 export const QUICK_CHIPS: { label: string; href: string }[] = [
   { label: "Near UM", href: "/listings?universityId=um" },
   { label: "Near UKM (Bangi)", href: "/listings?universityId=ukm" },
   { label: "Near Sunway", href: "/listings?universityId=sunway" },
-  { label: "Female-only", href: "/listings?gender=female" },
+  { label: "Studios", href: "/listings?type=studio" },
   { label: "Under RM 500", href: "/listings?maxPrice=500" },
-  { label: "Furnished", href: "/listings?furnishing=full" },
+  { label: "Furnished", href: "/listings?furnished=1" },
 ];
 
 // The "Browse by university" rail no longer carries static photo/count/price

@@ -17,7 +17,7 @@ export async function signUpAction(
   const genderRaw = String(formData.get("gender_preference") ?? "").trim();
   const terms = formData.get("terms");
 
-  const t = (await getDictionary()).auth;
+  const { auth: t, errors: e } = await getDictionary();
 
   if (!email || !password || !displayName) {
     return { error: t.emailPasswordNameRequired };
@@ -40,7 +40,7 @@ export async function signUpAction(
   const genderPreference = VALID_GENDERS.has(genderRaw) ? genderRaw : null;
 
   const supabase = await createActionClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -55,6 +55,17 @@ export async function signUpAction(
 
   if (error) {
     return { error: error.message };
+  }
+  // Airbag, same contract as the agent flow: this action assumes Supabase auth
+  // auto-confirm is ON, so signUp returns an active session. If the dashboard
+  // setting ever flips OFF, the form's redirect to /account would bounce the
+  // user straight back to /login with no explanation. Fail honestly instead
+  // and log so it surfaces server-side.
+  if (!data.session) {
+    console.error(
+      `[register] no session after signUp, auth auto-confirm may be OFF. email=${email}`,
+    );
+    return { error: e.registrationConfig };
   }
   return undefined;
 }

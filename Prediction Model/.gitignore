@@ -1,0 +1,13 @@
+# Virtualenv (516MB) — recreate with: python -m venv .venv && pip install -r requirements.txt
+rent-forecast/.venv/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Superseded 203-facility subset kept locally as backup
+rent-forecast/data/*.bak.csv
+
+# Root-level duplicate of rent-forecast/data/malaysia_rental_panel.csv
+malaysia_rental_panel_1.csv

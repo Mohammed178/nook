@@ -197,8 +197,8 @@ export function AgentRegisterForm({
         <label className="check-row">
           <input type="checkbox" name="terms" required />
           <span>
-            {a.termsAgree} <Link href="#">{a.termsOfService}</Link> {a.and}{" "}
-            <Link href="#">{a.privacyPolicy}</Link>{t.termsTail}
+            {a.termsAgree} <Link href="/terms">{a.termsOfService}</Link> {a.and}{" "}
+            <Link href="/privacy">{a.privacyPolicy}</Link>{t.termsTail}
           </span>
         </label>
 

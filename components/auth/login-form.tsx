@@ -67,9 +67,14 @@ export function LoginForm({ dict }: { dict: Dictionary }) {
         </div>
 
         <div className="field">
-          <label className="label" htmlFor="login-password">
-            {t.password}
-          </label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <label className="label" htmlFor="login-password">
+              {t.password}
+            </label>
+            <Link href="/forgot-password" className="auth-forgot">
+              {t.forgotPassword}
+            </Link>
+          </div>
           <div className="pw-wrap">
             <input
               id="login-password"
