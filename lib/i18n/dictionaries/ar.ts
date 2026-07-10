@@ -79,6 +79,20 @@ const ar: Dictionary = {
     body: "هذه الصفحة قيد الإعداد. نفضّل كتابتها كما ينبغي بدلًا من نشر محتوى حشو — عد قريبًا.",
     backHome: "العودة إلى الرئيسية",
   },
+  notFound: {
+    kicker: "404",
+    title: "هذه الصفحة انتقلت من هنا",
+    body: "قد يكون العنوان مكتوبًا خطأ، أو أن ما كان هنا لم يعد موجودًا. الغرف ما زالت في مكانها.",
+    browseRooms: "تصفّح الغرف",
+    backHome: "العودة إلى الرئيسية",
+  },
+  errorPage: {
+    kicker: "خطأ",
+    title: "حدث خطأ ما",
+    body: "خطأ غير متوقع منع تحميل هذه الصفحة. الخطأ منّا — حاول مجددًا، أو عد إلى الرئيسية.",
+    retry: "حاول مجددًا",
+    backHome: "العودة إلى الرئيسية",
+  },
   account: {
     profileTitle: "الملف الشخصي",
     yourAccount: "حسابك",
@@ -403,7 +417,8 @@ const ar: Dictionary = {
     heroLede:
       "غرف موثّقة في وادي كلانغ — الصور أولًا، وكلاء مُدقّقون، للطلاب فقط. انتقل قبل الفصل القادم.",
     popular: "شائع:",
-    deckPill: "غرف قرب UM من RM 650/شهر",
+    deckPill: "غرف قرب UM من RM {price}/شهر",
+    deckPillFallback: "غرف موثّقة في مختلف وادي كلانغ",
     searchHints: [
       "UM، UKM، بانغسار…",
       "قرب Sunway، أقل من RM 600…",
@@ -1228,8 +1243,6 @@ const ar: Dictionary = {
       aria: "ملخّص الإدارة",
       pending: "طلبات قيد الانتظار",
       pendingHint: "في انتظار المراجعة",
-      approved: "وكلاء معتمدون",
-      approvedHint: "موثَّقون ونشطون",
       liveUniversities: "جامعات منشورة",
       liveUniversitiesHint: "مرئية للطلاب",
       hiddenUniversities: "جامعات مخفية",

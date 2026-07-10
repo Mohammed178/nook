@@ -27,12 +27,6 @@ export default async function AdminPage() {
       href: "/admin/agents",
     },
     {
-      icon: "check-circle" as const,
-      value: counts.approvedAgents,
-      label: o.approved,
-      href: "/admin/agents",
-    },
-    {
       icon: "school" as const,
       value: counts.liveUniversities,
       label: o.liveUniversities,

@@ -1,7 +1,6 @@
 import "server-only";
 import type { Agent, Listing } from "@/lib/types";
 import { getAllListings } from "@/lib/data/listings";
-import { FEATURED_AGENT_EXTRAS } from "@/lib/home-content";
 import { getAllAgents } from "@/lib/data/agents";
 import { getAllAreas } from "@/lib/data/areas";
 
@@ -48,13 +47,6 @@ export interface FeaturedAgent {
   areasServed: string;
 }
 
-// FEATURED_AGENT_EXTRAS is keyed by agent slug (URL-stable across schema
-// changes). Display-only marketing data; falls back to derived values when an
-// agent has no extra.
-const EXTRAS_BY_AGENT_SLUG = Object.fromEntries(
-  FEATURED_AGENT_EXTRAS.map((e) => [e.agentSlug, e]),
-);
-
 function deriveAreasServed(
   agentId: string,
   areaNameById: Map<string, string>,
@@ -88,14 +80,11 @@ export async function getFeaturedAgents(): Promise<FeaturedAgent[]> {
     .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
     .slice(0, FEATURED_AGENTS_LIMIT);
 
-  return top.map((agent) => {
-    const extras = EXTRAS_BY_AGENT_SLUG[agent.slug];
-    return {
-      agent,
-      activeListings:
-        extras?.activeListings ?? countActiveListings(agent.id, listings),
-      areasServed:
-        extras?.areasServed ?? deriveAreasServed(agent.id, areaNameById, listings),
-    };
-  });
+  // Both figures computed from live listings (compute-don't-claim); the old
+  // static FEATURED_AGENT_EXTRAS marketing numbers were removed.
+  return top.map((agent) => ({
+    agent,
+    activeListings: countActiveListings(agent.id, listings),
+    areasServed: deriveAreasServed(agent.id, areaNameById, listings),
+  }));
 }

@@ -429,6 +429,9 @@ export async function addListingPhotos(
 
 // Deletes a photo. The last-photo trigger (NK002) blocks removing the only photo
 // of an available listing. A non-owned / missing id matches 0 rows (RLS), no error.
+// The storage object is removed AFTER the row: if the row delete fails nothing is
+// touched, and a failed object removal only strands an unreferenced file (logged),
+// never a photo row pointing at a missing object.
 export async function removeListingPhoto(
   photoId: string,
 ): Promise<{ ok: true } | { ok: false; reason: "last_photo" | "not_found" | "error" }> {
@@ -437,12 +440,20 @@ export async function removeListingPhoto(
     .from("listing_photos")
     .delete()
     .eq("id", photoId)
-    .select("id");
+    .select("id, storage_path");
   if (error) {
     if (error.code === "NK002") return { ok: false, reason: "last_photo" };
     return { ok: false, reason: "error" };
   }
   if (!data || data.length === 0) return { ok: false, reason: "not_found" };
+
+  const path = data[0].storage_path as string;
+  const { error: storageErr } = await sb.storage.from("listing-photos").remove([path]);
+  if (storageErr) {
+    console.error(
+      `[listing-photos] row deleted but object removal failed path=${path}: ${storageErr.message}`,
+    );
+  }
   return { ok: true };
 }
 
@@ -553,7 +564,8 @@ export async function addListingVideos(
 }
 
 // Deletes a video. A non-owned / missing id matches 0 rows (RLS), reported as
-// not_found. No last-video guard, videos are optional.
+// not_found. No last-video guard, videos are optional. Storage object removed
+// after the row, same ordering rationale as removeListingPhoto.
 export async function removeListingVideo(
   videoId: string,
 ): Promise<{ ok: true } | { ok: false; reason: "not_found" | "error" }> {
@@ -562,9 +574,17 @@ export async function removeListingVideo(
     .from("listing_videos")
     .delete()
     .eq("id", videoId)
-    .select("id");
+    .select("id, storage_path");
   if (error) return { ok: false, reason: "error" };
   if (!data || data.length === 0) return { ok: false, reason: "not_found" };
+
+  const path = data[0].storage_path as string;
+  const { error: storageErr } = await sb.storage.from("listing-videos").remove([path]);
+  if (storageErr) {
+    console.error(
+      `[listing-videos] row deleted but object removal failed path=${path}: ${storageErr.message}`,
+    );
+  }
   return { ok: true };
 }
 

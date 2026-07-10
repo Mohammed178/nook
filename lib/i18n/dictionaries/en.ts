@@ -82,6 +82,20 @@ const en = {
     body: "This page is on its way. We'd rather write it properly than ship filler — check back soon.",
     backHome: "Back to home",
   },
+  notFound: {
+    kicker: "404",
+    title: "This page has moved out",
+    body: "The address may be mistyped, or whatever lived here is gone. The rooms are still where you left them.",
+    browseRooms: "Browse rooms",
+    backHome: "Back to home",
+  },
+  errorPage: {
+    kicker: "Error",
+    title: "Something went wrong",
+    body: "An unexpected error stopped this page from loading. It's on us — try again, or head back home.",
+    retry: "Try again",
+    backHome: "Back to home",
+  },
   account: {
     profileTitle: "Profile",
     yourAccount: "Your account",
@@ -411,7 +425,8 @@ const en = {
     heroLede:
       "Verified rooms across the Klang Valley — photo-first, agent-vetted, students only. Move in by next semester.",
     popular: "Popular:",
-    deckPill: "Rooms near UM from RM 650/mo",
+    deckPill: "Rooms near UM from RM {price}/mo",
+    deckPillFallback: "Verified rooms across the Klang Valley",
     searchHints: [
       "UM, UKM, Bangsar…",
       "Near Sunway, under RM 600…",
@@ -1249,8 +1264,6 @@ const en = {
       aria: "Admin summary",
       pending: "Pending requests",
       pendingHint: "Awaiting review",
-      approved: "Approved agents",
-      approvedHint: "Verified & active",
       liveUniversities: "Live universities",
       liveUniversitiesHint: "Visible to students",
       hiddenUniversities: "Hidden universities",

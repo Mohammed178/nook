@@ -263,10 +263,13 @@ export function ListingCard({
                 </div>
               </div>
               <div className="card-actions">
-                <span className="btn btn-ico wa" title={c.whatsapp} aria-hidden="true">
+                {/* Decorative hints only — the whole card is one link; the real
+                    WhatsApp/call buttons live on the detail page. Styled as
+                    quiet glyphs (card-contact-hint), not buttons. */}
+                <span className="card-contact-hint" aria-hidden="true">
                   <Icon name="whatsapp" size={14} />
                 </span>
-                <span className="btn btn-ico call" title={c.call} aria-hidden="true">
+                <span className="card-contact-hint" aria-hidden="true">
                   <Icon name="phone" size={14} />
                 </span>
                 <span className="btn btn-primary btn-sm">{c.contact}</span>

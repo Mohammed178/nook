@@ -548,14 +548,13 @@ img { display: block; max-width: 100%; }
 .card-agent-license { font-size: 10px; color: var(--ink-500); font-variant-numeric: tabular-nums; }
 .card-actions { display: flex; gap: 4px; }
 .card-actions .btn { flex: 1; padding: 7px 10px; font-size: var(--t-sm); }
-.card-actions .btn-ico {
-  flex: 0 0 32px; width: 32px; height: 32px; padding: 0;
-  background: var(--paper); border: 1px solid var(--ink-300); color: var(--ink-700);
-  border-radius: var(--r-sm);
+/* Decorative contact glyphs on cards: flat, muted, no border/hover so they do
+   not read as tappable — the real buttons are on the detail page. */
+.card-actions .card-contact-hint {
+  flex: 0 0 28px; width: 28px; height: 28px;
+  color: var(--ink-400);
   display: inline-flex; align-items: center; justify-content: center;
 }
-.card-actions .btn-ico.wa:hover { background: var(--whatsapp); border-color: var(--whatsapp); color: #fff; }
-.card-actions .btn-ico.call:hover { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
 
 .card-h { flex-direction: row; }
 .card-h .card-photo { flex: 0 0 280px; aspect-ratio: 4/3; }
@@ -5132,5 +5131,25 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .coming-soon h1 { font-size: var(--t-2xl); color: var(--ink-900); }
 .coming-soon p { color: var(--ink-600); line-height: 1.6; max-width: 46ch; }
 .coming-soon .btn { margin-top: var(--s-2); display: inline-flex; align-items: center; gap: 6px; }
+/* Shared by not-found.tsx / error.tsx: primary + secondary action row. */
+.coming-soon .stub-actions { display: flex; gap: 10px; margin-top: var(--s-2); }
+.coming-soon .stub-actions .btn { margin-top: 0; }
+
+/* ── Loading skeletons (app/listings/loading.tsx) ───────────────────────── */
+.skel {
+  display: block;
+  background: linear-gradient(90deg, var(--ink-100) 25%, var(--ink-50) 50%, var(--ink-100) 75%);
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--r-sm);
+}
+@keyframes skel-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+.skel-filterbar { display: flex; gap: 8px; padding: 14px 24px; border-bottom: 1px solid var(--ink-150); }
+.skel-pill { width: 96px; height: 32px; border-radius: 999px; }
+.skel-h1 { width: 260px; height: 28px; margin-bottom: 8px; }
+.skel-meta { width: 180px; height: 14px; }
+.skel-card { height: 168px; border-radius: var(--r-md); }
+.skel-map { height: 100%; min-height: 420px; border-radius: var(--r-md); }
 .auth-forgot { font-size: var(--t-xs); color: var(--ink-600); }
 .auth-forgot:hover { color: var(--ink-900); }

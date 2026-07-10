@@ -79,6 +79,20 @@ const ms: Dictionary = {
     body: "Halaman ini sedang disiapkan. Kami lebih rela menulisnya dengan betul daripada menghantar pengisi — kembali semula tidak lama lagi.",
     backHome: "Kembali ke laman utama",
   },
+  notFound: {
+    kicker: "404",
+    title: "Halaman ini telah berpindah",
+    body: "Alamat mungkin tersilap taip, atau apa yang pernah ada di sini sudah tiada. Bilik-bilik masih di tempatnya.",
+    browseRooms: "Lihat bilik",
+    backHome: "Kembali ke laman utama",
+  },
+  errorPage: {
+    kicker: "Ralat",
+    title: "Sesuatu tidak kena",
+    body: "Ralat yang tidak dijangka menghalang halaman ini daripada dimuatkan. Salah kami — cuba lagi, atau kembali ke laman utama.",
+    retry: "Cuba lagi",
+    backHome: "Kembali ke laman utama",
+  },
   account: {
     profileTitle: "Profil",
     yourAccount: "Akaun anda",
@@ -412,7 +426,8 @@ const ms: Dictionary = {
     heroLede:
       "Bilik disahkan di seluruh Lembah Klang — foto dahulu, ejen disemak, pelajar sahaja. Pindah masuk menjelang semester depan.",
     popular: "Popular:",
-    deckPill: "Bilik berhampiran UM dari RM 650/bln",
+    deckPill: "Bilik berhampiran UM dari RM {price}/bln",
+    deckPillFallback: "Bilik disahkan di seluruh Lembah Klang",
     searchHints: [
       "UM, UKM, Bangsar…",
       "Berhampiran Sunway, bawah RM 600…",
@@ -1256,8 +1271,6 @@ const ms: Dictionary = {
       aria: "Ringkasan admin",
       pending: "Permohonan menunggu",
       pendingHint: "Menunggu semakan",
-      approved: "Ejen diluluskan",
-      approvedHint: "Disahkan & aktif",
       liveUniversities: "Universiti aktif",
       liveUniversitiesHint: "Kelihatan kepada pelajar",
       hiddenUniversities: "Universiti disembunyikan",

@@ -8,9 +8,9 @@ export const HERO_DECK: [string, string, string] = [
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=640&q=75",
   "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=640&q=75",
 ];
-// No fabricated walk-times (compute-don't-claim, 4c-B2), price matches the
-// real cheapest seed listing within 5 km of UM.
-export const HERO_DECK_PILL = "Rooms near UM from RM 650/mo";
+// The deck pill's "from RM X/mo" price is COMPUTED at render in
+// components/home/hero-search.tsx (cheapest available listing within 5 km of
+// UM); the old hardcoded HERO_DECK_PILL constant was removed.
 
 // Real KL skyline (Wikimedia Commons, hotlink-stable, URL HEAD-verified).
 export const BIG_CTA_IMAGE_URL =
@@ -41,17 +41,6 @@ export const QUICK_CHIPS: { label: string; href: string }[] = [
 // Wikimedia campus photos from lib/seed/university-content.ts + counts and
 // from-prices computed from listing coordinates). Compute-don't-claim.
 
-export interface FeaturedAgentExtra {
-  /** Agent slug (URL-stable). Keyed by slug, not legacy id, since 3b-B-3. */
-  agentSlug: string;
-  activeListings: number;
-  areasServed: string;
-}
-
-// Top 3 by rating desc, reviewCount tiebreak (mei/aisha/priya).
-// activeListings + areasServed are display-only marketing data.
-export const FEATURED_AGENT_EXTRAS: FeaturedAgentExtra[] = [
-  { agentSlug: "mei-lin-chong", activeListings: 18, areasServed: "Sunway · Subang · USJ" },
-  { agentSlug: "aisha-rahman", activeListings: 24, areasServed: "UM · Bangsar · PJ" },
-  { agentSlug: "priya-devi", activeListings: 31, areasServed: "Cyberjaya · MMU · Putrajaya" },
-];
+// Featured-agent activeListings + areasServed are COMPUTED from live listings
+// in lib/data/featured.ts (compute-don't-claim). The old FEATURED_AGENT_EXTRAS
+// static marketing numbers were removed.
