@@ -4816,7 +4816,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .map-toggle-floating { bottom: calc(24px + env(safe-area-inset-bottom)); }
 
 /* ── Admin · universities ─────────────────────────────────────────────── */
-.admin-uni-toolbar { display: flex; justify-content: flex-end; margin-bottom: var(--s-4); }
+.admin-uni-toolbar { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: var(--s-4); }
 .admin-uni-fullname { display: block; color: var(--ink-600); font-size: var(--t-xs); margin-top: 2px; }
 .uni-admin-form { display: flex; flex-direction: column; gap: var(--s-6); max-width: 760px; }
 .uni-admin-textarea { min-height: 92px; resize: vertical; line-height: 1.5; font-family: inherit; }
@@ -5132,7 +5132,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .coming-soon p { color: var(--ink-600); line-height: 1.6; max-width: 46ch; }
 .coming-soon .btn { margin-top: var(--s-2); display: inline-flex; align-items: center; gap: 6px; }
 /* Shared by not-found.tsx / error.tsx: primary + secondary action row. */
-.coming-soon .stub-actions { display: flex; gap: 10px; margin-top: var(--s-2); }
+.coming-soon .stub-actions { display: flex; gap: 12px; margin-top: var(--s-2); }
 .coming-soon .stub-actions .btn { margin-top: 0; }
 
 /* ── Loading skeletons (app/listings/loading.tsx) ───────────────────────── */
