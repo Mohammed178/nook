@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { publicPhotoUrl } from "@/lib/data/_row-mappers";
+import { publicPhotoUrl, sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { Icon } from "@/components/nook/icon";
 import { useDict } from "@/lib/i18n/context";
 import { format } from "@/lib/i18n/config";
@@ -282,8 +282,9 @@ export function PhotoManager({ listingId, initialPhotos }: PhotoManagerProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className="photo-tile-img"
-                src={publicPhotoUrl(p.storagePath)}
+                src={sizedPhotoUrl(publicPhotoUrl(p.storagePath), 320)}
                 alt={p.altText}
+                loading={i > 5 ? "lazy" : undefined}
               />
               <div className="photo-tile-actions">
                 <button

@@ -236,6 +236,19 @@ export function publicPhotoUrl(storagePath: string): string {
   return `${base}/storage/v1/object/public/${LISTING_PHOTOS_BUCKET}/${storagePath}`;
 }
 
+// Rewrites a public listing-photo URL onto Supabase's on-the-fly transform
+// endpoint (/render/image/public/…?width=&quality=), verified available on
+// this project. Agents upload phone photos; serving the stored originals
+// dominated mobile page weight, so consumers request the width they render
+// at. Non-storage URLs (seed/external imagery) pass through untouched.
+const OBJECT_SEGMENT = "/storage/v1/object/public/";
+const RENDER_SEGMENT = "/storage/v1/render/image/public/";
+export function sizedPhotoUrl(src: string, width: number, quality = 75): string {
+  if (!src.includes(OBJECT_SEGMENT)) return src;
+  const sep = src.includes("?") ? "&" : "?";
+  return `${src.replace(OBJECT_SEGMENT, RENDER_SEGMENT)}${sep}width=${width}&quality=${quality}`;
+}
+
 // Same public-object URL shape for the listing-videos bucket (4d). Paths are
 // uuid-based ({listing_id}/{video_uuid}.{ext}), so no URL-encoding is required.
 const LISTING_VIDEOS_BUCKET = "listing-videos";

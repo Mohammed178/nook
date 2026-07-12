@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
+import { sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { useDict } from "@/lib/i18n/context";
 import { format } from "@/lib/i18n/config";
 import { spring } from "@/lib/motion";
@@ -116,9 +117,10 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
                   display:none, and background-images set on hidden elements
                   still download — lazy images that never intersect don't.
                   The cover tile stays eager (it's the page's LCP). */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className="g-img"
-                src={m.src}
+                src={sizedPhotoUrl(m.src, i === 0 ? 1200 : 640)}
                 alt=""
                 loading={i === 0 ? "eager" : "lazy"}
                 decoding="async"
@@ -209,7 +211,7 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
               {current.kind === "photo" ? (
                 <motion.img
                   key={index}
-                  src={current.src}
+                  src={sizedPhotoUrl(current.src, 1600)}
                   alt={`${title}, photo ${index + 1}`}
                   className="lightbox-img"
                   layoutId={morphId}
@@ -258,7 +260,11 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
                   key={i}
                   type="button"
                   className={`lightbox-thumb${i === index ? " active" : ""}${m.kind === "video" ? " lightbox-thumb-video" : ""}`}
-                  style={m.kind === "photo" ? { backgroundImage: `url(${m.src})` } : undefined}
+                  style={
+                    m.kind === "photo"
+                      ? { backgroundImage: `url(${sizedPhotoUrl(m.src, 160)})` }
+                      : undefined
+                  }
                   aria-label={
                     m.kind === "photo"
                       ? format(d.photoN, { i: i + 1 })

@@ -3,6 +3,7 @@ import { Icon } from "./icon";
 import { HeartButton } from "./heart-button";
 import type { Agent, Area, Listing } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
+import { sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { nearestCampus } from "@/lib/distance";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { format } from "@/lib/i18n/config";
@@ -56,8 +57,13 @@ export function ListingCard({
   // A photoless draft (no listing_photos yet) has no first photo. Guard the
   // background-image so it renders the .is-empty placeholder instead of
   // `url(undefined)` (4c-B1).
+  // Widths ≈ 2x the largest CSS size each variant renders the photo at.
+  const photoWidth =
+    variant === "mini" ? 160 : variant === "map" ? 480 : 800;
   const photo = listing.photos[0];
-  const photoStyle = photo ? { backgroundImage: `url(${photo})` } : undefined;
+  const photoStyle = photo
+    ? { backgroundImage: `url(${sizedPhotoUrl(photo, photoWidth)})` }
+    : undefined;
   const photoEmptyClass = photo ? "" : " is-empty";
   const areaLabel = area?.name ?? listing.city;
   // Compute-don't-claim (4c-B2): straight-line distance to the nearest campus,
