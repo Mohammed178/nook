@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
@@ -63,6 +63,19 @@ export function ListingsBody({
   const l = dict.listings;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
+  // Below 1181px the split-view map pane is display:none (CSS), but a mounted
+  // <ListingsMap> still pulls the whole Maps SDK. Gate mounting on the same
+  // breakpoint; once the user opens the mobile map, keep it mounted so
+  // toggling back and forth doesn't re-init the map.
+  const [desktopMap, setDesktopMap] = useState(false);
+  const [mapTouched, setMapTouched] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1181px)"); // keep in sync with the .map-pane media query
+    const update = () => setDesktopMap(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
   const reduceMotion = useReducedMotion();
 
@@ -163,21 +176,26 @@ export function ListingsBody({
         </div>
 
         <div className="map-pane">
-          <ListingsMap
-            items={items}
-            center={mapCenter}
-            zoom={mapZoom}
-            activeId={activeId}
-            setActiveId={setActiveId}
-            currentQuery={currentQuery}
-          />
+          {(desktopMap || mapTouched) && (
+            <ListingsMap
+              items={items}
+              center={mapCenter}
+              zoom={mapZoom}
+              activeId={activeId}
+              setActiveId={setActiveId}
+              currentQuery={currentQuery}
+            />
+          )}
         </div>
       </div>
 
       <button
         type="button"
         className="map-toggle-floating"
-        onClick={() => setMobileMapOpen((v) => !v)}
+        onClick={() => {
+          setMapTouched(true);
+          setMobileMapOpen((v) => !v);
+        }}
       >
         <Icon name="map" size={14} /> {mobileMapOpen ? l.showList : l.showMap}
       </button>

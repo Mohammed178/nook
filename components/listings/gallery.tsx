@@ -109,10 +109,20 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
               type="button"
               className="g-photo"
               layoutId={tileLayoutId(i)}
-              style={{ backgroundImage: `url(${m.src})` }}
               aria-label={format(d.openPhoto, { i: i + 1, total: media.length })}
               onClick={() => openAt(i)}
             >
+              {/* Real <img>, not a CSS background: phones hide tiles 2-5 via
+                  display:none, and background-images set on hidden elements
+                  still download — lazy images that never intersect don't.
+                  The cover tile stays eager (it's the page's LCP). */}
+              <img
+                className="g-img"
+                src={m.src}
+                alt=""
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
               {i === 0 && (
                 <span className="g-all-btn">
                   <Icon name="camera" size={12} />{" "}

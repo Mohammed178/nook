@@ -1367,9 +1367,17 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   gap: 6px; height: 446px;
 }
 .g-photo {
-  background: var(--ink-200) center/cover no-repeat;
+  background: var(--ink-200);
   cursor: pointer; transition: opacity 120ms; position: relative;
   border: none; padding: 0;
+  overflow: hidden; /* clip the <img> to the tile's border-radius */
+}
+/* Tile photos are real <img> (lazy below the cover) so the phone layout's
+   display:none tiles never download; a CSS background on a hidden element
+   still would. */
+.g-photo .g-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
 }
 .g-photo:hover { opacity: 0.92; }
 .g-photo:nth-child(1) { grid-row: 1 / span 2; border-radius: var(--r-md) 0 0 var(--r-md); }
@@ -1603,14 +1611,24 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   position: relative;
   background:
     linear-gradient(195deg, rgba(47, 65, 86, 0.42) 0%, rgba(47, 65, 86, 0.62) 52%, rgba(31, 43, 58, 0.88) 100%),
-    url("https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80")
-    center / cover;
+    var(--brand-700);
   color: #fff;
   padding: 48px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 32px;
+}
+/* The panel photo loads only where the panel is shown. <=860px hides
+   .auth-brand itself, and a background-image declared on the hidden element
+   would still download on phones — the media gate stops the request. */
+@media (min-width: 861px) {
+  .auth-brand {
+    background:
+      linear-gradient(195deg, rgba(47, 65, 86, 0.42) 0%, rgba(47, 65, 86, 0.62) 52%, rgba(31, 43, 58, 0.88) 100%),
+      url("https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80")
+      center / cover;
+  }
 }
 .auth-brand .logo span:last-child { color: #fff; }
 .auth-brand .logo-mark { background: #fff; color: var(--brand-600); }
