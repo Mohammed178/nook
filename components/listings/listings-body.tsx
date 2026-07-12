@@ -96,6 +96,11 @@ export function ListingsBody({
   }
 
   if (view === "map") {
+    // Phones hide the filter bar's List|Map toggle, so a ?view=map URL opened
+    // there had no way back to the list. Same query, minus the view param.
+    const listParams = new URLSearchParams(currentQuery);
+    listParams.delete("view");
+    const listQuery = listParams.toString();
     return (
       <div className="body-maponly">
         <ListingsMap
@@ -106,6 +111,12 @@ export function ListingsBody({
           setActiveId={setActiveId}
           currentQuery={currentQuery}
         />
+        <Link
+          href={listQuery ? `/listings?${listQuery}` : "/listings"}
+          className="map-toggle-floating maponly-back"
+        >
+          <Icon name="list" size={14} /> {l.showList}
+        </Link>
       </div>
     );
   }
