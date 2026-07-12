@@ -39,6 +39,10 @@
   --ink-100: #EFE9E4;
   --ink-50:  #F9F5F2;
   --paper:   #FFFFFF;
+  /* Card/popover surface. Several components reference --surface; it was
+     undefined for a while (var() resolved to transparent), so keep it aliased
+     to paper. */
+  --surface: var(--paper);
   --canvas:  #F5EFEB;
 
   /* Semantic */
@@ -596,9 +600,8 @@ img { display: block; max-width: 100%; }
 }
 .filter-loc-popover .search-panel { box-shadow: none; max-width: 100%; }
 [dir="rtl"] .filter-loc-popover { left: auto; right: 0; }
-@media (max-width: 600px) {
-  .filter-loc-popover { left: 0; right: 0; width: auto; }
-}
+/* (≤900px the popover is repositioned as a fixed viewport sheet — see the
+   filter bar's mobile block.) */
 .filter-pill-badge {
   display: inline-flex;
   align-items: center;
@@ -1562,6 +1565,20 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .filterbar-inner { flex-wrap: nowrap; min-width: max-content; }
   .filterbar-inner > .view-toggle,
   .filterbar-inner > .sort-select { display: none; }
+  /* Popovers anchored inside the now-scrolling filter bar would be clipped by
+     its overflow (absolute boxes clip to the scroll container). Pin them to
+     the viewport just below the bar instead — fixed boxes ignore ancestor
+     overflow, and the nav + filter bar are both sticky so the offset is
+     constant. Symmetric insets keep RTL correct. */
+  .filterbar .popover {
+    position: fixed;
+    top: calc(var(--nav-h) + var(--filter-h) + 8px);
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100dvh - var(--nav-h) - var(--filter-h) - 24px);
+    overflow-y: auto;
+  }
 }
 
 /* ============================================================
@@ -5004,8 +5021,6 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
   .reject-dialog[open], .reject-dialog[open]::backdrop { animation: none; }
 }
 .reject-dialog-panel {
-  /* --paper, not --surface: --surface is referenced elsewhere but never
-     defined (falls back to transparent — the table showed through). */
   background: var(--paper);
   border-radius: var(--r-lg);
   border-top: 4px solid var(--danger);
