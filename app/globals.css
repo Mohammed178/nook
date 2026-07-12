@@ -10,6 +10,11 @@
   --brand-50:  #EDF3F7;
   --brand-100: #C8D9E6;
   --brand-200: #9FBCCD;
+  /* Mid steps between 200 and 500 (interpolated on the same slate ramp).
+     Referenced by focus borders/outlines and icon accents; they were
+     undefined for a while, which silently degraded those to currentColor. */
+  --brand-300: #7A93A5;
+  --brand-400: #546A7E;
 
   /* Accents, steel teal carries info/links; muted warm tones for state */
   --accent-orange:    #B0683F;
@@ -119,6 +124,8 @@
   --color-brand-50:  var(--brand-50);
   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
   --color-brand-500: var(--brand-500);
   --color-brand-600: var(--brand-600);
   --color-brand-700: var(--brand-700);
@@ -394,8 +401,10 @@ img { display: block; max-width: 100%; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  /* 28px, not 22: WCAG 2.2 target-size minimum is 24px and this is a
+     primary touch control on phones. */
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
   background: transparent;
@@ -4247,7 +4256,8 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .map-overlay-close {
   position: absolute; top: 6px; right: 6px; z-index: 1;
-  width: 22px; height: 22px; border-radius: var(--r-pill);
+  /* 28px min box — 22px was under the WCAG 2.2 24px target-size floor. */
+  width: 28px; height: 28px; border-radius: var(--r-pill);
   border: 1px solid var(--ink-200); background: var(--paper);
   color: var(--ink-700); font-size: 14px; line-height: 1;
   cursor: pointer; display: grid; place-items: center;
@@ -4837,7 +4847,8 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
    controls to 16px on small screens; desktop keeps the intended smaller scale. */
 @media (max-width: 768px) {
   .input, .select, .textarea, .sp-input, .sp-input-date,
-  .uni-search-input, .search-rename-input, .sort-select {
+  .uni-search-input, .search-rename-input, .sort-select,
+  .agents-cb-input {
     font-size: 16px;
   }
 }
