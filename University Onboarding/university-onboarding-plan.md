@@ -17,6 +17,12 @@ offered by the campus itself, not a middleman.
   upload, no email-domain check, no OTP.
 - **One live account per university** (partial unique index): the account is
   the university's public identity; one switchboard call verifies it.
+- **Location is always declared:** universities sometimes manage housing
+  *outside* the campus, so university listings use the same location input as
+  every other listing (address, area, map pin). An **"on campus" toggle**
+  covers the common case: when ticked, the location auto-fills from the
+  university record and the listing displays **"On campus"**; when unticked,
+  the listing shows its actual location and distance like any agent listing.
 
 ---
 
@@ -58,20 +64,27 @@ A visual version of this storyboard exists as a shared artifact page.
 7. **First sign-in** — The officer lands on the standard dashboard; the account
    displays as the university itself. No licence chores anywhere.
 8. **First listing** — Lists "Single room · 12th Residential College (KK12)"
-   with photos, price, availability, and publishes.
+   with photos, price, availability — and declares the location. This hall is
+   on campus, so one tick sets it (location auto-filled from the university
+   record). For university housing outside the campus, the officer unticks and
+   enters the address + map pin, the same location input every listing uses.
 
 ### Act IV — Trust
 
 9. **Student browsing** — The hall listing renders with the distinct
    "Listed by university" pill (different colour from the agent "Verified"
-   badge) across search, map, home, and saved lists — in en/ms/ar.
+   badge) across search, map, home, and saved lists — in en/ms/ar. The
+   residential college reads **"On campus, UM"** where other cards show a
+   distance; the university's off-campus guest house shows its real
+   neighbourhood and distance ("Section 17 · 1.6 km from UM").
 10. **Trust moment** — The detail page shows "Listed by the university" plus
     "Verified by Nook through the university's official channels", linking to
     the university's lister profile. The student enquires with confidence.
 
 **Design principles:** verify the institution, not paperwork · one account per
 university · call the published number, never the applicant's · approval leaves
-an auditable receipt · reuse the existing rails · the badge is the product.
+an auditable receipt · reuse the existing rails · on campus means on campus
+(location is always declared honestly) · the badge is the product.
 
 ---
 
@@ -115,8 +128,17 @@ create or replace view public.agents_public as
          bovaep_licence, lister_type, university_id
   from public.agents
   where status = 'approved' and deleted_at is null;
+
+-- university listings can declare campus siting; agent listings stay false.
+-- "Only university listers may set true" is enforced in the publish server
+-- action (a cross-table CHECK isn't possible); the RLS harness asserts it.
+alter table public.listings
+  add column on_campus boolean not null default false;
 commit;
 ```
+
+If listings carry a column-level INSERT/UPDATE grant (0024 pattern), add
+`on_campus` to it — same 42501-at-runtime trap as the agents columns.
 
 Plus a security-definer RPC `university_account_exists(p_university_id uuid)`
 (mirrors `licence_exists`, migration 0034) with the same predicate as the
@@ -138,6 +160,9 @@ service-role.
   `AgentPublicRow` (`lister_type`, `university_id`); map in `rowToAgent` **and**
   `rowToPublicAgent`; append to `AGENT_COLS` and `AGENT_PUBLIC_COLS` (kept in
   lockstep with the recreated view, per the existing comment contract).
+- Listing location flag: `onCampus?: boolean` on `Listing` (`lib/types.ts`),
+  `on_campus` on `ListingRow`, mapped in `rowToListing`, appended to
+  `LISTING_COLS`.
 
 ### 3. Registration — `app/universities/register/`
 
@@ -197,7 +222,21 @@ around agency/BOVAEP; reuse the same `auth-shell` CSS idioms).
   card "Name · Agency" line, and profile hero display correctly with zero
   component changes. (Editorial renames won't auto-sync — accepted;
   `university_id` stays the source of truth for the badge.)
-- `components/agents/listing-form.tsx`: no licence fields — no change required.
+- `components/agents/listing-form.tsx` — **location for university listings.**
+  Universities keep the full standard location input (address, area, city,
+  state, map pin — identical to agent listings), plus a university-only
+  checkbox at the top of the location section: **"This accommodation is on
+  campus."**
+  - Ticked → the location inputs collapse to a read-only summary ("Location
+    set to the {University} campus") and the address/lat/lng prefill from the
+    university record.
+  - Unticked (off-campus university housing) → the standard fields render and
+    behave exactly as they do for agents, including the 4c map picker at
+    publish.
+  - `app/agents/dashboard/listings/actions.ts`: persist `on_campus`; when
+    true, set address/lat/lng **server-side from the university record**
+    (never trust the client's coordinates for the campus case), and reject
+    `on_campus=true` from non-university accounts.
 
 ### 7. Badge — the student-visible highlight
 
@@ -214,10 +253,19 @@ Data flows automatically after §1+§2 (`ListingWithRelations.agent.listerType`)
   official-account label, trust list): "Listed by the university" + "Verified
   by Nook through the university's official channels"; the `bovaepNum` line
   self-hides (licence is null by constraint).
+- **Location display.** Cards currently compute a "x.x km from {uni}" label
+  via `nearestCampus()` (`lib/distance.ts`); when `listing.onCampus`, replace
+  it with `c.onCampus` ("On campus · {uni}") — the university resolved from
+  the lister's `universityId`, not the nearest-campus guess. Off-campus
+  university listings keep the standard area + distance treatment untouched.
+  On the detail page, the location/address block shows "On campus —
+  {University}" (with the campus map pin) when `onCampus`, and the actual
+  address otherwise.
 - i18n: every new key in **all three** dictionaries
-  `lib/i18n/dictionaries/{en,ms,ar}.ts` (`card.*`, `listingDetail.*`, a new
-  `universityAuth` section, `agents` pending copy, `admin` labels). Check RTL
-  (`ar`) pill layout.
+  `lib/i18n/dictionaries/{en,ms,ar}.ts` (`card.*` incl. `onCampus`,
+  `listingDetail.*` incl. the on-campus location line, a new `universityAuth`
+  section, `agents` pending copy, `admin` labels). Check RTL (`ar`) pill
+  layout.
 
 ### 8. Public lister profile — reuse `app/agents/[slug]/page.tsx`
 
@@ -239,9 +287,11 @@ university pill.
   predicate.
 - **Playwright** `tests/e2e/agent/university-onboarding.spec.ts`: register →
   pending outreach copy (no verify chips) → admin approve with note →
-  dashboard → create + publish listing → guest sees `pill-university` on card
-  and "Listed by the university" on detail. Negative: duplicate application
-  shows a form error.
+  dashboard → publish an **on-campus** listing (toggle ticked, no address
+  typed) → guest sees `pill-university` + "On campus" on card and detail;
+  then publish an **off-campus** listing with a real address → card shows the
+  actual area + distance. Negative: duplicate application shows a form error;
+  an agent submitting `on_campus=true` is rejected server-side.
 - **Manual**: run the migration **before** deploying code (view/COLS lockstep,
   or every public agent read breaks); `node
   scripts/lint-service-role-containment.mjs`; spot-check all three locales;
@@ -262,12 +312,15 @@ university pill.
 8. `app/admin/agents/{page.tsx,_data.ts,actions.ts}` +
    `components/admin/approve-university-dialog.tsx` +
    `lib/email/notifications.ts` + `app/admin/page.tsx`
-9. `components/nook/listing-card.tsx`, `app/listings/[slug]/page.tsx`,
-   `app/globals.css`
-10. `app/agents/[slug]/page.tsx` + directory + footer/register cross-links
-11. `scripts/rls-test-university.mjs`; Playwright spec
+9. `components/agents/listing-form.tsx` +
+   `app/agents/dashboard/listings/actions.ts` (on-campus toggle + server-side
+   location fill)
+10. `components/nook/listing-card.tsx`, `app/listings/[slug]/page.tsx`,
+    `app/globals.css`
+11. `app/agents/[slug]/page.tsx` + directory + footer/register cross-links
+12. `scripts/rls-test-university.mjs`; Playwright spec
 
-Sizing: one feature branch, ~15 files + 1 SQL migration.
+Sizing: one feature branch, ~17 files + 1 SQL migration.
 
 ### Risks / traps
 

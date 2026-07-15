@@ -463,13 +463,15 @@
               <div class="fld"><span class="lb">Monthly rent</span><span class="in">RM 420</span></div>
               <div class="fld"><span class="lb">Available from</span><span class="in">1 Sep 2026</span></div>
             </div>
+            <div class="fld"><span class="lb">Location</span><span class="in">☑&nbsp; This accommodation is on campus</span></div>
+            <div class="note">On campus — location set to the Universiti Malaya campus. Off-campus property? Untick to enter the address and pin the map, exactly like any other listing.</div>
             <div class="fld"><span class="lb">Photos</span><span class="in"><span class="ph">room.jpg · corridor.jpg · cafeteria.jpg</span></span></div>
             <span class="sbtn">Publish listing</span>
           </div>
         </div>
         <div class="cap">
-          <div class="row"><span class="k">Action</span><span class="v">Lists a residential-college room: photos, price, availability, amenities — on-campus housing described by the people who run it.</span></div>
-          <div class="row"><span class="k">System</span><span class="v">Publishes instantly under the university's account. The badge comes along for free.</span></div>
+          <div class="row"><span class="k">Action</span><span class="v">Lists a residential-college room and declares the location. This hall is on campus, so one tick sets it. For university housing <b>outside</b> the campus, the officer unticks and enters the address + map pin — the same location input every listing uses.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Publishes instantly under the university's account. On-campus listings will show <b>"On campus"</b>; off-campus ones show their actual location and distance, like any listing.</span></div>
         </div>
       </article>
 
@@ -497,18 +499,18 @@
             <div class="cards2">
               <div class="mini-card">
                 <div class="mini-photo"><span class="spill uni">Listed by university</span></div>
-                <div class="mini-body"><span class="ti">Single room · KK12</span><span class="pr">RM 420/mo · on campus</span></div>
+                <div class="mini-body"><span class="ti">Single room · KK12</span><span class="pr">RM 420/mo · On campus, UM</span></div>
               </div>
               <div class="mini-card">
-                <div class="mini-photo" style="background:linear-gradient(135deg, var(--ink-100), var(--ink-200));"><span class="spill ok">Verified</span></div>
-                <div class="mini-body"><span class="ti">Studio near LRT Universiti</span><span class="pr">RM 1,350/mo · 1.2 km</span></div>
+                <div class="mini-photo" style="background:linear-gradient(135deg, var(--ink-100), var(--ink-200));"><span class="spill uni">Listed by university</span></div>
+                <div class="mini-body"><span class="ti">UM guest house · Section 17</span><span class="pr">RM 780/mo · 1.6 km from UM</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="cap">
-          <div class="row"><span class="k">Action</span><span class="v">A student browsing near UM sees the hall listing side by side with agent listings — carrying its own distinct pill, in a different colour from the agent "Verified" badge.</span></div>
-          <div class="row"><span class="k">System</span><span class="v">The badge renders automatically wherever the card appears: search, map, home, saved lists. In English, Malay, and Arabic.</span></div>
+          <div class="row"><span class="k">Action</span><span class="v">A student browsing near UM sees two university listings: the residential college reads <b>"On campus"</b>, while the university's off-campus guest house shows its real neighbourhood and distance — no guessing where the room actually is.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">The badge and the location treatment render automatically wherever the card appears: search, map, home, saved lists. In English, Malay, and Arabic.</span></div>
         </div>
       </article>
 
@@ -522,7 +524,7 @@
           <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/listings/single-room-kk12</span></div>
           <div class="sbody">
             <div style="font-weight:600; color:var(--ink-900); font-size:14px;">Single room · 12th Residential College</div>
-            <span class="spill uni">Listed by the university</span>
+            <div class="srow"><span class="spill uni">Listed by the university</span><span style="color:var(--ink-500); font-size:11.5px;">On campus — Universiti Malaya, Kuala Lumpur</span></div>
             <div class="hr"></div>
             <div class="srow"><span class="avatar">UM</span><span><b>UM Student Accommodation Office</b><br><span style="color:var(--ink-500);">Official university account</span></span></div>
             <div class="note good">✓ Verified by Nook through the university's official channels</div>
@@ -561,6 +563,10 @@
       <div class="p">
         <h3>Reuse the rails</h3>
         <p>Universities ride the same dashboard, listing tools, and approval queue agents already use. New for them; battle-tested for us. The onboarding is new — almost nothing else is.</p>
+      </div>
+      <div class="p">
+        <h3>On campus means on campus</h3>
+        <p>University listings declare their location like every other listing. A residential college says "On campus"; a university-run house off campus shows its real address and distance. The badge never blurs where the room actually is.</p>
       </div>
       <div class="p">
         <h3>The badge is the product</h3>
