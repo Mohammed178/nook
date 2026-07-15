@@ -1,0 +1,575 @@
+<title>Nook — University Onboarding Storyboard</title>
+<style>
+  :root {
+    --canvas: #F5EFEB;
+    --paper: #FFFFFF;
+    --ink-900: #1F2B39;
+    --ink-700: #3D5063;
+    --ink-500: #647989;
+    --ink-300: #C6CFD6;
+    --ink-200: #DDE4E9;
+    --ink-100: #EFE9E4;
+    --brand: #2F4156;
+    --brand-deep: #1C2836;
+    --uni: #567C8D;
+    --uni-50: #E4EDF1;
+    --uni-deep: #3E5D6B;
+    --ok: #4E7A62;
+    --ok-50: #E2EEE7;
+    --ok-700: #35543F;
+    --call: #B0683F;
+    --call-50: #F4E5D9;
+    --line: #E3DAD2;
+    --screen-bg: #FBF9F7;
+    --shadow: 0 1px 2px rgba(31,43,57,.06), 0 8px 24px -12px rgba(31,43,57,.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --canvas: #141C26;
+      --paper: #1D2836;
+      --ink-900: #EDF3F7;
+      --ink-700: #C8D5DF;
+      --ink-500: #8FA2B2;
+      --ink-300: #46586B;
+      --ink-200: #384A5C;
+      --ink-100: #2A3948;
+      --brand: #A8C3D8;
+      --brand-deep: #C8D9E6;
+      --uni: #8FB4C4;
+      --uni-50: #263B45;
+      --uni-deep: #B4D2DF;
+      --ok: #8FBEA4;
+      --ok-50: #24382E;
+      --ok-700: #B9DBC7;
+      --call: #D99A6C;
+      --call-50: #3D2E22;
+      --line: #33465A;
+      --screen-bg: #16202B;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="light"] {
+    --canvas: #F5EFEB; --paper: #FFFFFF; --ink-900: #1F2B39; --ink-700: #3D5063;
+    --ink-500: #647989; --ink-300: #C6CFD6; --ink-200: #DDE4E9; --ink-100: #EFE9E4;
+    --brand: #2F4156; --brand-deep: #1C2836; --uni: #567C8D; --uni-50: #E4EDF1;
+    --uni-deep: #3E5D6B; --ok: #4E7A62; --ok-50: #E2EEE7; --ok-700: #35543F;
+    --call: #B0683F; --call-50: #F4E5D9; --line: #E3DAD2; --screen-bg: #FBF9F7;
+    --shadow: 0 1px 2px rgba(31,43,57,.06), 0 8px 24px -12px rgba(31,43,57,.18);
+  }
+  :root[data-theme="dark"] {
+    --canvas: #141C26; --paper: #1D2836; --ink-900: #EDF3F7; --ink-700: #C8D5DF;
+    --ink-500: #8FA2B2; --ink-300: #46586B; --ink-200: #384A5C; --ink-100: #2A3948;
+    --brand: #A8C3D8; --brand-deep: #C8D9E6; --uni: #8FB4C4; --uni-50: #263B45;
+    --uni-deep: #B4D2DF; --ok: #8FBEA4; --ok-50: #24382E; --ok-700: #B9DBC7;
+    --call: #D99A6C; --call-50: #3D2E22; --line: #33465A; --screen-bg: #16202B;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink-900);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  /* ---------- header ---------- */
+  header { max-width: 640px; margin-bottom: 20px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--uni); font-weight: 600; margin: 0 0 14px;
+  }
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: clamp(30px, 5vw, 44px); line-height: 1.12; font-weight: 600;
+    margin: 0 0 16px; text-wrap: balance; color: var(--brand-deep);
+  }
+  header p { color: var(--ink-700); margin: 0; max-width: 58ch; }
+  header p + p { margin-top: 10px; }
+
+  .badge-demo {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--uni-50); color: var(--uni-deep);
+    font-size: 13px; font-weight: 600; padding: 3px 12px; border-radius: 999px;
+    vertical-align: 1px; white-space: nowrap;
+  }
+  .badge-demo svg { flex: none; }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
+    margin: 28px 0 44px; padding: 14px 18px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+  }
+  .legend .t { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-500); font-weight: 600; margin-right: 4px; }
+  .actor { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink-700); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.u { background: var(--uni); }
+  .dot.a { background: var(--call); }
+  .dot.s { background: var(--ok); }
+
+  /* ---------- acts ---------- */
+  .act { margin: 52px 0 0; }
+  .act-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
+  .act-head::after { content: ""; flex: 1; height: 1px; background: var(--line); align-self: center; }
+  .act-head .n { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; color: var(--uni); font-weight: 600; }
+  .act-head h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 22px; font-weight: 600; margin: 0; color: var(--brand-deep);
+  }
+  .act-head .sub { font-size: 14px; color: var(--ink-500); }
+
+  .frames { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 24px; }
+
+  /* ---------- frame card ---------- */
+  .frame {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 20px 20px 22px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .frame-top { display: flex; align-items: center; gap: 10px; }
+  .fnum {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 13px; font-weight: 600; color: var(--paper);
+    background: var(--brand); border-radius: 8px; padding: 2px 8px; flex: none;
+  }
+  .frame-top .actor { font-size: 13px; }
+  .frame h3 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 19px; font-weight: 600; margin: 0; color: var(--brand-deep); text-wrap: balance;
+  }
+
+  /* ---------- screen sketch ---------- */
+  .screen {
+    background: var(--screen-bg); border: 1px solid var(--ink-200); border-radius: 10px;
+    overflow: hidden; font-size: 12.5px; color: var(--ink-700);
+  }
+  .chrome {
+    display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+    border-bottom: 1px solid var(--ink-200); background: var(--paper);
+  }
+  .chrome .dots { display: flex; gap: 4px; }
+  .chrome .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-300); display: block; }
+  .chrome .url {
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; color: var(--ink-500);
+    background: var(--ink-100); border-radius: 6px; padding: 2px 10px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .sbody { padding: 14px; display: flex; flex-direction: column; gap: 9px; }
+
+  .fld { display: flex; flex-direction: column; gap: 3px; }
+  .fld .lb { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-500); font-weight: 600; }
+  .fld .in {
+    border: 1px solid var(--ink-200); background: var(--paper); border-radius: 7px;
+    padding: 5px 9px; color: var(--ink-900); min-height: 27px; display: flex; align-items: center; gap: 6px;
+  }
+  .fld .in.sel::after { content: "▾"; margin-left: auto; color: var(--ink-500); font-size: 10px; }
+  .fld .in .ph { color: var(--ink-500); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+  .sbtn {
+    align-self: flex-start; background: var(--brand); color: var(--canvas);
+    font-weight: 600; font-size: 12.5px; border-radius: 8px; padding: 7px 16px;
+  }
+  :root[data-theme="dark"] .sbtn, :root[data-theme="light"] .sbtn { color: var(--canvas); }
+  .sbtn.ok { background: var(--ok); }
+
+  .note {
+    border-left: 3px solid var(--uni); background: var(--uni-50); color: var(--uni-deep);
+    border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 12px; line-height: 1.5;
+  }
+  .note.call { border-color: var(--call); background: var(--call-50); color: var(--call); }
+  .note.good { border-color: var(--ok); background: var(--ok-50); color: var(--ok-700); }
+
+  .spill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 10px; align-self: flex-start;
+  }
+  .spill.uni { background: var(--uni-50); color: var(--uni-deep); }
+  .spill.ok { background: var(--ok-50); color: var(--ok-700); }
+  .spill.warn { background: var(--call-50); color: var(--call); }
+
+  .srow { display: flex; align-items: center; gap: 9px; }
+  .srow .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--uni-50); color: var(--uni-deep); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+  .hr { height: 1px; background: var(--ink-200); margin: 2px 0; }
+
+  /* mini listing card sketch */
+  .mini-card { border: 1px solid var(--ink-200); border-radius: 9px; overflow: hidden; background: var(--paper); }
+  .mini-photo { height: 58px; background: linear-gradient(135deg, var(--uni-50), var(--ink-100)); position: relative; }
+  .mini-photo .spill { position: absolute; top: 7px; left: 7px; }
+  .mini-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; }
+  .mini-body .ti { font-weight: 600; color: var(--ink-900); font-size: 12.5px; }
+  .mini-body .pr { color: var(--ink-500); font-size: 11.5px; }
+  .cards2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+  /* queue table sketch */
+  .q { border: 1px solid var(--ink-200); border-radius: 9px; overflow: hidden; background: var(--paper); }
+  .q .qr { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-top: 1px solid var(--ink-200); min-width: 0; }
+  .q .qr:first-child { border-top: 0; background: var(--ink-100); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-500); font-weight: 600; }
+  .q .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* phone call sketch */
+  .call-card { display: flex; flex-direction: column; gap: 9px; padding: 14px; }
+  .call-line { display: flex; align-items: center; gap: 10px; }
+  .call-ic { width: 30px; height: 30px; border-radius: 50%; background: var(--call-50); color: var(--call); display: flex; align-items: center; justify-content: center; flex: none; }
+
+  /* ---------- caption ---------- */
+  .cap { display: flex; flex-direction: column; gap: 7px; font-size: 14px; }
+  .cap .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: baseline; }
+  .cap .k { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--ink-500); }
+  .cap .v { color: var(--ink-700); }
+  .cap .v b { color: var(--ink-900); font-weight: 600; }
+  .cap .v code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; background: var(--ink-100); border-radius: 5px; padding: 1px 6px; }
+
+  /* ---------- principles ---------- */
+  .principles { margin-top: 64px; }
+  .principles h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 24px; font-weight: 600; color: var(--brand-deep); margin: 0 0 18px;
+  }
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px; }
+  .p {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+  }
+  .p h3 { margin: 0 0 6px; font-size: 15px; color: var(--brand-deep); }
+  .p p { margin: 0; font-size: 14px; color: var(--ink-700); }
+
+  footer { margin-top: 56px; font-size: 13px; color: var(--ink-500); border-top: 1px solid var(--line); padding-top: 18px; }
+  footer code { font-family: ui-monospace, Menlo, Consolas, monospace; background: var(--ink-100); border-radius: 5px; padding: 1px 6px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Nook · Product Storyboard</p>
+    <h1>Universities list their own housing</h1>
+    <p>An onboarding journey that brings university housing offices onto Nook as first-class listers — verified not by paperwork, but by a Nook admin reaching the university through its own official channels.</p>
+    <p>The payoff is a trust signal students can't get anywhere else: <span class="badge-demo"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>Listed by the university</span> — the room is offered by the campus itself, not a middleman.</p>
+  </header>
+
+  <div class="legend" role="list" aria-label="Actors in this storyboard">
+    <span class="t">Actors</span>
+    <span class="actor" role="listitem"><span class="dot u"></span>University housing office</span>
+    <span class="actor" role="listitem"><span class="dot a"></span>Nook admin</span>
+    <span class="actor" role="listitem"><span class="dot s"></span>Student</span>
+  </div>
+
+  <!-- ============ ACT I ============ -->
+  <section class="act">
+    <div class="act-head">
+      <span class="n">Act I</span>
+      <h2>Apply</h2>
+      <span class="sub">the university raises its hand</span>
+    </div>
+    <div class="frames">
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">1</span>
+          <span class="actor"><span class="dot u"></span>Housing officer</span>
+        </div>
+        <h3>Discovery</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my</span></div>
+          <div class="sbody">
+            <div class="srow"><span style="font-weight:700; color:var(--brand-deep); font-family:Georgia,serif;">nook</span><span class="grow"></span><span style="color:var(--ink-500);">Listings · Areas · Agents</span></div>
+            <div class="hr"></div>
+            <div style="color:var(--ink-500);">Footer</div>
+            <div class="note">Are you a university? <b>List your official accommodation →</b></div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">A Universiti Malaya housing officer spots the university entry point in the footer (also cross-linked from the agent registration page).</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Routes to <code>/universities/register</code>.</span></div>
+        </div>
+      </article>
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">2</span>
+          <span class="actor"><span class="dot u"></span>Housing officer</span>
+        </div>
+        <h3>The application form</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/universities/register</span></div>
+          <div class="sbody">
+            <div class="fld"><span class="lb">University</span><span class="in sel">Universiti Malaya (UM)</span></div>
+            <div class="fld"><span class="lb">Display name</span><span class="in">UM Student Accommodation Office</span></div>
+            <div class="row2">
+              <div class="fld"><span class="lb">Contact person</span><span class="in">Farid Kamaruddin</span></div>
+              <div class="fld"><span class="lb">Role</span><span class="in">Housing Unit Manager</span></div>
+            </div>
+            <div class="row2">
+              <div class="fld"><span class="lb">Official phone</span><span class="in">+60 3-7967 ····</span></div>
+              <div class="fld"><span class="lb">Official email</span><span class="in">housing@um.edu.my</span></div>
+            </div>
+            <div class="fld"><span class="lb">Notes for our team</span><span class="in"><span class="ph">Our switchboard is listed on um.edu.my/contact</span></span></div>
+            <span class="sbtn">Submit application</span>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">Picks the university from Nook's official list, adds a named contact and the university's <b>publicly verifiable</b> phone and email, sets a login.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Validates everything — including that no live account already claims UM — <b>before</b> creating the login. Application saved as <code>pending</code>.</span></div>
+        </div>
+      </article>
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">3</span>
+          <span class="actor"><span class="dot u"></span>Housing officer</span>
+        </div>
+        <h3>Submitted — nothing more to upload</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/agents/pending</span></div>
+          <div class="sbody">
+            <span class="spill warn">Under review</span>
+            <div style="font-weight:600; color:var(--ink-900); font-size:14px;">Thanks — we'll take it from here.</div>
+            <div class="note">To confirm this application really comes from <b>Universiti Malaya</b>, a Nook admin will contact the university through its official switchboard or website. No documents needed from you. Typically 2–3 working days.</div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">Reads the pending page. There is no licence step, no document upload, no OTP — universities skip the agent verification stepper entirely.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Shows the submitted contact details for self-checking, and sets the expectation of an <b>outreach call</b>.</span></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ ACT II ============ -->
+  <section class="act">
+    <div class="act-head">
+      <span class="n">Act II</span>
+      <h2>Verify</h2>
+      <span class="sub">Nook calls the campus, not the applicant</span>
+    </div>
+    <div class="frames">
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">4</span>
+          <span class="actor"><span class="dot a"></span>Nook admin</span>
+        </div>
+        <h3>The application lands in the queue</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/admin/agents</span></div>
+          <div class="sbody">
+            <div class="q">
+              <div class="qr"><span style="width:64px;">Type</span><span class="grow">Applicant</span><span>Contact</span></div>
+              <div class="qr"><span class="spill uni">University</span><span class="grow"><b>UM Student Accommodation Office</b> · Farid K., Housing Unit Manager</span></div>
+              <div class="qr"><span class="spill" style="background:var(--ink-100); color:var(--ink-500);">Agent</span><span class="grow">Aisha Rahman · REN 2214…</span></div>
+            </div>
+            <div class="note">Verify via official channels → <b>um.edu.my</b> · switchboard +60 3-7967 ····</div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">Admin opens the existing approval queue. University applications sit alongside agents, marked with a <b>University</b> chip.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Shows the contact person, the applicant's notes, and links to the university's <b>official website</b> — the starting point for outreach.</span></div>
+        </div>
+      </article>
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">5</span>
+          <span class="actor"><span class="dot a"></span>Nook admin</span>
+        </div>
+        <h3>The outreach call — off-platform</h3>
+        <div class="screen">
+          <div class="call-card">
+            <div class="call-line">
+              <span class="call-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.5 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span>
+              <span><b>Calling:</b> UM switchboard, from um.edu.my/contact</span>
+            </div>
+            <div class="note call">"Hello — Nook here. Someone named Farid Kamaruddin applied to manage UM's accommodation listings. Can you put me through to the Housing Unit to confirm?"</div>
+            <div class="note good">Housing Unit confirms: Farid is theirs, and the application is expected. ✓</div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">The admin dials the number published on the university's <b>own website</b> — never the number in the application — and confirms the applicant with the housing office.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Nothing yet — this step is deliberately human. The phone call is the verification.</span></div>
+        </div>
+      </article>
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">6</span>
+          <span class="actor"><span class="dot a"></span>Nook admin</span>
+        </div>
+        <h3>Approve, with the receipt attached</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/admin/agents</span></div>
+          <div class="sbody">
+            <div style="font-weight:600; color:var(--ink-900);">Approve UM Student Accommodation Office?</div>
+            <div class="fld"><span class="lb">Verified via outreach — required</span><span class="in">Spoke to Puan Ainun, UM Housing Unit, via +60 3-7967 ···· on 15 Jul 2026. Confirmed Farid K.</span></div>
+            <span class="sbtn ok">Approve university</span>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">Approval requires a written outreach note — who was reached, on which official number, when. No note, no approve button.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Stamps the account <code>approved</code>, stores the note as the audit trail, and emails the housing office: <b>you're in</b>.</span></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ ACT III ============ -->
+  <section class="act">
+    <div class="act-head">
+      <span class="n">Act III</span>
+      <h2>List</h2>
+      <span class="sub">the campus opens its doors</span>
+    </div>
+    <div class="frames">
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">7</span>
+          <span class="actor"><span class="dot u"></span>Housing officer</span>
+        </div>
+        <h3>First sign-in, approved</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/agents/dashboard</span></div>
+          <div class="sbody">
+            <div class="srow">
+              <span class="avatar">UM</span>
+              <span><b>UM Student Accommodation Office</b><br><span style="color:var(--ink-500);">Universiti Malaya · Official account</span></span>
+            </div>
+            <div class="hr"></div>
+            <div style="color:var(--ink-500);">No listings yet.</div>
+            <span class="sbtn">+ New listing</span>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">The officer signs in and lands straight on the dashboard — the same battle-tested tools agents use, with no licence chores anywhere.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Account displays as the university itself; listing quotas, photos, and publishing all work day one.</span></div>
+        </div>
+      </article>
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">8</span>
+          <span class="actor"><span class="dot u"></span>Housing officer</span>
+        </div>
+        <h3>The first hall goes up</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/agents/dashboard/listings/new</span></div>
+          <div class="sbody">
+            <div class="fld"><span class="lb">Title</span><span class="in">Single room · 12th Residential College (KK12)</span></div>
+            <div class="row2">
+              <div class="fld"><span class="lb">Monthly rent</span><span class="in">RM 420</span></div>
+              <div class="fld"><span class="lb">Available from</span><span class="in">1 Sep 2026</span></div>
+            </div>
+            <div class="fld"><span class="lb">Photos</span><span class="in"><span class="ph">room.jpg · corridor.jpg · cafeteria.jpg</span></span></div>
+            <span class="sbtn">Publish listing</span>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">Lists a residential-college room: photos, price, availability, amenities — on-campus housing described by the people who run it.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Publishes instantly under the university's account. The badge comes along for free.</span></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ ACT IV ============ -->
+  <section class="act">
+    <div class="act-head">
+      <span class="n">Act IV</span>
+      <h2>Trust</h2>
+      <span class="sub">what the student sees</span>
+    </div>
+    <div class="frames">
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">9</span>
+          <span class="actor"><span class="dot s"></span>Student</span>
+        </div>
+        <h3>The badge stands out in search</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/listings?university=um</span></div>
+          <div class="sbody">
+            <div class="cards2">
+              <div class="mini-card">
+                <div class="mini-photo"><span class="spill uni">Listed by university</span></div>
+                <div class="mini-body"><span class="ti">Single room · KK12</span><span class="pr">RM 420/mo · on campus</span></div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-photo" style="background:linear-gradient(135deg, var(--ink-100), var(--ink-200));"><span class="spill ok">Verified</span></div>
+                <div class="mini-body"><span class="ti">Studio near LRT Universiti</span><span class="pr">RM 1,350/mo · 1.2 km</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">A student browsing near UM sees the hall listing side by side with agent listings — carrying its own distinct pill, in a different colour from the agent "Verified" badge.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">The badge renders automatically wherever the card appears: search, map, home, saved lists. In English, Malay, and Arabic.</span></div>
+        </div>
+      </article>
+
+      <article class="frame">
+        <div class="frame-top">
+          <span class="fnum">10</span>
+          <span class="actor"><span class="dot s"></span>Student</span>
+        </div>
+        <h3>The trust moment</h3>
+        <div class="screen">
+          <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">nook.my/listings/single-room-kk12</span></div>
+          <div class="sbody">
+            <div style="font-weight:600; color:var(--ink-900); font-size:14px;">Single room · 12th Residential College</div>
+            <span class="spill uni">Listed by the university</span>
+            <div class="hr"></div>
+            <div class="srow"><span class="avatar">UM</span><span><b>UM Student Accommodation Office</b><br><span style="color:var(--ink-500);">Official university account</span></span></div>
+            <div class="note good">✓ Verified by Nook through the university's official channels</div>
+            <span class="sbtn ok">Enquire on WhatsApp</span>
+          </div>
+        </div>
+        <div class="cap">
+          <div class="row"><span class="k">Action</span><span class="v">On the detail page the student reads exactly why this listing is different: the university itself posted it, and Nook confirmed that directly with the campus.</span></div>
+          <div class="row"><span class="k">System</span><span class="v">Links through to the university's lister profile and campus guide. The student enquires with confidence — <b>no middleman, no doubt</b>.</span></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ principles ============ -->
+  <section class="principles">
+    <h2>Why the flow is shaped this way</h2>
+    <div class="pgrid">
+      <div class="p">
+        <h3>Verify the institution, not the paperwork</h3>
+        <p>Agents prove themselves with a BOVAEP licence. A university's proof is that it answers its own switchboard. One outbound call to a publicly published number beats any uploaded document — documents can be forged; the campus phone line can't.</p>
+      </div>
+      <div class="p">
+        <h3>One account per university</h3>
+        <p>The account is the university's public identity on Nook. A single verified account means students never have to wonder which "UM" is the real one — and one switchboard call verifies it.</p>
+      </div>
+      <div class="p">
+        <h3>Call the published number, never the applicant's</h3>
+        <p>The number in the application could belong to anyone. The number on the university's own website belongs to the university. Outreach always starts from the official source.</p>
+      </div>
+      <div class="p">
+        <h3>Approval leaves a receipt</h3>
+        <p>Every university approval records who was reached, on which number, on what date. Trust that can be audited is trust that keeps.</p>
+      </div>
+      <div class="p">
+        <h3>Reuse the rails</h3>
+        <p>Universities ride the same dashboard, listing tools, and approval queue agents already use. New for them; battle-tested for us. The onboarding is new — almost nothing else is.</p>
+      </div>
+      <div class="p">
+        <h3>The badge is the product</h3>
+        <p>Everything upstream exists so a student can see one pill and relax. "Listed by the university" only means something because steps 4–6 actually happened.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Nook university onboarding storyboard · July 2026 · Companion implementation plan lives in the repo at <code>University Onboarding/university-onboarding-plan.md</code>.
+  </footer>
+</div>
