@@ -10,6 +10,7 @@ import type {
   FurnishingLevel,
   Gender,
   Listing,
+  ListerType,
   ListingStatus,
   ListingType,
   Locale,
@@ -104,6 +105,14 @@ export interface AgentRow {
   phone_verified: boolean;
   phone_verified_at: string | null;
   verification_submitted_at: string | null;
+  // University lister columns (migration 0036). lister_type is NOT NULL
+  // (default 'agent'); the rest are nullable and only populated for universities.
+  lister_type: ListerType;
+  university_id: string | null;
+  contact_person_name: string | null;
+  contact_person_role: string | null;
+  application_notes: string | null;
+  verification_note: string | null;
 }
 
 export function rowToArea(r: AreaRow): Area {
@@ -147,6 +156,12 @@ export function rowToAgent(r: AgentRow): Agent {
     phoneVerified: r.phone_verified,
     phoneVerifiedAt: r.phone_verified_at ?? undefined,
     verificationSubmittedAt: r.verification_submitted_at ?? undefined,
+    listerType: r.lister_type,
+    universityId: r.university_id ?? undefined,
+    contactPersonName: r.contact_person_name ?? undefined,
+    contactPersonRole: r.contact_person_role ?? undefined,
+    applicationNotes: r.application_notes ?? undefined,
+    verificationNote: r.verification_note ?? undefined,
   };
 }
 
@@ -172,6 +187,8 @@ export function rowToPublicAgent(r: AgentPublicRow): Agent {
     yearsActive: r.years_active,
     bio: r.bio ?? undefined,
     bovaepLicence: r.bovaep_licence ?? undefined,
+    listerType: r.lister_type,
+    universityId: r.university_id ?? undefined,
   };
 }
 
@@ -179,7 +196,7 @@ export const AREA_COLS =
   "id, slug, name, city, state, lat, lng, nearby_university_ids, vibe";
 
 export const AGENT_COLS =
-  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence, licence_type, practising_state, phone_verified, phone_verified_at, verification_submitted_at";
+  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, status, status_reason, submitted_at, verified_at, deleted_at, years_active, bio, bovaep_licence, licence_type, practising_state, phone_verified, phone_verified_at, verification_submitted_at, lister_type, university_id, contact_person_name, contact_person_role, application_notes, verification_note";
 
 // Public read surface (Phase H2). The `agents_public` view (migration 0020) exposes
 // only these safe columns for approved, non-deleted agents, no user_id, status,
@@ -187,7 +204,7 @@ export const AGENT_COLS =
 // `status` is not selected: the view is approved-only, so rowToPublicAgent hardcodes
 // it. Keep this string in lockstep with the view's SELECT list (see 0020).
 export const AGENT_PUBLIC_COLS =
-  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, years_active, bio, bovaep_licence";
+  "id, slug, name, agency, rating, review_count, response_time_mins, languages, avatar_url, whatsapp, phone, email, years_active, bio, bovaep_licence, lister_type, university_id";
 
 // Row shape returned by the `agents_public` view, the safe-column subset of
 // AgentRow, with no status/audit columns.
@@ -207,6 +224,10 @@ export interface AgentPublicRow {
   years_active: number;
   bio: string | null;
   bovaep_licence: string | null;
+  // Appended to the view in 0036. lister_type is NOT NULL; university_id is null
+  // for agent rows. contact/notes/verification_note are NOT in the view (private).
+  lister_type: ListerType;
+  university_id: string | null;
 }
 
 // Embedded listing_photos row (Phase 4c-B1). Only the fields the public-URL
@@ -290,6 +311,9 @@ export interface ListingRow {
   // the 4c map-picker sets coordinates at publish (LC-19).
   lat: number | null;
   lng: number | null;
+  // Campus siting (migration 0036). NOT NULL, default false; only university
+  // listings ever carry true.
+  on_campus: boolean;
   // Distance columns (nearby_university_ids / walk_mins_to_campus /
   // metres_to_campus) dropped in 4c-B2 (migration 0019); proximity is computed
   // app-side from lat/lng via lib/distance.ts. No longer selected or mapped.
@@ -338,6 +362,7 @@ export function rowToListing(r: ListingRow): Listing {
     state: r.state,
     lat: r.lat ?? undefined,
     lng: r.lng ?? undefined,
+    onCampus: r.on_campus,
     amenities: r.amenities,
     // Embed order is not guaranteed; sort by sort_order, then resolve to URLs.
     photos: [...r.listing_photos]
@@ -366,4 +391,4 @@ export function rowToListing(r: ListingRow): Listing {
 }
 
 export const LISTING_COLS =
-  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at, listing_photos(storage_path, sort_order), listing_videos(storage_path, title, sort_order)";
+  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, on_campus, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at, listing_photos(storage_path, sort_order), listing_videos(storage_path, title, sort_order)";

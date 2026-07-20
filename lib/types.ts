@@ -2,6 +2,9 @@ export type ListingType = "room" | "studio" | "apartment" | "house";
 export type ListingStatus = "draft" | "available" | "reserved" | "rented";
 export type AgentStatus = "pending" | "approved" | "rejected";
 export type AgentLicenceType = "REN" | "REA" | "PEA";
+/** A lister on the `agents` rail (migration 0036). `undefined` on an Agent ⇒
+ * a plain agent (seed fixtures don't retype); "university" is the campus-lister. */
+export type ListerType = "agent" | "university";
 export type FurnishingLevel = "unfurnished" | "partial" | "full";
 export type Gender = "male" | "female" | "mixed";
 export type Locale = "en" | "ms" | "ar";
@@ -98,6 +101,23 @@ export interface Agent {
   phoneVerified?: boolean;
   phoneVerifiedAt?: string;
   verificationSubmittedAt?: string;
+  // University lister fields (migration 0036). listerType/universityId are on the
+  // public `agents_public` view (badge + profile need them). The remaining four
+  // are self/admin-only (base table) — the public mapper leaves them undefined.
+  // listerType is optional: undefined ⇒ 'agent', so seed agent fixtures and the
+  // pre-0036 shape need no change.
+  listerType?: ListerType;
+  universityId?: string;
+  contactPersonName?: string;
+  contactPersonRole?: string;
+  applicationNotes?: string;
+  verificationNote?: string;
+}
+
+/** True when the agent row is a university lister (migration 0036). Centralises
+ * the `listerType === "university"` check so callers don't scatter the literal. */
+export function isUniversityLister(agent: Pick<Agent, "listerType">): boolean {
+  return agent.listerType === "university";
 }
 
 export type NearbyPOIKind =
@@ -155,6 +175,12 @@ export interface Listing {
    * private drafts carry null, published listings always have coordinates. */
   lat?: number;
   lng?: number;
+  /** University campus siting (migration 0036). true ⇒ the listing is on the
+   * lister university's campus: cards/detail show "On campus · {uni}" instead of
+   * the computed distance, and address/lat/lng are set server-side from the
+   * university record. false/undefined ⇒ a normal located listing. Only a
+   * university lister may set this true (enforced in the publish server action). */
+  onCampus?: boolean;
   /** Seed-only since 4c-B2 (compute-don't-claim). The DB columns
    * nearby_university_ids / walk_mins_to_campus / metres_to_campus were dropped
    * (migration 0019); proximity is computed at read from lat/lng + the

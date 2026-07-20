@@ -220,6 +220,10 @@ export function AgentRegisterForm({
             {t.lookingForRoom}{" "}
             <Link href="/register">{a.createStudentAccount}</Link>
           </span>
+          <span>
+            {t.areYouUniversity}{" "}
+            <Link href="/universities/register">{t.registerAsUniversity}</Link>
+          </span>
         </div>
       )}
     </>

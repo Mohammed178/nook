@@ -4,10 +4,13 @@ import {
   listPendingAgents,
   listAgentDocumentsForAdmin,
   listAgentConsentCounts,
+  listUniversitiesForAdmin,
 } from "./_data";
 import { approveAgentAction } from "./actions";
 import { AgentDocLinks } from "@/components/admin/agent-doc-links";
 import { RejectAgentDialog } from "@/components/admin/reject-agent-dialog";
+import { ApproveUniversityDialog } from "@/components/admin/approve-university-dialog";
+import { isUniversityLister } from "@/lib/types";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { format, LOCALE_DATE_TAG, type Locale } from "@/lib/i18n/config";
 
@@ -31,9 +34,16 @@ export default async function AdminAgentsPage() {
     getLocale(),
   ]);
   const agentIds = agents.map((a) => a.id);
-  const [docsByAgent, consentCounts] = await Promise.all([
+  // Universities have no docs/consents; only fetch those for agent rows. The
+  // university lookup resolves each lister's university_id to name/slug/website.
+  const universityIds = agents
+    .filter((a) => isUniversityLister(a))
+    .map((a) => a.universityId)
+    .filter((id): id is string => !!id);
+  const [docsByAgent, consentCounts, unisById] = await Promise.all([
     listAgentDocumentsForAdmin(agentIds),
     listAgentConsentCounts(agentIds),
+    listUniversitiesForAdmin(universityIds),
   ]);
   const t = dict.admin;
   const v = dict.agentVerify;
@@ -69,6 +79,7 @@ export default async function AdminAgentsPage() {
             <thead>
               <tr>
                 <th>{t.colName}</th>
+                <th>{t.colType}</th>
                 <th>{t.colAgency}</th>
                 <th>{t.colLicenceType}</th>
                 <th>{t.colLicence}</th>
@@ -83,6 +94,74 @@ export default async function AdminAgentsPage() {
             </thead>
             <tbody>
               {agents.map((agent) => {
+                const university = isUniversityLister(agent);
+
+                // University row: no licence/docs/OTP. A single detail cell spans
+                // the agent-specific columns (licence class → documents) and shows
+                // the contact person + role, official phone/email, applicant
+                // notes, and the outreach links (editorial record + the
+                // university's own website). reviewReady is always true — there is
+                // no self-service stepper to complete.
+                if (university) {
+                  const uni = agent.universityId
+                    ? unisById.get(agent.universityId)
+                    : undefined;
+                  return (
+                    <tr key={agent.id} className="admin-queue-row-ready">
+                      <td>{agent.name}</td>
+                      <td>
+                        <span className="pill pill-university">{t.typeUniversity}</span>
+                      </td>
+                      <td>{agent.agency ?? "-"}</td>
+                      <td colSpan={7} className="admin-uni-detail">
+                        <div className="admin-uni-contact">
+                          <strong>{agent.contactPersonName ?? "-"}</strong>
+                          {agent.contactPersonRole ? ` · ${agent.contactPersonRole}` : ""}
+                        </div>
+                        <div className="admin-uni-reach">
+                          {agent.phone ? <span className="tabular">{agent.phone}</span> : null}
+                          {agent.email ? <span>{agent.email}</span> : null}
+                          <span>{formatSubmitted(agent.submittedAt!, locale)}</span>
+                        </div>
+                        {agent.applicationNotes ? (
+                          <p className="admin-uni-notes">
+                            <span className="admin-uni-notes-label">{t.uniNotesLabel}:</span>{" "}
+                            {agent.applicationNotes}
+                          </p>
+                        ) : null}
+                        <div className="admin-uni-links">
+                          {uni ? (
+                            <a href={`/admin/universities/${uni.slug}/edit`}>
+                              {t.uniRecordLink}
+                            </a>
+                          ) : null}
+                          {uni?.website ? (
+                            <a href={uni.website} target="_blank" rel="noopener noreferrer">
+                              {t.uniWebsiteLink}
+                            </a>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="pill pill-pending">{t.reviewReady}</span>
+                      </td>
+                      <td className="admin-queue-actions">
+                        <ApproveUniversityDialog
+                          agentId={agent.id}
+                          universityName={agent.agency ?? agent.name}
+                          dict={dict}
+                        />
+                        <RejectAgentDialog
+                          agentId={agent.id}
+                          agentName={agent.name}
+                          agency={agent.agency ?? null}
+                          dict={dict}
+                        />
+                      </td>
+                    </tr>
+                  );
+                }
+
                 const docs = docsByAgent.get(agent.id) ?? [];
                 const docsOk = docs.length >= 1;
                 const phoneOk = agent.phoneVerified === true;
@@ -91,6 +170,9 @@ export default async function AdminAgentsPage() {
                 return (
                   <tr key={agent.id} className={reviewReady ? "admin-queue-row-ready" : ""}>
                     <td>{agent.name}</td>
+                    <td>
+                      <span className="pill pill-neutral">{t.typeAgent}</span>
+                    </td>
                     <td>{agent.agency ?? "-"}</td>
                     <td>{agent.licenceType ?? "-"}</td>
                     <td className="tabular">{agent.bovaepLicence ?? "-"}</td>

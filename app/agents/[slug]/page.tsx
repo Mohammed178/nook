@@ -6,9 +6,11 @@ import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
 import { getAgentProfile } from "@/lib/data/agent-directory";
+import { getAllUniversities } from "@/lib/data/universities";
 import { getDictionary } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/types";
+import { isUniversityLister } from "@/lib/types";
 
 interface ProfilePageProps {
   params: Promise<{ slug: string }>;
@@ -41,6 +43,13 @@ export default async function AgentProfilePage({ params }: ProfilePageProps) {
   const t = dict.agentProfile;
   const d = dict.listingDetail;
   const waNumber = agent.whatsapp.replace(/[^0-9]/g, "");
+  // University lister (migration 0036): official-account hero treatment, the
+  // licence line self-hides (null by constraint), and a link to the campus guide.
+  const isUniversity = isUniversityLister(agent);
+  const universitySlug =
+    isUniversity && agent.universityId
+      ? (await getAllUniversities()).find((u) => u.id === agent.universityId)?.slug
+      : undefined;
   const langName: Record<Locale, string> = {
     en: t.langEn,
     ms: t.langMs,
@@ -75,17 +84,30 @@ export default async function AgentProfilePage({ params }: ProfilePageProps) {
             <h1>
               {agent.name}
               {agent.status === "approved" && (
-                <span className="agent-hero-verif" title={d.bovaepLicensed}>
-                  <Icon name="check-circle" size={20} />
+                <span
+                  className="agent-hero-verif"
+                  title={isUniversity ? d.officialUniversityAccount : d.bovaepLicensed}
+                >
+                  <Icon name={isUniversity ? "school" : "check-circle"} size={20} />
                 </span>
               )}
             </h1>
             {agent.agency && <div className="agent-hero-agency">{agent.agency}</div>}
-            {agent.bovaepLicence && (
+            {isUniversity ? (
+              <div className="agent-hero-license">
+                {d.officialUniversityAccount}
+                {universitySlug ? (
+                  <>
+                    {" · "}
+                    <Link href={`/universities/${universitySlug}`}>{t.viewCampusGuide}</Link>
+                  </>
+                ) : null}
+              </div>
+            ) : agent.bovaepLicence ? (
               <div className="agent-hero-license">
                 {format(d.bovaepNum, { licence: agent.bovaepLicence })}
               </div>
-            )}
+            ) : null}
 
             <div className="agent-facts">
               <span className="agent-fact">

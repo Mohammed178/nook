@@ -42,6 +42,7 @@ import {
   type RawSearchParams,
 } from "@/lib/listings-search";
 import type { NearbyPOI, NearbyPOIKind } from "@/lib/types";
+import { isUniversityLister } from "@/lib/types";
 
 export function generateStaticParams() {
   // Slugs come from the committed id-map artifact (no DB / no cookies at build
@@ -157,6 +158,12 @@ export default async function ListingDetailPage({
         uni: primaryUni?.shortName ?? d.campus,
       })
     : null;
+  // University lister (migration 0036): the "Verified agent" pill becomes a
+  // university pill, the sidebar shows an official-account label + the licence
+  // line self-hides (licence is null by constraint), and an on-campus listing's
+  // location reads "On campus — {University}" instead of the address + distance.
+  const isUniversity = agent ? isUniversityLister(agent) : false;
+  const onCampus = listing.onCampus && isUniversity;
 
   return (
     <>
@@ -180,11 +187,16 @@ export default async function ListingDetailPage({
           <div className="title-row">
             <div>
               <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                {agent?.status === "approved" && (
-                  <span className="pill pill-verified">
-                    <Icon name="check" size={10} /> {d.verifiedAgent}
-                  </span>
-                )}
+                {agent?.status === "approved" &&
+                  (isUniversity ? (
+                    <span className="pill pill-university">
+                      <Icon name="school" size={10} /> {d.listedByUniversity}
+                    </span>
+                  ) : (
+                    <span className="pill pill-verified">
+                      <Icon name="check" size={10} /> {d.verifiedAgent}
+                    </span>
+                  ))}
                 {listing.listedToday && (
                   <span className="pill pill-today">{d.listedToday}</span>
                 )}
@@ -192,8 +204,9 @@ export default async function ListingDetailPage({
               <h1>{listing.title}</h1>
               <div className="addr">
                 <Icon name="pin" size={12} />
-                {listing.address}, {area?.name ?? listing.city}, {listing.state}
-                {distanceLabel ? ` · ${distanceLabel}` : ""}
+                {onCampus
+                  ? format(d.onCampusLocation, { university: agent?.agency ?? d.campus })
+                  : `${listing.address}, ${area?.name ?? listing.city}, ${listing.state}${distanceLabel ? ` · ${distanceLabel}` : ""}`}
               </div>
             </div>
             <div className="title-actions">
@@ -359,19 +372,24 @@ export default async function ListingDetailPage({
                   <div className="agent-meta-name">
                     {agent.name}
                     {agent.status === "approved" && (
-                      <span className="verif" title={d.bovaepLicensed}>
-                        <Icon name="check-circle" size={14} />
+                      <span
+                        className="verif"
+                        title={isUniversity ? d.officialUniversityAccount : d.bovaepLicensed}
+                      >
+                        <Icon name={isUniversity ? "school" : "check-circle"} size={14} />
                       </span>
                     )}
                   </div>
                   {agent.agency && (
                     <div className="agent-meta-agency">{agent.agency}</div>
                   )}
-                  {agent.bovaepLicence && (
+                  {isUniversity ? (
+                    <div className="agent-meta-license">{d.officialUniversityAccount}</div>
+                  ) : agent.bovaepLicence ? (
                     <div className="agent-meta-license">
                       {format(d.bovaepNum, { licence: agent.bovaepLicence })}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </Link>
 
@@ -409,7 +427,7 @@ export default async function ListingDetailPage({
                 {agent.status === "approved" && (
                   <div className="trust-item">
                     <span className="ico"><Icon name="check" size={14} /></span>
-                    {d.bovaepChecked}
+                    {isUniversity ? d.verifiedByUniversityChannels : d.bovaepChecked}
                   </div>
                 )}
                 <div className="trust-item">

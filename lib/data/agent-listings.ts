@@ -50,6 +50,12 @@ export interface ListingInput {
   areaId: string;
   city: string;
   state: string;
+  // Campus siting (migration 0036). When true AND the caller is a university
+  // lister, address/city/state/lat/lng are overwritten server-side from the
+  // university record (the client's location inputs are ignored — never trust
+  // client coordinates for the campus case). A non-university caller sending
+  // true is rejected. Absent/false ⇒ the standard located-listing behaviour.
+  onCampus?: boolean;
   // Distance claims (nearbyUniversityIds / walkMinsToCampus / metresToCampus)
   // removed in 4c-B2 (compute-don't-claim). Proximity is computed at read from
   // lat/lng; the agent no longer authors it. lat/lng are set by the map-picker
@@ -59,6 +65,55 @@ export interface ListingInput {
 }
 
 type ActionClient = Awaited<ReturnType<typeof createActionClient>>;
+
+// Resolves the server-authoritative campus location for an on-campus listing.
+// Reads the caller's own agent row (agents_self_read, 0020) to confirm they are
+// a university lister and to get their university_id, then reads that university
+// record for the coordinates. Returns an error string for a non-university
+// caller (the on_campus=true rejection) or an unresolvable university.
+interface OnCampusFill {
+  address: string;
+  city: string;
+  state: string;
+  lat: number;
+  lng: number;
+}
+
+async function resolveOnCampusFill(
+  sb: ActionClient,
+  agentId: string,
+): Promise<{ ok: true; fill: OnCampusFill } | { ok: false; error: string }> {
+  const { errors } = await getDictionary();
+  const { data: agentRow } = await sb
+    .from("agents")
+    .select("lister_type, university_id")
+    .eq("id", agentId)
+    .maybeSingle();
+  if (
+    !agentRow ||
+    agentRow.lister_type !== "university" ||
+    !agentRow.university_id
+  ) {
+    return { ok: false, error: errors.onCampusUniversityOnly };
+  }
+  const { data: uni } = await sb
+    .from("universities")
+    .select("name, city, state, lat, lng")
+    .eq("id", agentRow.university_id)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!uni) return { ok: false, error: errors.unknownUniversity };
+  return {
+    ok: true,
+    fill: {
+      address: uni.name as string,
+      city: uni.city as string,
+      state: uni.state as string,
+      lat: uni.lat as number,
+      lng: uni.lng as number,
+    },
+  };
+}
 
 export type CreateListingResult =
   | { id: string; slug: string }
@@ -107,6 +162,7 @@ function inputToColumns(input: ListingInput) {
     area_id: input.areaId,
     city: input.city,
     state: input.state,
+    on_campus: input.onCampus ?? false,
     amenities: input.amenities,
     description: input.description,
   };
@@ -124,13 +180,30 @@ export async function createListing(
   if (!agentId) return { error: (await getDictionary()).errors.onlyApprovedCreate };
 
   const now = new Date().toISOString();
-  const cols = inputToColumns(input);
+  let cols = inputToColumns(input);
+  // On-campus listings take their location from the university record, not the
+  // client. This also fills lat/lng so the listing can publish without the map
+  // picker (the campus pin is authoritative), and rejects on_campus=true from a
+  // non-university caller.
+  let coords: { lat: number; lng: number } | Record<string, never> = {};
+  if (input.onCampus) {
+    const r = await resolveOnCampusFill(sb, agentId as string);
+    if (!r.ok) return { error: r.error };
+    cols = {
+      ...cols,
+      address: r.fill.address,
+      city: r.fill.city,
+      state: r.fill.state,
+    };
+    coords = { lat: r.fill.lat, lng: r.fill.lng };
+  }
 
   const buildRow = (id: string, slug: string) => ({
     id,
     slug,
     status: "draft" as const,
     ...cols,
+    ...coords,
     agent_id: agentId as string,
     created_at: now,
     updated_at: now,
@@ -167,11 +240,31 @@ export async function updateListing(
   // The owner-update RLS policy (using: agent_id = current_agent_id()) restricts
   // this to the agent's own rows; a non-owned id matches 0 rows with no error.
   // .select() lets us detect that and report honestly rather than silently
-  // no-op. agent_id / status / slug / id / created_at / lat / lng / photos are
-  // intentionally NOT updatable here.
+  // no-op. agent_id / status / slug / id / created_at / photos are intentionally
+  // NOT updatable here. lat/lng are normally the map-picker's (setListingCoords)
+  // — but an on-campus listing overwrites address/city/state AND lat/lng from the
+  // university record (the campus pin is authoritative, LC parity with create).
+  let updateCols: Record<string, unknown> = {
+    ...inputToColumns(input),
+    updated_at: new Date().toISOString(),
+  };
+  if (input.onCampus) {
+    const { data: agentId } = await sb.rpc("current_agent_id");
+    if (!agentId) return { error: (await getDictionary()).errors.onlyApprovedCreate };
+    const r = await resolveOnCampusFill(sb, agentId as string);
+    if (!r.ok) return { error: r.error };
+    updateCols = {
+      ...updateCols,
+      address: r.fill.address,
+      city: r.fill.city,
+      state: r.fill.state,
+      lat: r.fill.lat,
+      lng: r.fill.lng,
+    };
+  }
   const { data, error } = await sb
     .from("listings")
-    .update({ ...inputToColumns(input), updated_at: new Date().toISOString() })
+    .update(updateCols)
     .eq("id", id)
     .select("id");
   if (error) return { error: (await getDictionary()).errors.couldNotUpdate };

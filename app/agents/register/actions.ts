@@ -1,30 +1,10 @@
 "use server";
 
 import { createActionClient } from "@/lib/supabase/server";
-import { slugify } from "@/lib/slugify";
+import { deriveUniqueSlug } from "@/lib/data/unique-slug";
 import { getDictionary } from "@/lib/i18n/server";
 
 type ActionClient = Awaited<ReturnType<typeof createActionClient>>;
-
-// Server-side slug from name (LOCK-4.3). Collision → append -2/-3 against the
-// agents.slug UNIQUE constraint. Non-Latin fallback: if slugify yields < 3
-// chars, use agent-{short-uuid}.
-//
-// Phase H2: collision check goes through the `slug_exists` security-definer RPC,
-// not a direct `.from("agents")` read. Under approved-only public scoping the RLS
-// read client cannot see pending/rejected/soft-deleted slugs, so a direct read
-// would miss a collision and the INSERT would then fail on the UNIQUE constraint
-// (23505). slug_exists checks ALL rows regardless of status/deletion.
-async function deriveUniqueSlug(name: string, sb: ActionClient): Promise<string> {
-  let base = slugify(name);
-  if (base.length < 3) base = `agent-${crypto.randomUUID().slice(0, 8)}`;
-  let candidate = base;
-  for (let n = 2; ; n++) {
-    const { data: exists } = await sb.rpc("slug_exists", { p_slug: candidate });
-    if (!exists) return candidate;
-    candidate = `${base}-${n}`;
-  }
-}
 
 // F3, defense-in-depth licence format check. Length + charset that admits the
 // BOVAEP "E(n)NNNN" estate-agent number (parentheses required, the seed agents

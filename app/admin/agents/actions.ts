@@ -15,6 +15,7 @@ async function decide(
   agentId: string,
   status: "approved" | "rejected",
   reason: string,
+  note = "",
 ): Promise<void> {
   // F5, validate the id is a UUID before any query (a malformed id otherwise
   // throws a raw Postgres error at the .eq("id", …) boundary).
@@ -27,6 +28,7 @@ async function decide(
   if (status === "rejected" && !trimmedReason) {
     throw new Error("Rejection reason required");
   }
+  const trimmedNote = note.trim();
 
   // 1. Caller + isAdmin assert. Defence-in-depth: this throws even if route
   //    gating (middleware + layout) somehow let a non-admin reach the action.
@@ -40,17 +42,36 @@ async function decide(
   //    would affect 0 rows; service-role bypasses RLS for the privileged write.
   const admin = createAdminClient();
 
+  // 2b. Pre-read lister_type (migration 0036) to enforce the university approve
+  //     gate: approving a university REQUIRES an outreach note (the audit
+  //     receipt), mirroring the rejection-reason gate. Guarded to the same
+  //     pending/non-deleted row the UPDATE below will hit.
+  const { data: pre } = await admin
+    .from("agents")
+    .select("lister_type")
+    .eq("id", agentId)
+    .eq("status", "pending")
+    .is("deleted_at", null)
+    .maybeSingle();
+  const isUniversity = pre?.lister_type === "university";
+  if (status === "approved" && isUniversity && !trimmedNote) {
+    throw new Error("Verification note required");
+  }
+
   // 3. Guarded UPDATE. status='pending' guard prevents double-decisions on stale
   //    tabs; deleted_at is null guard prevents deciding a withdrawn (soft-deleted)
   //    application (H5). decided_by = the admin's auth.uid(). F2: persist the
   //    reason on reject, clear it on approve. F5: stamp verified_at on approve,
-  //    clear on reject.
+  //    clear on reject. 0036: persist the outreach note to verification_note on a
+  //    university approve (the audit trail); null otherwise.
   const nowIso = new Date().toISOString();
   const { data, error } = await admin
     .from("agents")
     .update({
       status,
       status_reason: status === "rejected" ? trimmedReason : null,
+      verification_note:
+        status === "approved" && isUniversity ? trimmedNote : null,
       verified_at: status === "approved" ? nowIso : null,
       decided_by: user!.id,
       decided_at: nowIso,
@@ -58,7 +79,7 @@ async function decide(
     .eq("id", agentId)
     .eq("status", "pending")
     .is("deleted_at", null)
-    .select("user_id, agency")
+    .select("user_id, agency, lister_type")
     .maybeSingle();
   if (error) throw new Error(error.message);
 
@@ -85,6 +106,7 @@ async function decide(
         status,
         agencyName: data.agency ?? "",
         statusReason: status === "rejected" ? trimmedReason : undefined,
+        listerType: data.lister_type === "university" ? "university" : "agent",
       });
     }
   }
@@ -105,6 +127,18 @@ export async function rejectAgentAction(formData: FormData): Promise<void> {
     String(formData.get("agentId") ?? ""),
     "rejected",
     String(formData.get("reason") ?? ""),
+  );
+}
+
+// University approval (migration 0036). Requires the outreach note — the audit
+// receipt of the switchboard call — which decide() persists to verification_note
+// and gates on (a university approve with an empty note throws).
+export async function approveUniversityAction(formData: FormData): Promise<void> {
+  await decide(
+    String(formData.get("agentId") ?? ""),
+    "approved",
+    "",
+    String(formData.get("note") ?? ""),
   );
 }
 

@@ -8,6 +8,7 @@ export async function notifyAgentDecision({
   status,
   agencyName,
   statusReason,
+  listerType = "agent",
 }: {
   email: string;
   status: "approved" | "rejected";
@@ -15,10 +16,14 @@ export async function notifyAgentDecision({
   // F2, the rejection reason (LOCK-4.7: rejection email carries it). Present on
   // reject, absent on approve. Signature stays stable for the real provider.
   statusReason?: string;
+  // Lister type (migration 0036) selects the email flavour: an agent hears about
+  // BOVAEP verification, a university about the official-channels outreach.
+  // Defaults to 'agent' so existing callers are unaffected.
+  listerType?: "agent" | "university";
 }): Promise<void> {
   // TODO: wire real provider (LOCK-4.7). Stub: log only, no send.
   console.log(
-    `[notify] agent decision email=${email} status=${status} agency=${agencyName}` +
+    `[notify] ${listerType} decision email=${email} status=${status} agency=${agencyName}` +
       (statusReason ? ` reason=${statusReason}` : ""),
   );
 }

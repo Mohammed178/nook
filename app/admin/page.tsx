@@ -28,6 +28,12 @@ export default async function AdminPage() {
     },
     {
       icon: "school" as const,
+      value: counts.pendingUniversities,
+      label: o.pendingUniversities,
+      href: "/admin/agents",
+    },
+    {
+      icon: "school" as const,
       value: counts.liveUniversities,
       label: o.liveUniversities,
       href: "/admin/universities",

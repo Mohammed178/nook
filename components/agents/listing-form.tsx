@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Area, Listing } from "@/lib/types";
 import { useDict } from "@/lib/i18n/context";
+import { format } from "@/lib/i18n/config";
 import {
   createListingAction,
   updateListingAction,
@@ -40,6 +41,11 @@ interface ListingFormProps {
   areas: Area[];
   // Present → edit mode (fields pre-filled, submits an update); absent → create.
   listing?: Listing;
+  // University lister (migration 0036): when true, the on-campus toggle appears
+  // at the top of the location section. universityName fills the read-only
+  // "location set to the {university} campus" summary when it is ticked.
+  isUniversity?: boolean;
+  universityName?: string;
 }
 
 function err(id: string, fieldErrors: Record<string, string>) {
@@ -61,7 +67,12 @@ function aria(id: string, fieldErrors: Record<string, string>) {
   };
 }
 
-export function ListingForm({ areas, listing }: ListingFormProps) {
+export function ListingForm({
+  areas,
+  listing,
+  isUniversity = false,
+  universityName,
+}: ListingFormProps) {
   const dict = useDict();
   const f = dict.listingForm;
   const router = useRouter();
@@ -69,6 +80,10 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
+  // Campus toggle state (university listers only). When ticked, the location
+  // inputs collapse to a read-only summary and the server fills address/lat/lng
+  // from the university record.
+  const [onCampus, setOnCampus] = useState(listing?.onCampus ?? false);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -346,21 +361,49 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
         {err("minStayMonths", fieldErrors)}
       </div>
 
-      <div className="field">
-        <label className="label" htmlFor="lf-address">
-          {f.address}
-        </label>
-        <input
-          id="lf-address"
-          className="input"
-          name="address"
-          type="text"
-          required
-          defaultValue={listing?.address ?? ""}
-          {...aria("address", fieldErrors)}
-        />
-        {err("address", fieldErrors)}
-      </div>
+      {isUniversity ? (
+        <div className="field">
+          <label className="check-row" htmlFor="lf-oncampus">
+            <input
+              id="lf-oncampus"
+              type="checkbox"
+              name="onCampus"
+              checked={onCampus}
+              onChange={(e) => setOnCampus(e.target.checked)}
+            />
+            <span>{f.onCampusToggle}</span>
+          </label>
+          <div className="help">{f.onCampusHelp}</div>
+        </div>
+      ) : null}
+
+      {onCampus ? (
+        // Read-only summary — the location comes from the university record,
+        // server-side. address/city/state inputs are intentionally NOT rendered
+        // (the parse relaxes them and the data layer overwrites them).
+        <div className="field listing-form-oncampus">
+          <span className="label">{f.address}</span>
+          <p className="listing-form-oncampus-note">
+            {format(f.onCampusSummary, { university: universityName ?? "" })}
+          </p>
+        </div>
+      ) : (
+        <div className="field">
+          <label className="label" htmlFor="lf-address">
+            {f.address}
+          </label>
+          <input
+            id="lf-address"
+            className="input"
+            name="address"
+            type="text"
+            required
+            defaultValue={listing?.address ?? ""}
+            {...aria("address", fieldErrors)}
+          />
+          {err("address", fieldErrors)}
+        </div>
+      )}
 
       <div className="field">
         <label className="label" htmlFor="lf-area">
@@ -386,37 +429,41 @@ export function ListingForm({ areas, listing }: ListingFormProps) {
         {err("areaId", fieldErrors)}
       </div>
 
-      <div className="field">
-        <label className="label" htmlFor="lf-city">
-          {f.city}
-        </label>
-        <input
-          id="lf-city"
-          className="input"
-          name="city"
-          type="text"
-          required
-          defaultValue={listing?.city ?? ""}
-          {...aria("city", fieldErrors)}
-        />
-        {err("city", fieldErrors)}
-      </div>
+      {onCampus ? null : (
+        <>
+          <div className="field">
+            <label className="label" htmlFor="lf-city">
+              {f.city}
+            </label>
+            <input
+              id="lf-city"
+              className="input"
+              name="city"
+              type="text"
+              required
+              defaultValue={listing?.city ?? ""}
+              {...aria("city", fieldErrors)}
+            />
+            {err("city", fieldErrors)}
+          </div>
 
-      <div className="field">
-        <label className="label" htmlFor="lf-state">
-          {f.state}
-        </label>
-        <input
-          id="lf-state"
-          className="input"
-          name="state"
-          type="text"
-          required
-          defaultValue={listing?.state ?? ""}
-          {...aria("state", fieldErrors)}
-        />
-        {err("state", fieldErrors)}
-      </div>
+          <div className="field">
+            <label className="label" htmlFor="lf-state">
+              {f.state}
+            </label>
+            <input
+              id="lf-state"
+              className="input"
+              name="state"
+              type="text"
+              required
+              defaultValue={listing?.state ?? ""}
+              {...aria("state", fieldErrors)}
+            />
+            {err("state", fieldErrors)}
+          </div>
+        </>
+      )}
 
       <fieldset className="field listing-form-group">
         <legend className="label">{f.amenities}</legend>

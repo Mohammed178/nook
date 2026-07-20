@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Icon } from "@/components/nook/icon";
 import { getCurrentUser } from "@/lib/auth";
 import { getAgentByUserId } from "@/lib/data/agents";
+import { isUniversityLister } from "@/lib/types";
 import {
   getAgentConsentsForCurrentUser,
   getAgentDocumentsForCurrentUser,
@@ -42,16 +43,19 @@ export default async function AgentPendingPage() {
   if (agent.status === "approved") redirect("/"); // approved → away
 
   const rejected = agent.status === "rejected";
+  const university = isUniversityLister(agent);
   const submitted = formatSubmitted(agent.submittedAt!, locale);
 
-  // Verification progress (only computed for pending, the rejected branch
-  // doesn't surface it — reapply path is separate, not in this seal).
-  const [docs, consents] = rejected
-    ? [[], []]
-    : await Promise.all([
-        getAgentDocumentsForCurrentUser(),
-        getAgentConsentsForCurrentUser(),
-      ]);
+  // Verification progress (only computed for a pending AGENT). Universities have
+  // no licence/docs/OTP stepper, so skip the fetch — the chips would render
+  // permanently "missing" and mislead. The rejected branch skips it too.
+  const [docs, consents] =
+    rejected || university
+      ? [[], []]
+      : await Promise.all([
+          getAgentDocumentsForCurrentUser(),
+          getAgentConsentsForCurrentUser(),
+        ]);
   const licenceOk =
     !!agent.licenceType && !!agent.practisingState && !!agent.bovaepLicence;
   const docsOk = docs.length >= 1;
@@ -74,7 +78,7 @@ export default async function AgentPendingPage() {
         >
           {rejected
             ? t.applicationRejected
-            : verificationSubmitted
+            : university || verificationSubmitted
               ? t.underReview
               : t.finishVerification}
         </span>
@@ -90,6 +94,27 @@ export default async function AgentPendingPage() {
                 : ""}
             </p>
             <p>{t.reapplyBody}</p>
+            <div className="verify-cta-row">
+              <Link href="/" className="btn btn-secondary verify-cta">
+                {t.continueToHome}
+              </Link>
+              <Link
+                href="/account/profile#danger-zone"
+                className="verify-withdraw-link"
+              >
+                {dict.account.withdrawAndDelete}
+              </Link>
+            </div>
+          </>
+        ) : university ? (
+          <>
+            {/* Universities are "under review" from the moment they apply — a
+                Nook admin verifies by contacting the institution through its
+                official channels; there is no self-service verification stepper
+                and no chips. */}
+            <h2>{t.underReview}</h2>
+            <p className="auth-status-meta">{format(t.submitted, { date: submitted })}</p>
+            <p>{t.universityUnderReviewBody}</p>
             <div className="verify-cta-row">
               <Link href="/" className="btn btn-secondary verify-cta">
                 {t.continueToHome}

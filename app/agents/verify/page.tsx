@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { getCurrentUser } from "@/lib/auth";
 import { getAgentByUserId } from "@/lib/data/agents";
+import { isUniversityLister } from "@/lib/types";
 import {
   getAgentDocumentsForCurrentUser,
   getAgentConsentsForCurrentUser,
@@ -35,6 +36,10 @@ export default async function AgentVerifyPage() {
   if (agent.deletedAt) redirect("/agents/pending");
   if (agent.status === "approved") redirect("/agents/dashboard");
   if (agent.status === "rejected") redirect("/agents/pending");
+  // Universities never enter the licence/document/OTP stepper — their pending
+  // page is the whole flow. Guard the route so they cannot wander in (e.g. a
+  // stale link) and get stuck against agent-only preconditions.
+  if (isUniversityLister(agent)) redirect("/agents/pending");
 
   // Read once on the server; the client stepper takes initial state and
   // optimistically updates as each step succeeds (revalidatePath repopulates

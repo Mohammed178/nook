@@ -82,6 +82,44 @@ export async function listAgentDocumentsForAdmin(
   return map;
 }
 
+// University lookup for the admin queue (migration 0036). University lister rows
+// carry a university_id FK; the queue resolves it to the editorial record's
+// name/slug/website — the slug links to /admin/universities/{slug}/edit and the
+// website is the admin's outreach starting point. Service-role read (consistent
+// with the rest of this admin surface); universities are public data anyway.
+export interface AdminUniversityRef {
+  name: string;
+  slug: string;
+  website: string;
+}
+
+export async function listUniversitiesForAdmin(
+  universityIds: string[],
+): Promise<Map<string, AdminUniversityRef>> {
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) throw new Error("Forbidden");
+  const ids = universityIds.filter((id): id is string => !!id);
+  if (ids.length === 0) return new Map();
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("universities")
+    .select("id, name, slug, website")
+    .in("id", ids);
+  if (error || !data) return new Map();
+
+  const map = new Map<string, AdminUniversityRef>();
+  for (const row of data as Array<{
+    id: string;
+    name: string;
+    slug: string;
+    website: string;
+  }>) {
+    map.set(row.id, { name: row.name, slug: row.slug, website: row.website });
+  }
+  return map;
+}
+
 // Per-agent consent count (used for the "terms ✓" chip in the admin queue).
 export async function listAgentConsentCounts(
   agentIds: string[],

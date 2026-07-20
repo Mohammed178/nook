@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Icon } from "./icon";
 import { HeartButton } from "./heart-button";
 import type { Agent, Area, Listing } from "@/lib/types";
+import { isUniversityLister } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import { sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { nearestCampus } from "@/lib/distance";
@@ -75,6 +76,15 @@ export function ListingCard({
         uni: UNIVERSITY_BY_ID[nearestCmp.uniId]?.shortName ?? c.campus,
       })
     : "";
+  // University lister (migration 0036): the "Verified" pill and BOVAEP line are
+  // replaced with a university treatment, and an on-campus listing shows
+  // "On campus · {uni}" (resolved from the lister's own university, denormalized
+  // into agent.agency) instead of the nearest-campus distance guess.
+  const isUniversity = agent ? isUniversityLister(agent) : false;
+  const onCampusLabel =
+    listing.onCampus && isUniversity
+      ? format(c.onCampus, { uni: agent?.agency ?? c.campus })
+      : "";
 
   if (variant === "mini") {
     return (
@@ -105,12 +115,18 @@ export function ListingCard({
         <div className={`photo${photoEmptyClass}`} style={photoStyle}>
           {!photo && <Icon name="camera" size={20} aria-hidden />}
           <div className="pills">
-            {agent?.status === "approved" && (
-              <span className="pill-mini pill-verified-mini">
-                <Icon name="check" size={10} />
-                {c.verified}
-              </span>
-            )}
+            {agent?.status === "approved" &&
+              (isUniversity ? (
+                <span className="pill-mini pill-university-mini">
+                  <Icon name="school" size={10} />
+                  {c.universityListed}
+                </span>
+              ) : (
+                <span className="pill-mini pill-verified-mini">
+                  <Icon name="check" size={10} />
+                  {c.verified}
+                </span>
+              ))}
             {listing.listedToday && (
               <span className="pill-mini pill-today-mini">{c.today}</span>
             )}
@@ -149,12 +165,18 @@ export function ListingCard({
         <div className={`card-photo${photoEmptyClass}`} style={photoStyle}>
           {!photo && <Icon name="camera" size={20} aria-hidden />}
           <div className="badges-tl">
-            {agent?.status === "approved" && (
-              <span className="pill pill-verified">
-                <Icon name="check" size={10} />
-                {c.verified}
-              </span>
-            )}
+            {agent?.status === "approved" &&
+              (isUniversity ? (
+                <span className="pill pill-university">
+                  <Icon name="school" size={10} />
+                  {c.universityListed}
+                </span>
+              ) : (
+                <span className="pill pill-verified">
+                  <Icon name="check" size={10} />
+                  {c.verified}
+                </span>
+              ))}
           </div>
         </div>
         <div className="card-body">
@@ -200,12 +222,18 @@ export function ListingCard({
       <div className={`card-photo${photoEmptyClass}`} style={photoStyle}>
         {!photo && <Icon name="camera" size={22} aria-hidden />}
         <div className="badges-tl">
-          {agent?.status === "approved" && (
-            <span className="pill pill-verified">
-              <Icon name="check" size={10} />
-              {c.verified}
-            </span>
-          )}
+          {agent?.status === "approved" &&
+            (isUniversity ? (
+              <span className="pill pill-university">
+                <Icon name="school" size={10} />
+                {c.universityListed}
+              </span>
+            ) : (
+              <span className="pill pill-verified">
+                <Icon name="check" size={10} />
+                {c.verified}
+              </span>
+            ))}
         </div>
         <div className="badges-tr">
           <HeartButton
@@ -227,8 +255,9 @@ export function ListingCard({
         <div className="card-title">{listing.title}</div>
         <div className="card-addr">
           <Icon name="pin" size={12} />
-          {areaLabel}
-          {distanceLabel ? ` · ${distanceLabel}` : ""}
+          {onCampusLabel
+            ? onCampusLabel
+            : `${areaLabel}${distanceLabel ? ` · ${distanceLabel}` : ""}`}
         </div>
         <div className="card-facts">
           <span>
@@ -265,7 +294,11 @@ export function ListingCard({
                   {agent.agency ? ` · ${agent.agency}` : ""}
                 </div>
                 <div className="card-agent-license tabular">
-                  {agent.status === "approved" ? c.bovaepVerified : " "}
+                  {isUniversity
+                    ? c.listedByUniversity
+                    : agent.status === "approved"
+                      ? c.bovaepVerified
+                      : " "}
                 </div>
               </div>
               <div className="card-actions">

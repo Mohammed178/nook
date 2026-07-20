@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllAreas } from "@/lib/data/areas";
 import { ListingForm } from "@/components/agents/listing-form";
+import { getCurrentUser } from "@/lib/auth";
+import { getAgentByUserId } from "@/lib/data/agents";
+import { isUniversityLister } from "@/lib/types";
 import { getDictionary } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -10,8 +13,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NewListingPage() {
-  const [areas, dict] = await Promise.all([getAllAreas(), getDictionary()]);
+  const [areas, dict, user] = await Promise.all([
+    getAllAreas(),
+    getDictionary(),
+    getCurrentUser(),
+  ]);
   const t = dict.agents;
+  // University listers get the on-campus toggle; the denormalized agency holds
+  // the university name for the read-only summary.
+  const agent = user ? await getAgentByUserId(user.id) : null;
+  const isUniversity = agent ? isUniversityLister(agent) : false;
 
   return (
     <div className="dashboard-page dashboard-form-page">
@@ -24,7 +35,11 @@ export default async function NewListingPage() {
           {t.backToListings}
         </Link>
       </header>
-      <ListingForm areas={areas} />
+      <ListingForm
+        areas={areas}
+        isUniversity={isUniversity}
+        universityName={agent?.agency}
+      />
     </div>
   );
 }

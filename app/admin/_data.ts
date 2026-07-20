@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/auth";
 // payloads), run in parallel.
 export interface AdminOverviewCounts {
   pendingAgents: number;
+  pendingUniversities: number;
   liveUniversities: number;
   hiddenUniversities: number;
 }
@@ -20,11 +21,21 @@ export async function getAdminOverviewCounts(): Promise<AdminOverviewCounts> {
   if (!user?.isAdmin) throw new Error("Forbidden");
 
   const admin = createAdminClient();
-  const [pending, liveUni, hiddenUni] = await Promise.all([
+  // pendingAgents / pendingUniversities split on lister_type (migration 0036) so
+  // the two application queues are legible at a glance; both share the /admin/
+  // agents queue but the load is worth distinguishing.
+  const [pendingAgents, pendingUnis, liveUni, hiddenUni] = await Promise.all([
     admin
       .from("agents")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending")
+      .eq("lister_type", "agent")
+      .is("deleted_at", null),
+    admin
+      .from("agents")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending")
+      .eq("lister_type", "university")
       .is("deleted_at", null),
     admin
       .from("universities")
@@ -37,7 +48,8 @@ export async function getAdminOverviewCounts(): Promise<AdminOverviewCounts> {
   ]);
 
   return {
-    pendingAgents: pending.count ?? 0,
+    pendingAgents: pendingAgents.count ?? 0,
+    pendingUniversities: pendingUnis.count ?? 0,
     liveUniversities: liveUni.count ?? 0,
     hiddenUniversities: hiddenUni.count ?? 0,
   };

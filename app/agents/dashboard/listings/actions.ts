@@ -88,17 +88,25 @@ function parseListingForm(
   const description = str(fd, "description");
   if (!description) fieldErrors.description = e.addDescription;
 
+  // On-campus (migration 0036): a university lister ticks this and the location's
+  // address/city/state + lat/lng are set SERVER-SIDE from the university record
+  // (lib/data/agent-listings.ts). So those fields are not required from the form
+  // here — the data layer overwrites them and rejects on_campus=true from a
+  // non-university caller. The area is still declared (which area the campus is
+  // in), so areaId stays required.
+  const onCampus = fd.get("onCampus") != null;
+
   const address = str(fd, "address");
-  if (!address) fieldErrors.address = e.addAddress;
+  if (!onCampus && !address) fieldErrors.address = e.addAddress;
 
   const areaId = str(fd, "areaId");
   if (!areaId) fieldErrors.areaId = e.chooseArea;
 
   const city = str(fd, "city");
-  if (!city) fieldErrors.city = e.addCity;
+  if (!onCampus && !city) fieldErrors.city = e.addCity;
 
   const state = str(fd, "state");
-  if (!state) fieldErrors.state = e.addState;
+  if (!onCampus && !state) fieldErrors.state = e.addState;
 
   const availableFrom = str(fd, "availableFrom");
   if (!availableFrom) fieldErrors.availableFrom = e.chooseAvailableFrom;
@@ -152,6 +160,7 @@ function parseListingForm(
       areaId,
       city,
       state,
+      onCampus,
       amenities,
       description,
     },

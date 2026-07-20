@@ -253,6 +253,21 @@ img { display: block; max-width: 100%; }
 .pill-lg       { padding: 4px 10px; font-size: var(--t-xs); }
 .pill-pending  { background: var(--warning-50); color: var(--warning-700); }
 .pill-rejected { background: var(--danger-50); color: var(--danger-700); }
+/* University lister badge (migration 0036). Distinct info hue (accent-blue
+   family) so it never reads as the green agent "Verified" pill. */
+.pill-university { background: var(--accent-blue-50); color: var(--accent-blue); }
+.pill-neutral  { background: var(--ink-100, #eceff1); color: var(--ink-600, #4b5563); }
+
+/* University application detail cell in the admin queue (migration 0036) */
+.admin-uni-detail { font-size: var(--t-sm); line-height: 1.5; }
+.admin-uni-contact { font-weight: 600; }
+.admin-uni-reach { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--ink-600, #4b5563); }
+.admin-uni-notes { margin: 4px 0 0; color: var(--ink-700, #374151); }
+.admin-uni-notes-label { font-weight: 600; }
+.admin-uni-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+/* On-campus read-only summary in the listing form (migration 0036) */
+.listing-form-oncampus-note { margin: 2px 0 0; color: var(--ink-600, #4b5563); font-size: var(--t-sm); }
+.reject-dialog-badge-ok { background: var(--success-50); color: var(--success-700); }
 
 /* Agent application-status header (/agents/pending) */
 /* Agent application status (/agents/pending), centered single column, not the
@@ -1020,6 +1035,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 .pill-mini { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 2px; display: inline-flex; align-items: center; gap: 3px; }
 .pill-verified-mini { background: var(--success-50); color: var(--success-700); }
+.pill-university-mini { background: var(--accent-blue-50); color: var(--accent-blue); }
 .pill-today-mini { background: var(--brand-100); color: var(--brand-700); }
 
 /* How it works, asymmetric split: sticky heading left, timeline right.
