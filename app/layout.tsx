@@ -5,6 +5,7 @@ import { Footer } from "@/components/nook/footer";
 import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { dirFor } from "@/lib/i18n/config";
 import { I18nProvider } from "@/lib/i18n/context";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -51,6 +52,7 @@ export default async function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer dict={dict} />
         </I18nProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
