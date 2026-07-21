@@ -6,7 +6,6 @@ import { Icon } from "@/components/nook/icon";
 import { sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { useDict } from "@/lib/i18n/context";
 import { format } from "@/lib/i18n/config";
-import { spring } from "@/lib/motion";
 import type { ListingVideoMeta } from "@/lib/types";
 
 interface GalleryProps {
@@ -80,16 +79,6 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
   }
 
   const current = media[index];
-  // Only photos morph; a video tile crossfades into the player (no shared
-  // layout between a poster frame and a <video controls>).
-  const morphId =
-    !reduceMotion &&
-    openedFrom >= 0 &&
-    index === openedFrom &&
-    openedFrom < TILE_COUNT &&
-    current?.kind === "photo"
-      ? `gallery-photo-${openedFrom}`
-      : undefined;
 
   // While the lightbox is open, only the origin tile keeps its layoutId, so
   // thumb-clicks/arrows can't trigger stray layout adoptions on other tiles.
@@ -204,7 +193,7 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                style={{ position: "absolute", left: 24, zIndex: 1, background: "rgba(255,255,255,0.1)", color: "#fff", borderColor: "transparent" }}
+                style={{ position: "absolute", left: 24, zIndex: 1, background: "#fff", color: "#1a1a1a", borderColor: "transparent" }}
               >
                 <Icon name="chevron-left" size={20} />
               </motion.button>
@@ -214,11 +203,10 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
                   src={sizedPhotoUrl(current.src, 1600)}
                   alt={`${title}, photo ${index + 1}`}
                   className="lightbox-img"
-                  layoutId={morphId}
-                  initial={morphId ? undefined : { opacity: 0 }}
+                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={morphId ? undefined : { opacity: 0 }}
-                  transition={morphId ? spring : { duration: 0.2 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                 />
               ) : (
                 <motion.video
@@ -243,7 +231,7 @@ export function Gallery({ photos, videos, title }: GalleryProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                style={{ position: "absolute", right: 24, zIndex: 1, background: "rgba(255,255,255,0.1)", color: "#fff", borderColor: "transparent" }}
+                style={{ position: "absolute", right: 24, zIndex: 1, background: "#fff", color: "#1a1a1a", borderColor: "transparent" }}
               >
                 <Icon name="chevron-right" size={20} />
               </motion.button>

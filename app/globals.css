@@ -1578,10 +1578,10 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 }
 .lightbox-backdrop { position: absolute; inset: 0; background: rgba(12, 8, 5, 0.93); }
 .lightbox-bar { position: relative; display: flex; justify-content: space-between; align-items: center; color: #fff; padding-bottom: 12px; }
-.lightbox-stage { position: relative; flex: 1; display: grid; place-items: center; min-height: 0; overflow: hidden; }
+.lightbox-stage { position: relative; flex: 1; display: grid; place-items: center; min-height: 0; }
 .lightbox-img {
   max-width: min(1400px, calc(100vw - 48px)); /* 48px = lightbox 24px padding x2 */
-  max-height: 100%; /* stage is flex-bounded; overflow:hidden clips any morph spill */
+  max-height: calc(100vh - 200px); /* reserve bar + thumbs + padding so image scales to fit */
   width: auto; height: auto;
   object-fit: contain;
 }
