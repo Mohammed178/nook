@@ -13,9 +13,12 @@ import { format } from "@/lib/i18n/config";
 // Agents set the location by pasting a Google Maps link — they don't read
 // coordinates off a map, they share the place they already found. The pasted
 // link is resolved to coordinates (server action; short links are expanded
-// there), which pin the map for visual confirmation. The map click/drag stays
-// as a keyboard-independent fine-tune convenience, never the only path (Bar-4):
-// the link field is the primary, keyboard-accessible way in.
+// there), which pin the map for visual confirmation and are saved in the same
+// step — a refresh must not lose a successfully resolved link. The map
+// click/drag stays as a keyboard-independent fine-tune convenience, never the
+// only path (Bar-4): the link field is the primary, keyboard-accessible way
+// in; the Save button persists fine-tune drags (and retries a failed
+// auto-save).
 //
 // The Google map is loaded with ssr:false via the proven dynamic() idiom. This
 // wrapper renders without it, so the link field and Save button work even
@@ -70,13 +73,27 @@ export function MapPicker({ listingId, initialLat, initialLng }: MapPickerProps)
     setResolving(true);
     startTransition(async () => {
       const result = await resolveMapsLinkAction(link);
-      setResolving(false);
       if (result.error || result.lat == null || result.lng == null) {
+        setResolving(false);
         setMessage({ kind: "err", text: result.error ?? t.linkEmpty });
         return;
       }
-      onPick(result.lat, result.lng);
-      setMessage({ kind: "ok", text: t.linkFound });
+      const nextLat = Number(result.lat.toFixed(6));
+      const nextLng = Number(result.lng.toFixed(6));
+      setLat(nextLat);
+      setLng(nextLng);
+      // Persist immediately: a resolved link that only lived in client state
+      // was lost on refresh, sending the agent back to Google Maps for the
+      // link. Save failure keeps the pin so the explicit Save button remains
+      // a retry path.
+      const saved = await setListingCoordsAction(listingId, nextLat, nextLng);
+      setResolving(false);
+      if (saved.error) {
+        setMessage({ kind: "err", text: saved.error });
+        return;
+      }
+      setMessage({ kind: "ok", text: t.locationSaved });
+      router.refresh();
     });
   }
 
