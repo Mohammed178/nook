@@ -80,7 +80,7 @@ const en = {
   },
   comingSoon: {
     kicker: "Nook",
-    body: "This page is on its way. We'd rather write it properly than ship filler — check back soon.",
+    body: "This page is on its way. We'd rather write it properly than ship filler, check back soon.",
     backHome: "Back to home",
   },
   notFound: {
@@ -93,7 +93,7 @@ const en = {
   errorPage: {
     kicker: "Error",
     title: "Something went wrong",
-    body: "An unexpected error stopped this page from loading. It's on us — try again, or head back home.",
+    body: "An unexpected error stopped this page from loading. It's on us, try again, or head back home.",
     retry: "Try again",
     backHome: "Back to home",
   },
@@ -152,7 +152,7 @@ const en = {
     deleteConfirmCta: "Delete permanently",
     deleting: "Deleting…",
     deleteFailed:
-      "Could not delete your account. Nothing further was removed — please try again.",
+      "Could not delete your account. Nothing further was removed, please try again.",
     deletePasswordWrong: "That password is incorrect.",
     deleteAdminRefused: "Admin accounts cannot be self-deleted.",
     withdrawAndDelete: "Withdraw application and delete account",
@@ -317,7 +317,7 @@ const en = {
   universityAuth: {
     kicker: "For universities",
     title: "List your official accommodation",
-    sub: "Universities list their own student housing on Nook. We verify each application by contacting the university through its official published channels before any listing goes live — no documents to upload.",
+    sub: "Universities list their own student housing on Nook. We verify each application by contacting the university through its official published channels before any listing goes live, no documents to upload.",
     universityLabel: "Your university",
     universityPlaceholder: "Choose your university",
     universityHelp: "Pick your institution from Nook's official list.",
@@ -369,14 +369,14 @@ const en = {
       "Your BOVAEP licence class and the state where you currently practise.",
     licenceTypeLabel: "Licence class",
     licenceTypePlaceholder: "Choose your licence class",
-    licenceTypeHelp: "REN, REA or PEA — pick the class your licence falls under.",
+    licenceTypeHelp: "REN, REA or PEA: pick the class your licence falls under.",
     licenceRenSub: "Real Estate Negotiator",
     licenceReaSub: "Real Estate Agent",
     licencePeaSub: "Probationary Estate Agent",
     practisingStateLabel: "Practising state",
     practisingStatePlaceholder: "Choose a state",
     practisingStateHelp:
-      "The state you are currently practising in — used to find you on the LPPEH register.",
+      "The state you are currently practising in, used to find you on the LPPEH register.",
     bovaepLabel: "BOVAEP licence number",
     bovaepHelp:
       "Example: E(3)2148. Keep brackets and digits exactly as on your card.",
@@ -461,7 +461,7 @@ const en = {
   home: {
     heroHeadline: "Find your room near campus, without the runaround.",
     heroLede:
-      "Verified rooms across the Klang Valley — photo-first, agent-vetted, students only. Move in by next semester.",
+      "Verified rooms across the Klang Valley, photo-first, agent-vetted, students only. Move in by next semester.",
     popular: "Popular:",
     deckPill: "Rooms near UM from RM {price}/mo",
     deckPillFallback: "Verified rooms across the Klang Valley",
@@ -660,6 +660,13 @@ const en = {
     campus: "campus",
     whatsapp: "WhatsApp",
     call: "Call",
+    // "Posted X ago" — day-granularity, computed via lib/relative-date. {n} is
+    // interpolated by format(); mirrors savedSearches.daysAgo pluralization.
+    postedToday: "Posted today",
+    postedYesterday: "Posted yesterday",
+    postedDaysAgo: "Posted {n} days ago",
+    postedAMonthAgo: "Posted a month ago",
+    postedMonthsAgo: "Posted {n} months ago",
   },
   accountLists: {
     recentTitle: "Recent",
@@ -831,6 +838,11 @@ const en = {
   listingDetail: {
     verifiedAgent: "Verified agent",
     listedToday: "Listed today",
+    postedToday: "Posted today",
+    postedYesterday: "Posted yesterday",
+    postedDaysAgo: "Posted {n} days ago",
+    postedAMonthAgo: "Posted a month ago",
+    postedMonthsAgo: "Posted {n} months ago",
     share: "Share",
     perMonth: "/mo",
     withinBudget: "Within budget · {diff} below your {max} cap",
@@ -856,7 +868,7 @@ const en = {
     bovaepLicensed: "BOVAEP-licensed",
     bovaepNum: "BOVAEP {licence}",
     listedByUniversity: "Listed by the university",
-    onCampusLocation: "On campus — {university}",
+    onCampusLocation: "On campus, {university}",
     officialUniversityAccount: "Official university account",
     verifiedByUniversityChannels:
       "Verified by Nook through the university's official channels",
@@ -1106,11 +1118,11 @@ const en = {
     underReviewBody:
       "Your application was submitted on {date}. We'll email {email} when verification is complete.",
     universityUnderReviewBody:
-      "Thanks for applying. A Nook admin will verify your office by contacting the university through its official published channels — no documents needed. This usually takes 2–3 working days, and we'll email you once it's done.",
+      "Thanks for applying. A Nook admin will verify your office by contacting the university through its official published channels, no documents needed. This usually takes 2–3 working days, and we'll email you once it's done.",
     memberSince: "Member since {date}",
     finishVerification: "Finish your verification",
     finishVerificationBody:
-      "Your account was created on {date}. Complete the verification steps so our team can review your application — we'll email {email} once it's done.",
+      "Your account was created on {date}. Complete the verification steps so our team can review your application, we'll email {email} once it's done.",
     continueToHome: "Continue to nook.my",
     logOut: "Log out",
     statusDraft: "Draft",
@@ -1258,10 +1270,10 @@ const en = {
   mapPicker: {
     pickFirst: "Add a Google Maps link first.",
     locationSaved: "Location saved.",
-    help: "Paste a Google Maps link for the property to set its location. The pin below confirms the spot — drag it to fine-tune. A location is required before you can publish.",
+    help: "Paste a Google Maps link for the property to set its location. The pin below confirms the spot, drag it to fine-tune. A location is required before you can publish.",
     linkLabel: "Google Maps link",
     linkPlaceholder: "https://maps.app.goo.gl/…",
-    linkHelp: "Open the place in Google Maps, tap Share, and copy the link — or paste the URL from the address bar.",
+    linkHelp: "Open the place in Google Maps, tap Share, and copy the link, or paste the URL from the address bar.",
     useLink: "Use link",
     linkEmpty: "Paste a Google Maps link first.",
     linkFound: "Location found from the link.",
@@ -1303,7 +1315,7 @@ const en = {
     rejectionReason: "Rejection reason",
     rejectDialogTitle: "Reject {name}?",
     rejectDialogBody:
-      "The agent sees this reason on their status page and receives it by email — be specific so they know what to fix.",
+      "The agent sees this reason on their status page and receives it by email, be specific so they know what to fix.",
     rejectReasonPlaceholder:
       "e.g. Licence number not found on the LPPEH register…",
     rejectCancel: "Cancel",
@@ -1363,7 +1375,7 @@ const en = {
       fName: "Full name",
       fNameHint: "e.g. Universiti Malaya",
       fShortName: "Short name",
-      fShortNameHint: "e.g. UM — shown on tiles and filters",
+      fShortNameHint: "e.g. UM, shown on tiles and filters",
       fCity: "City",
       fState: "State",
       fLat: "Latitude",

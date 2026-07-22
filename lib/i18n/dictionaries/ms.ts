@@ -77,7 +77,7 @@ const ms: Dictionary = {
   },
   comingSoon: {
     kicker: "Nook",
-    body: "Halaman ini sedang disiapkan. Kami lebih rela menulisnya dengan betul daripada menghantar pengisi — kembali semula tidak lama lagi.",
+    body: "Halaman ini sedang disiapkan. Kami lebih rela menulisnya dengan betul daripada menghantar pengisi, kembali semula tidak lama lagi.",
     backHome: "Kembali ke laman utama",
   },
   notFound: {
@@ -90,7 +90,7 @@ const ms: Dictionary = {
   errorPage: {
     kicker: "Ralat",
     title: "Sesuatu tidak kena",
-    body: "Ralat yang tidak dijangka menghalang halaman ini daripada dimuatkan. Salah kami — cuba lagi, atau kembali ke laman utama.",
+    body: "Ralat yang tidak dijangka menghalang halaman ini daripada dimuatkan. Salah kami, cuba lagi, atau kembali ke laman utama.",
     retry: "Cuba lagi",
     backHome: "Kembali ke laman utama",
   },
@@ -150,7 +150,7 @@ const ms: Dictionary = {
     deleteConfirmCta: "Padam secara kekal",
     deleting: "Memadam…",
     deleteFailed:
-      "Tidak dapat memadam akaun anda. Tiada apa-apa lagi yang dibuang — sila cuba lagi.",
+      "Tidak dapat memadam akaun anda. Tiada apa-apa lagi yang dibuang, sila cuba lagi.",
     deletePasswordWrong: "Kata laluan itu salah.",
     deleteAdminRefused: "Akaun admin tidak boleh dipadam sendiri.",
     withdrawAndDelete: "Tarik balik permohonan dan padam akaun",
@@ -318,7 +318,7 @@ const ms: Dictionary = {
   universityAuth: {
     kicker: "Untuk universiti",
     title: "Senaraikan penginapan rasmi anda",
-    sub: "Universiti menyenaraikan penginapan pelajar mereka sendiri di Nook. Kami mengesahkan setiap permohonan dengan menghubungi universiti melalui saluran rasmi yang tersiar sebelum mana-mana penyenaraian disiarkan — tiada dokumen untuk dimuat naik.",
+    sub: "Universiti menyenaraikan penginapan pelajar mereka sendiri di Nook. Kami mengesahkan setiap permohonan dengan menghubungi universiti melalui saluran rasmi yang tersiar sebelum mana-mana penyenaraian disiarkan, tiada dokumen untuk dimuat naik.",
     universityLabel: "Universiti anda",
     universityPlaceholder: "Pilih universiti anda",
     universityHelp: "Pilih institusi anda daripada senarai rasmi Nook.",
@@ -370,14 +370,14 @@ const ms: Dictionary = {
       "Kelas lesen BOVAEP anda dan negeri tempat anda kini beramal.",
     licenceTypeLabel: "Kelas lesen",
     licenceTypePlaceholder: "Pilih kelas lesen anda",
-    licenceTypeHelp: "REN, REA atau PEA — pilih kelas yang sesuai dengan lesen anda.",
+    licenceTypeHelp: "REN, REA atau PEA: pilih kelas yang sesuai dengan lesen anda.",
     licenceRenSub: "Real Estate Negotiator",
     licenceReaSub: "Real Estate Agent",
     licencePeaSub: "Probationary Estate Agent",
     practisingStateLabel: "Negeri amalan",
     practisingStatePlaceholder: "Pilih negeri",
     practisingStateHelp:
-      "Negeri tempat anda kini beramal — digunakan untuk mencari anda dalam daftar LPPEH.",
+      "Negeri tempat anda kini beramal, digunakan untuk mencari anda dalam daftar LPPEH.",
     bovaepLabel: "Nombor lesen BOVAEP",
     bovaepHelp:
       "Contoh: E(3)2148. Pastikan kurungan dan digit tepat seperti pada kad anda.",
@@ -462,7 +462,7 @@ const ms: Dictionary = {
   home: {
     heroHeadline: "Cari bilik anda berhampiran kampus, tanpa kerumitan.",
     heroLede:
-      "Bilik disahkan di seluruh Lembah Klang — foto dahulu, ejen disemak, pelajar sahaja. Pindah masuk menjelang semester depan.",
+      "Bilik disahkan di seluruh Lembah Klang, foto dahulu, ejen disemak, pelajar sahaja. Pindah masuk menjelang semester depan.",
     popular: "Popular:",
     deckPill: "Bilik berhampiran UM dari RM {price}/bln",
     deckPillFallback: "Bilik disahkan di seluruh Lembah Klang",
@@ -666,6 +666,11 @@ const ms: Dictionary = {
     campus: "kampus",
     whatsapp: "WhatsApp",
     call: "Panggil",
+    postedToday: "Disiarkan hari ini",
+    postedYesterday: "Disiarkan semalam",
+    postedDaysAgo: "Disiarkan {n} hari lalu",
+    postedAMonthAgo: "Disiarkan sebulan lalu",
+    postedMonthsAgo: "Disiarkan {n} bulan lalu",
   },
   accountLists: {
     recentTitle: "Terkini",
@@ -838,6 +843,11 @@ const ms: Dictionary = {
   listingDetail: {
     verifiedAgent: "Ejen disahkan",
     listedToday: "Disenaraikan hari ini",
+    postedToday: "Disiarkan hari ini",
+    postedYesterday: "Disiarkan semalam",
+    postedDaysAgo: "Disiarkan {n} hari lalu",
+    postedAMonthAgo: "Disiarkan sebulan lalu",
+    postedMonthsAgo: "Disiarkan {n} bulan lalu",
     share: "Kongsi",
     perMonth: "/bln",
     withinBudget: "Dalam bajet · {diff} di bawah had {max} anda",
@@ -863,7 +873,7 @@ const ms: Dictionary = {
     bovaepLicensed: "Berlesen BOVAEP",
     bovaepNum: "BOVAEP {licence}",
     listedByUniversity: "Disenaraikan oleh universiti",
-    onCampusLocation: "Dalam kampus — {university}",
+    onCampusLocation: "Dalam kampus, {university}",
     officialUniversityAccount: "Akaun universiti rasmi",
     verifiedByUniversityChannels:
       "Disahkan oleh Nook melalui saluran rasmi universiti",
@@ -1114,11 +1124,11 @@ const ms: Dictionary = {
     underReviewBody:
       "Permohonan anda dihantar pada {date}. Kami akan menghantar e-mel kepada {email} apabila pengesahan selesai.",
     universityUnderReviewBody:
-      "Terima kasih kerana memohon. Pentadbir Nook akan mengesahkan pejabat anda dengan menghubungi universiti melalui saluran rasmi yang tersiar — tiada dokumen diperlukan. Ini biasanya mengambil masa 2–3 hari bekerja, dan kami akan e-mel anda setelah selesai.",
+      "Terima kasih kerana memohon. Pentadbir Nook akan mengesahkan pejabat anda dengan menghubungi universiti melalui saluran rasmi yang tersiar, tiada dokumen diperlukan. Ini biasanya mengambil masa 2–3 hari bekerja, dan kami akan e-mel anda setelah selesai.",
     memberSince: "Ahli sejak {date}",
     finishVerification: "Lengkapkan pengesahan anda",
     finishVerificationBody:
-      "Akaun anda dicipta pada {date}. Lengkapkan langkah pengesahan supaya pasukan kami dapat menyemak permohonan anda — kami akan e-mel {email} setelah selesai.",
+      "Akaun anda dicipta pada {date}. Lengkapkan langkah pengesahan supaya pasukan kami dapat menyemak permohonan anda, kami akan e-mel {email} setelah selesai.",
     continueToHome: "Teruskan ke nook.my",
     logOut: "Log keluar",
     statusDraft: "Draf",
@@ -1265,10 +1275,10 @@ const ms: Dictionary = {
   mapPicker: {
     pickFirst: "Tampal pautan Google Maps dahulu.",
     locationSaved: "Lokasi disimpan.",
-    help: "Tampal pautan Google Maps untuk hartanah ini bagi menetapkan lokasinya. Pin di bawah mengesahkan lokasi — seret untuk penalaan halus. Lokasi diperlukan sebelum anda boleh menerbitkan.",
+    help: "Tampal pautan Google Maps untuk hartanah ini bagi menetapkan lokasinya. Pin di bawah mengesahkan lokasi, seret untuk penalaan halus. Lokasi diperlukan sebelum anda boleh menerbitkan.",
     linkLabel: "Pautan Google Maps",
     linkPlaceholder: "https://maps.app.goo.gl/…",
-    linkHelp: "Buka lokasi dalam Google Maps, ketik Kongsi, dan salin pautan — atau tampal URL dari bar alamat.",
+    linkHelp: "Buka lokasi dalam Google Maps, ketik Kongsi, dan salin pautan, atau tampal URL dari bar alamat.",
     useLink: "Guna pautan",
     linkEmpty: "Tampal pautan Google Maps dahulu.",
     linkFound: "Lokasi ditemui daripada pautan.",
@@ -1310,7 +1320,7 @@ const ms: Dictionary = {
     rejectionReason: "Sebab penolakan",
     rejectDialogTitle: "Tolak {name}?",
     rejectDialogBody:
-      "Ejen akan melihat sebab ini di halaman status mereka dan menerimanya melalui e-mel — nyatakan dengan jelas supaya mereka tahu apa yang perlu dibetulkan.",
+      "Ejen akan melihat sebab ini di halaman status mereka dan menerimanya melalui e-mel, nyatakan dengan jelas supaya mereka tahu apa yang perlu dibetulkan.",
     rejectReasonPlaceholder:
       "cth. Nombor lesen tidak ditemui dalam daftar LPPEH…",
     rejectCancel: "Batal",
@@ -1370,7 +1380,7 @@ const ms: Dictionary = {
       fName: "Nama penuh",
       fNameHint: "cth. Universiti Malaya",
       fShortName: "Nama ringkas",
-      fShortNameHint: "cth. UM — dipaparkan pada jubin dan penapis",
+      fShortNameHint: "cth. UM, dipaparkan pada jubin dan penapis",
       fCity: "Bandar",
       fState: "Negeri",
       fLat: "Latitud",

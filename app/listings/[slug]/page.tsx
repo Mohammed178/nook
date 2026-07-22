@@ -35,6 +35,7 @@ import {
 import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
 import { amenitySpec } from "@/lib/amenities";
 import { format } from "@/lib/i18n/config";
+import { daysSince, relativeDate } from "@/lib/relative-date";
 import { formatPrice } from "@/lib/utils";
 import {
   parseListingSearchParams,
@@ -110,6 +111,19 @@ export default async function ListingDetailPage({
   const signedIn = user !== null;
   const d = dict.listingDetail;
   const initialSaved = savedIds.includes(listing.id);
+  // "Posted X ago" (day granularity, server-computed → no hydration risk).
+  // publishedAt is the first-publish instant (migration 0037); createdAt is the
+  // fallback. The same day-zero check now drives the "Listed today" pill — the
+  // seed-driven listedToday boolean is retired for display.
+  const postedIso = listing.publishedAt ?? listing.createdAt;
+  const postedLabel = relativeDate(postedIso, {
+    today: d.postedToday,
+    yesterday: d.postedYesterday,
+    daysAgo: d.postedDaysAgo,
+    aMonthAgo: d.postedAMonthAgo,
+    monthsAgo: d.postedMonthsAgo,
+  });
+  const postedToday = daysSince(postedIso) === 0;
 
   // Post-3b-B-3: Listing.areaId / agentId are UUIDs. Resolve the Agent/Area
   // rows by UUID, then index the slug-keyed seed lookups by their stable slug.
@@ -197,8 +211,18 @@ export default async function ListingDetailPage({
                       <Icon name="check" size={10} /> {d.verifiedAgent}
                     </span>
                   ))}
-                {listing.listedToday && (
+                {/* Recency badge: exactly one of these renders. "Listed today"
+                    (brand pill) when day-zero; otherwise the "Posted X ago"
+                    neutral pill — promoted out of the old muted sub-line so the
+                    posting age reads at a glance in the title-row cluster. The
+                    either/or keeps "Listed today" and "Posted today" from ever
+                    showing the same fact twice. */}
+                {postedToday ? (
                   <span className="pill pill-today">{d.listedToday}</span>
+                ) : (
+                  <span className="pill pill-neutral">
+                    <Icon name="calendar" size={10} /> {postedLabel}
+                  </span>
                 )}
               </div>
               <h1>{listing.title}</h1>

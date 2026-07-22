@@ -8,6 +8,7 @@ import { sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { nearestCampus } from "@/lib/distance";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
 import { format } from "@/lib/i18n/config";
+import { daysSince, relativeDate } from "@/lib/relative-date";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 export type ListingCardVariant =
@@ -85,6 +86,19 @@ export function ListingCard({
     listing.onCampus && isUniversity
       ? format(c.onCampus, { uni: agent?.agency ?? c.campus })
       : "";
+  // "Posted X ago" (day granularity, server-computed → no hydration risk). Falls
+  // back to createdAt when publishedAt is absent (migration 0037 not yet stamped,
+  // or a pre-0037 backfill gap). `postedToday` also drives the "Listed today"
+  // pill now — the seed-driven listedToday boolean is retired for display.
+  const postedIso = listing.publishedAt ?? listing.createdAt;
+  const postedLabel = relativeDate(postedIso, {
+    today: c.postedToday,
+    yesterday: c.postedYesterday,
+    daysAgo: c.postedDaysAgo,
+    aMonthAgo: c.postedAMonthAgo,
+    monthsAgo: c.postedMonthsAgo,
+  });
+  const postedToday = daysSince(postedIso) === 0;
 
   if (variant === "mini") {
     return (
@@ -127,7 +141,7 @@ export function ListingCard({
                   {c.verified}
                 </span>
               ))}
-            {listing.listedToday && (
+            {postedToday && (
               <span className="pill-mini pill-today-mini">{c.today}</span>
             )}
           </div>
@@ -281,6 +295,7 @@ export function ListingCard({
             </span>
           )}
         </div>
+        <div className="card-posted">{postedLabel}</div>
         {agent && (
           <>
             <div className="card-divider" />

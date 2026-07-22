@@ -12,6 +12,7 @@ import { Icon } from "@/components/nook/icon";
 import { buildListingsHref } from "@/lib/listings-search";
 import { useDict } from "@/lib/i18n/context";
 import { format } from "@/lib/i18n/config";
+import { relativeDate } from "@/lib/relative-date";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import {
   deleteSavedSearchAction,
@@ -23,16 +24,6 @@ type SavedSearchesDict = Dictionary["savedSearches"];
 
 interface SavedSearchesListProps {
   initial: SavedSearchRow[];
-}
-
-function relativeDate(iso: string, s: SavedSearchesDict): string {
-  const then = new Date(iso).getTime();
-  const days = Math.floor((Date.now() - then) / 86_400_000);
-  if (days <= 0) return s.today;
-  if (days === 1) return s.yesterday;
-  if (days < 30) return format(s.daysAgo, { n: days });
-  if (days < 60) return s.aMonthAgo;
-  return format(s.monthsAgo, { n: Math.floor(days / 30) });
 }
 
 type Action =

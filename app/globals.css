@@ -564,6 +564,8 @@ img { display: block; max-width: 100%; }
 .card-addr { font-size: var(--t-sm); color: var(--ink-500); display: flex; align-items: center; gap: 4px; }
 .card-facts { display: flex; gap: 12px; font-size: var(--t-sm); color: var(--ink-700); }
 .card-facts span { display: inline-flex; align-items: center; gap: 4px; }
+/* "Posted X ago" — quiet, day-granularity line on vertical/horizontal cards. */
+.card-posted { font-size: var(--t-xs); color: var(--ink-400); }
 .card-divider { height: 1px; background: var(--ink-200); margin: 4px 0; }
 .card-agent { display: flex; align-items: center; gap: 8px; }
 .card-agent-avatar {

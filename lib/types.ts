@@ -209,5 +209,9 @@ export interface Listing {
    * Agent.deletedAt. */
   deletedAt?: string;
   createdAt: string;
+  /** First-publish instant (migration 0037). Set once when the listing first
+   * becomes 'available', TEXT like createdAt. Undefined while it has only ever
+   * been a draft. The "Posted X ago" label reads `publishedAt ?? createdAt`. */
+  publishedAt?: string;
   updatedAt: string;
 }

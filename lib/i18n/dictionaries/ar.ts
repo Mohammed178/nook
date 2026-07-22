@@ -77,7 +77,7 @@ const ar: Dictionary = {
   },
   comingSoon: {
     kicker: "Nook",
-    body: "هذه الصفحة قيد الإعداد. نفضّل كتابتها كما ينبغي بدلًا من نشر محتوى حشو — عد قريبًا.",
+    body: "هذه الصفحة قيد الإعداد. نفضّل كتابتها كما ينبغي بدلًا من نشر محتوى حشو، عد قريبًا.",
     backHome: "العودة إلى الرئيسية",
   },
   notFound: {
@@ -90,7 +90,7 @@ const ar: Dictionary = {
   errorPage: {
     kicker: "خطأ",
     title: "حدث خطأ ما",
-    body: "خطأ غير متوقع منع تحميل هذه الصفحة. الخطأ منّا — حاول مجددًا، أو عد إلى الرئيسية.",
+    body: "خطأ غير متوقع منع تحميل هذه الصفحة. الخطأ منّا، حاول مجددًا، أو عد إلى الرئيسية.",
     retry: "حاول مجددًا",
     backHome: "العودة إلى الرئيسية",
   },
@@ -147,7 +147,7 @@ const ar: Dictionary = {
     deleteCancel: "إلغاء",
     deleteConfirmCta: "حذف نهائي",
     deleting: "جارٍ الحذف…",
-    deleteFailed: "تعذّر حذف حسابك. لم يُحذف أي شيء آخر — حاول مرة أخرى.",
+    deleteFailed: "تعذّر حذف حسابك. لم يُحذف أي شيء آخر، حاول مرة أخرى.",
     deletePasswordWrong: "كلمة المرور غير صحيحة.",
     deleteAdminRefused: "لا يمكن حذف حسابات المشرفين ذاتيًا.",
     withdrawAndDelete: "سحب الطلب وحذف الحساب",
@@ -309,7 +309,7 @@ const ar: Dictionary = {
   universityAuth: {
     kicker: "للجامعات",
     title: "أضف سكنك الرسمي",
-    sub: "تضيف الجامعات سكن طلابها على Nook. نتحقّق من كل طلب بالاتصال بالجامعة عبر قنواتها الرسمية المنشورة قبل نشر أي إعلان — دون رفع أي مستندات.",
+    sub: "تضيف الجامعات سكن طلابها على Nook. نتحقّق من كل طلب بالاتصال بالجامعة عبر قنواتها الرسمية المنشورة قبل نشر أي إعلان، دون رفع أي مستندات.",
     universityLabel: "جامعتك",
     universityPlaceholder: "اختر جامعتك",
     universityHelp: "اختر مؤسستك من قائمة Nook الرسمية.",
@@ -361,14 +361,14 @@ const ar: Dictionary = {
       "فئة رخصة BOVAEP والولاية التي تزاول فيها حاليًا.",
     licenceTypeLabel: "فئة الرخصة",
     licenceTypePlaceholder: "اختر فئة رخصتك",
-    licenceTypeHelp: "REN أو REA أو PEA — اختر الفئة المطابقة لرخصتك.",
+    licenceTypeHelp: "REN أو REA أو PEA، اختر الفئة المطابقة لرخصتك.",
     licenceRenSub: "Real Estate Negotiator",
     licenceReaSub: "Real Estate Agent",
     licencePeaSub: "Probationary Estate Agent",
     practisingStateLabel: "ولاية المزاولة",
     practisingStatePlaceholder: "اختر ولاية",
     practisingStateHelp:
-      "الولاية التي تزاول فيها حاليًا — تُستخدم للبحث عنك في سجل LPPEH.",
+      "الولاية التي تزاول فيها حاليًا، تُستخدم للبحث عنك في سجل LPPEH.",
     bovaepLabel: "رقم رخصة BOVAEP",
     bovaepHelp:
       "مثال: E(3)2148. أبقِ الأقواس والأرقام كما هي على بطاقتك.",
@@ -453,7 +453,7 @@ const ar: Dictionary = {
   home: {
     heroHeadline: "اعثر على غرفتك قرب الحرم الجامعي، دون عناء.",
     heroLede:
-      "غرف موثّقة في وادي كلانغ — الصور أولًا، وكلاء مُدقّقون، للطلاب فقط. انتقل قبل الفصل القادم.",
+      "غرف موثّقة في وادي كلانغ، الصور أولًا، وكلاء مُدقّقون، للطلاب فقط. انتقل قبل الفصل القادم.",
     popular: "شائع:",
     deckPill: "غرف قرب UM من RM {price}/شهر",
     deckPillFallback: "غرف موثّقة في مختلف وادي كلانغ",
@@ -649,6 +649,11 @@ const ar: Dictionary = {
     campus: "الحرم",
     whatsapp: "واتساب",
     call: "اتصال",
+    postedToday: "نُشر اليوم",
+    postedYesterday: "نُشر أمس",
+    postedDaysAgo: "نُشر قبل {n} يوم",
+    postedAMonthAgo: "نُشر قبل شهر",
+    postedMonthsAgo: "نُشر قبل {n} أشهر",
   },
   accountLists: {
     recentTitle: "الأخيرة",
@@ -820,6 +825,11 @@ const ar: Dictionary = {
   listingDetail: {
     verifiedAgent: "وكيل موثّق",
     listedToday: "أُدرج اليوم",
+    postedToday: "نُشر اليوم",
+    postedYesterday: "نُشر أمس",
+    postedDaysAgo: "نُشر قبل {n} يوم",
+    postedAMonthAgo: "نُشر قبل شهر",
+    postedMonthsAgo: "نُشر قبل {n} أشهر",
     share: "مشاركة",
     perMonth: "/شهر",
     withinBudget: "ضمن الميزانية · {diff} أقل من حدّك {max}",
@@ -845,7 +855,7 @@ const ar: Dictionary = {
     bovaepLicensed: "مرخّص من BOVAEP",
     bovaepNum: "BOVAEP {licence}",
     listedByUniversity: "مُدرَج من الجامعة",
-    onCampusLocation: "داخل الحرم — {university}",
+    onCampusLocation: "داخل الحرم، {university}",
     officialUniversityAccount: "حساب جامعي رسمي",
     verifiedByUniversityChannels:
       "تحقّقت Nook عبر القنوات الرسمية للجامعة",
@@ -1095,11 +1105,11 @@ const ar: Dictionary = {
     underReviewBody:
       "أُرسل طلبك في {date}. سنراسلك على {email} عند اكتمال التحقّق.",
     universityUnderReviewBody:
-      "شكرًا لتقديمك. سيتحقّق مشرف Nook من مكتبك بالاتصال بالجامعة عبر قنواتها الرسمية المنشورة — دون الحاجة إلى مستندات. يستغرق ذلك عادةً 2–3 أيام عمل، وسنراسلك عند الانتهاء.",
+      "شكرًا لتقديمك. سيتحقّق مشرف Nook من مكتبك بالاتصال بالجامعة عبر قنواتها الرسمية المنشورة، دون الحاجة إلى مستندات. يستغرق ذلك عادةً 2–3 أيام عمل، وسنراسلك عند الانتهاء.",
     memberSince: "عضو منذ {date}",
     finishVerification: "أكمِل خطوات التحقّق",
     finishVerificationBody:
-      "أُنشئ حسابك في {date}. أكمِل خطوات التحقّق ليتمكّن فريقنا من مراجعة طلبك — سنراسلك على {email} عند الانتهاء.",
+      "أُنشئ حسابك في {date}. أكمِل خطوات التحقّق ليتمكّن فريقنا من مراجعة طلبك، سنراسلك على {email} عند الانتهاء.",
     continueToHome: "المتابعة إلى nook.my",
     logOut: "تسجيل الخروج",
     statusDraft: "مسودة",
@@ -1239,10 +1249,10 @@ const ar: Dictionary = {
   mapPicker: {
     pickFirst: "الصق رابط خرائط Google أولًا.",
     locationSaved: "تم حفظ الموقع.",
-    help: "الصق رابط خرائط Google للعقار لتحديد موقعه. الدبوس أدناه يؤكّد المكان — اسحبه للضبط الدقيق. الموقع مطلوب قبل النشر.",
+    help: "الصق رابط خرائط Google للعقار لتحديد موقعه. الدبوس أدناه يؤكّد المكان، اسحبه للضبط الدقيق. الموقع مطلوب قبل النشر.",
     linkLabel: "رابط خرائط Google",
     linkPlaceholder: "https://maps.app.goo.gl/…",
-    linkHelp: "افتح المكان في خرائط Google، اضغط مشاركة، وانسخ الرابط — أو الصق الرابط من شريط العنوان.",
+    linkHelp: "افتح المكان في خرائط Google، اضغط مشاركة، وانسخ الرابط، أو الصق الرابط من شريط العنوان.",
     useLink: "استخدم الرابط",
     linkEmpty: "الصق رابط خرائط Google أولًا.",
     linkFound: "تم العثور على الموقع من الرابط.",
@@ -1283,7 +1293,7 @@ const ar: Dictionary = {
     rejectionReason: "سبب الرفض",
     rejectDialogTitle: "رفض {name}؟",
     rejectDialogBody:
-      "سيرى الوكيل هذا السبب في صفحة حالة طلبه ويستلمه بالبريد — كن محددًا ليعرف ما الذي عليه تصحيحه.",
+      "سيرى الوكيل هذا السبب في صفحة حالة طلبه ويستلمه بالبريد، كن محددًا ليعرف ما الذي عليه تصحيحه.",
     rejectReasonPlaceholder: "مثال: رقم الرخصة غير موجود في سجل LPPEH…",
     rejectCancel: "إلغاء",
     rejectConfirm: "رفض الطلب",
@@ -1342,7 +1352,7 @@ const ar: Dictionary = {
       fName: "الاسم الكامل",
       fNameHint: "مثال: جامعة مالايا",
       fShortName: "الاسم المختصر",
-      fShortNameHint: "مثال: UM — يظهر على البطاقات والمرشّحات",
+      fShortNameHint: "مثال: UM، يظهر على البطاقات والمرشّحات",
       fCity: "المدينة",
       fState: "الولاية",
       fLat: "خط العرض",

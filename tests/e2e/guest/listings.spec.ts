@@ -19,6 +19,20 @@ test.describe("listings browse and filter contract", () => {
     expect(await listings.cards.count()).toBeGreaterThan(0);
   });
 
+  // "Posted X ago" label (feature: published_at, migration 0037). Every browse
+  // card (vertical/horizontal variant) renders .card-posted from
+  // relativeDate(publishedAt ?? createdAt). Seed created_at values are fixed past
+  // dates, so the label is deterministic-ish — a loose regex tolerates both the
+  // "months ago" seed case and a freshly-published "today". Requires migration
+  // 0037 applied + a reseed so published_at is populated.
+  test("cards show a posted-ago label", async ({ page }) => {
+    await listings.goto();
+    await expect(listings.cards.first()).toBeVisible();
+    const posted = page.locator("a.card .card-posted").first();
+    await expect(posted).toBeVisible();
+    await expect(posted).toHaveText(/Posted .* ago|Posted today/);
+  });
+
   test("priceMax is a hard upper bound", async () => {
     await listings.goto();
     await expect(listings.cards.first()).toBeVisible();

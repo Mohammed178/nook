@@ -71,6 +71,13 @@ const sb = createClient(URL, SRK, { auth: { persistSession: false } });
 const promoteRows = LISTINGS.filter((l) => l.status !== "draft").map((l) => ({
   id: uuidv5(l.id, NS_NOOK),
   status: l.status,
+  // Stamp published_at explicitly to the historical created_at (migration 0037).
+  // The promote UPDATE re-enters 'available', which fires the
+  // listings_stamp_published_at trigger — but its `published_at is null` guard
+  // leaves this explicit value alone. Without this, the trigger would stamp the
+  // seed-run instant (now()), so every seed listing would read "Posted today"
+  // and re-seeding would be non-idempotent.
+  published_at: l.createdAt,
 }));
 
 const listingRows = LISTINGS.map((l) => ({
@@ -229,7 +236,7 @@ console.log(`Promoting ${promoteRows.length} listings to their final status...`)
 for (const row of promoteRows) {
   const { error } = await sb
     .from("listings")
-    .update({ status: row.status })
+    .update({ status: row.status, published_at: row.published_at })
     .eq("id", row.id);
   if (error) {
     console.error(`promote ${row.id} -> ${row.status} failed: ${error.message}`);

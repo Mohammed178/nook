@@ -336,6 +336,10 @@ export interface ListingRow {
   listed_today: boolean | null;
   deleted_at: string | null;
   created_at: string;
+  // First-publish instant (migration 0037), TEXT like created_at. Null while a
+  // listing has never been available (draft). Stamped once on entry to
+  // 'available' by the listings_stamp_published_at trigger.
+  published_at: string | null;
   updated_at: string;
 }
 
@@ -386,9 +390,10 @@ export function rowToListing(r: ListingRow): Listing {
     listedToday: r.listed_today ?? undefined,
     deletedAt: r.deleted_at ?? undefined,
     createdAt: r.created_at,
+    publishedAt: r.published_at ?? undefined,
     updatedAt: r.updated_at,
   };
 }
 
 export const LISTING_COLS =
-  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, on_campus, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, updated_at, listing_photos(storage_path, sort_order), listing_videos(storage_path, title, sort_order)";
+  "id, slug, title, type, status, price_monthly, deposit, utilities_included, bedrooms, bathrooms, size_sqft, furnishing, gender_preference, available_from, min_stay_months, address, area_id, city, state, lat, lng, on_campus, amenities, description, agent_id, rating, review_count, featured, listed_today, deleted_at, created_at, published_at, updated_at, listing_photos(storage_path, sort_order), listing_videos(storage_path, title, sort_order)";

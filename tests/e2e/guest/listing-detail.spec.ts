@@ -15,6 +15,18 @@ test.describe("listing detail", () => {
     await expect(page.locator("h1").first()).toBeVisible();
     // Price appears somewhere prominent on the detail page (RM-prefixed).
     await expect(page.getByText(/RM\s?[\d,]+/).first()).toBeVisible();
+
+    // Recency badge in the title-row pill cluster (feature: published_at,
+    // migration 0037). Day-granularity, server-computed. Exactly one pill shows:
+    // the brand "Listed today" pill on day zero, else the neutral "Posted X ago"
+    // pill. Seed created_at values are fixed past dates, so the seed case reads
+    // "Posted N months ago"; the regex also tolerates a freshly-published today.
+    // Requires migration 0037 applied + a reseed so published_at is populated.
+    const posted = page
+      .locator(".title-row .pill", { hasText: /Posted .* ago|Posted today|Listed today/ })
+      .first();
+    await expect(posted).toBeVisible();
+    await expect(posted).toHaveText(/Posted .* ago|Posted today|Listed today/);
   });
 
   test("signed-out heart nudges sign-in instead of saving", async ({
