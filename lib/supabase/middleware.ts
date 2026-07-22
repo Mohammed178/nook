@@ -6,8 +6,9 @@ import { createServerClient } from "@supabase/ssr";
  *
  * Refreshes the session on every request and returns the response object
  * with updated cookies. Caller should:
- *   1. await updateSession(request) to get { response, user }
- *   2. inspect user for route gating decisions
+ *   1. await updateSession(request) to get { response, claims }
+ *   2. inspect claims (verified JWT payload, null when signed out) for route
+ *      gating decisions
  *   3. return the (possibly redirected) response
  */
 export async function updateSession(request: NextRequest) {
@@ -34,11 +35,11 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // IMPORTANT: getUser must be called to refresh the session.
-  // Do not remove this even if the user value is unused at this layer.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // IMPORTANT: an auth call must be made here so expired sessions refresh.
+  // getClaims() verifies the JWT locally via JWKS (asymmetric keys) — no
+  // per-request Auth round-trip like the old getUser(); legacy secret = fallback.
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims ?? null;
 
-  return { response, user };
+  return { response, claims };
 }

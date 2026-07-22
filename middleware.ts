@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const { response, user } = await updateSession(request);
+  const { response, claims } = await updateSession(request);
 
   const pathname = request.nextUrl.pathname;
   const isAccountRoute = pathname.startsWith("/account");
@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/agents/dashboard");
   const isAdminRoute = pathname.startsWith("/admin");
 
-  if ((isAccountRoute || isAgentGated || isAdminRoute) && !user) {
+  if ((isAccountRoute || isAgentGated || isAdminRoute) && !claims) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("redirect", pathname + request.nextUrl.search);
@@ -32,7 +32,9 @@ export async function middleware(request: NextRequest) {
   // (PHASE4_ARCHITECTURE.md LOCK-4.8/4.9 carry a SUPERSEDED note). Claim checked
   // inline rather than via isAdmin() from lib/auth.ts, importing that module
   // would pull next/headers cookies() into the middleware bundle (L-4a2.3).
-  if (isAdminRoute && user && user.app_metadata?.role !== "admin") {
+  // `claims` is the verified JWT payload (getClaims), so app_metadata here is
+  // the same claim the old user.app_metadata carried.
+  if (isAdminRoute && claims && claims.app_metadata?.role !== "admin") {
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = "/";
     homeUrl.search = "";

@@ -6,7 +6,7 @@ import {
   rowToListing,
   type ListingRow,
 } from "@/lib/data/_row-mappers";
-import type { Gender, Listing } from "@/lib/types";
+import type { Gender, Listing, ListingType } from "@/lib/types";
 import { getAreaBySlug } from "@/lib/data/areas";
 import {
   applyFilters,
@@ -22,11 +22,9 @@ import {
 } from "@/lib/distance";
 import { getAllUniversities } from "@/lib/data/universities";
 
-// THE fetch seam (Option A). Today: fetch every row and let the unchanged
-// in-memory applyFilters / applySort do the work. The listings table is
-// seed-sized so this is cheap. If listing count grows large, swap the internals
-// here from "fetch all" to "fetch filtered" WITHOUT touching components or the
-// search-params logic, see LATE_CATCHES LC-06.
+// THE fetch seam (Option A). Browse/search now fetches DB-filtered via
+// fetchListingsFiltered (LC-06 executed); this fetch-all remains for whole-set
+// consumers (home rails, area/university pages, resolver, similar, stats).
 // unstable_cache: the public listings set changes only on agent create/edit/
 // publish/photo/coords mutations. Cache it across requests via the cookie-free
 // public client (RLS exposes the same public rows to anon; gender filtering is
@@ -67,15 +65,50 @@ export async function getListingResolver(): Promise<
   return (id) => byId.get(id);
 }
 
-// Relocated from lib/listings-search.ts (Phase 3b-B-1, decision Q1). Body is
-// byte-identical to the original; only the data source (LISTINGS → fetched
-// array) and the async/await wrapping changed. The pure applyFilters /
-// applySort / defaultSort helpers stay in lib/listings-search.ts untouched.
-//
-// 3b-B-3: the `?area=` param carries the area slug (URL-stable contract), but
-// Listing.areaId is now the area UUID (migration 0009). Resolve slug → UUID
-// here, at the data seam, so applyFilters' equality stays correct without
-// touching lib/listings-search.ts or the URL contract.
+// Sargable subset of ListingSearchParams (LC-06). Fixed field order + sorted
+// arrays make JSON.stringify a canonical cache key. q and university are
+// absent by design: they stay in-memory and must not multiply cache keys.
+interface DbFilterKey {
+  priceMin?: number;
+  priceMax?: number;
+  areaUuid?: string;
+  type?: ListingType[];
+  beds?: number;
+  furnished?: true;
+  moveInBy?: string;
+  amenities?: string[];
+  gender?: Gender;
+}
+
+// Cached per filter combo (tag "listings", same bust + TTL as getAllListings).
+// Each predicate is never stricter than its applyFilters twin, so this only
+// over-fetches; the downstream applyFilters pass keeps semantics identical.
+const fetchListingsFiltered = unstable_cache(
+  async (keyJson: string): Promise<Listing[]> => {
+    const k = JSON.parse(keyJson) as DbFilterKey;
+    const sb = createPublicClient();
+    let q = sb.from("listings").select(LISTING_COLS);
+    if (k.priceMin != null) q = q.gte("price_monthly", k.priceMin);
+    if (k.priceMax != null) q = q.lte("price_monthly", k.priceMax);
+    if (k.areaUuid) q = q.eq("area_id", k.areaUuid);
+    if (k.type && k.type.length > 0) q = q.in("type", k.type);
+    if (k.beds != null) q = q.gte("bedrooms", k.beds);
+    if (k.furnished) q = q.eq("furnishing", "full");
+    if (k.moveInBy) q = q.lte("available_from", k.moveInBy);
+    if (k.gender) q = q.eq("gender_preference", k.gender);
+    if (k.amenities && k.amenities.length > 0)
+      q = q.contains("amenities", k.amenities);
+    const { data, error } = await q;
+    if (error || !data) return [];
+    return (data as ListingRow[]).map(rowToListing);
+  },
+  ["filtered-listings"],
+  { tags: ["listings"], revalidate: 300 },
+);
+
+// Relocated from lib/listings-search.ts (3b-B-1); since LC-06 the pure helpers
+// run on a DB-prefiltered set, output unchanged. 3b-B-3: `?area=` carries the
+// slug; resolved to UUID here so applyFilters' equality stays correct.
 export async function getFilteredListings(
   p: ListingSearchParams,
   viewerGender?: Gender,
@@ -89,8 +122,24 @@ export async function getFilteredListings(
   const filterParams = p.area
     ? { ...p, area: await areaSlugToUuid(p.area) }
     : p;
+  // Mirror of applyFilters' genderApplies: the gender predicate only reaches
+  // the DB query (and the cache key) when it would actually filter in-memory.
+  const genderApplies = viewerGender !== undefined && p.genderOverride !== "off";
+  const key: DbFilterKey = {
+    priceMin: filterParams.priceMin,
+    priceMax: filterParams.priceMax,
+    areaUuid: filterParams.area,
+    type: filterParams.type ? [...filterParams.type].sort() : undefined,
+    beds: filterParams.beds,
+    furnished: filterParams.furnished ? true : undefined,
+    moveInBy: filterParams.moveInBy,
+    amenities: filterParams.amenities
+      ? [...filterParams.amenities].sort()
+      : undefined,
+    gender: genderApplies ? viewerGender : undefined,
+  };
   const filtered = applyFilters(
-    await getAllListings(),
+    await fetchListingsFiltered(JSON.stringify(key)),
     filterParams,
     viewerGender,
     idx,
