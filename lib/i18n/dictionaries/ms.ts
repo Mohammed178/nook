@@ -754,11 +754,6 @@ const ms: Dictionary = {
     headline2: "benar-benar menyewa.",
     indexDek:
       "{areas} kawasan Lembah Klang, {rooms} bilik tersedia antara semuanya. Setiap kiraan, sewa, dan jarak kampus di bawah dikira daripada senarai semasa, bukan dakwaan.",
-    atAGlance: "Kawasan sepintas lalu",
-    colArea: "Kawasan",
-    colRooms: "Bilik",
-    colFrom: "Dari",
-    colNearestCampus: "Kampus terdekat",
     noRoomsYet: "Belum ada bilik",
     roomsCount: "{count} bilik",
     roomCount: "{count} bilik",

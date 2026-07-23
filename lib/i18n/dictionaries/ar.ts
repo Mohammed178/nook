@@ -736,11 +736,6 @@ const ar: Dictionary = {
     headline2: "الطلاب فعليًا.",
     indexDek:
       "{areas} منطقة في وادي كلانغ، و{rooms} غرفة متاحة بينها. كل عدد وإيجار ومسافة حرم أدناه محسوب من الإعلانات الحالية، لا من دعوى.",
-    atAGlance: "الأحياء بلمحة",
-    colArea: "المنطقة",
-    colRooms: "الغرف",
-    colFrom: "من",
-    colNearestCampus: "أقرب حرم",
     noRoomsYet: "لا توجد غرف بعد",
     roomsCount: "{count} غرفة",
     roomCount: "{count} غرفة",

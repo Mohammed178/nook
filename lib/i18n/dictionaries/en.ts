@@ -749,11 +749,6 @@ const en = {
     headline2: "actually rent.",
     indexDek:
       "{areas} Klang Valley areas, {rooms} live rooms between them. Every count, rent, and campus distance below is computed from current listings, never a claim.",
-    atAGlance: "Areas at a glance",
-    colArea: "Area",
-    colRooms: "Rooms",
-    colFrom: "From",
-    colNearestCampus: "Nearest campus",
     noRoomsYet: "No rooms yet",
     roomsCount: "{count} rooms",
     roomCount: "{count} room",

@@ -51,38 +51,6 @@ export default async function AreasPage() {
           </p>
         </header>
 
-        {/* At-a-glance: the analytical overview, busiest areas first. */}
-        <section className="area-board" aria-label={t.atAGlance}>
-          <div className="area-board-head" aria-hidden="true">
-            <span>{t.colArea}</span>
-            <span className="num">{t.colRooms}</span>
-            <span className="num">{t.colFrom}</span>
-            <span>{t.colNearestCampus}</span>
-          </div>
-          <ul>
-            {stats.map((s) => {
-              const nearest = s.nearbyCampuses[0];
-              return (
-                <li key={s.area.id} className="area-board-row">
-                  <span className="name">
-                    {s.area.name}
-                    <span className="sub">{s.area.city}</span>
-                  </span>
-                  <span className="num">{s.liveCount}</span>
-                  <span className="num">
-                    {s.fromPrice != null ? formatPrice(s.fromPrice) : "-"}
-                  </span>
-                  <span className="campus">
-                    {nearest
-                      ? `${nearest.shortName} · ${nearest.km.toFixed(1)} km`
-                      : "-"}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
         <ul className="uni-mosaic">
           {stats.map((s, i) => {
             const nearest = s.nearbyCampuses[0];

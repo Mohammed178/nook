@@ -36,7 +36,6 @@ const PRICE_I18N: Record<string, Partial<Record<Locale, string>>> = {
   "Govt loan": { ms: "Pinjaman kerajaan", ar: "قرض حكومي" },
   "Student price": { ms: "Harga pelajar", ar: "سعر الطلاب" },
   "RM2.40 flat": { ms: "RM2.40 rata", ar: "RM2.40 ثابت" },
-  "RM50 / month": { ms: "RM50 / bulan", ar: "RM50 / شهر" },
   "RM1–6 / trip": { ms: "RM1–6 / perjalanan", ar: "RM1–6 / رحلة" },
   "RM30–40 / month": { ms: "RM30–40 / bulan", ar: "RM30–40 / شهر" },
   "From RM20": { ms: "Dari RM20", ar: "من RM20" },
@@ -233,10 +232,8 @@ const OVERLAY: Record<string, CategoryOverlay> = {
       kicker: "Bergerak ke sana sini",
       title: "Pengangkutan & perjalanan",
       blurb:
-        "Lembah Klang bergerak dengan MRT, LRT, Komuter dan kad Touch 'n Go. Sediakan kad dan pas My50 dahulu, ia penjimatan bulanan terbesar untuk pelajar.",
+        "Lembah Klang bergerak dengan MRT, LRT, Komuter dan kad Touch 'n Go. Sediakan kad dahulu, ia tulang belakang untuk bergerak dengan murah.",
       what: {
-        "My50 unlimited pass":
-          "RM50 sebulan untuk kereta api dan bas Rapid KL tanpa had (MRT, LRT, monorel, BRT). Belian komuter penting jika anda bergerak setiap hari.",
         "Touch 'n Go eWallet":
           "Satu apl untuk kereta api, tol, letak kereta dan kebanyakan pembayaran tanpa tunai. Tambah nilai dalam talian; pautkan kad untuk isi semula automatik.",
         "Rapid KL (MRT / LRT)":
@@ -250,10 +247,8 @@ const OVERLAY: Record<string, CategoryOverlay> = {
       kicker: "التنقّل",
       title: "النقل والسفر",
       blurb:
-        "يعمل وادي كلانغ على MRT وLRT وKomuter وبطاقة Touch 'n Go. جهّز البطاقة وبطاقة My50 أولًا، فهي أكبر توفير شهري للطالب.",
+        "يعمل وادي كلانغ على MRT وLRT وKomuter وبطاقة Touch 'n Go. جهّز البطاقة أولًا، فهي العمود الفقري للتنقّل بثمن رخيص.",
       what: {
-        "My50 unlimited pass":
-          "RM50 شهريًا لقطارات وحافلات Rapid KL بلا حدود (MRT, LRT, monorail, BRT). شراء أساسي للمتنقّل يوميًا.",
         "Touch 'n Go eWallet":
           "تطبيق واحد للقطارات والرسوم والمواقف ومعظم المدفوعات بلا نقد. اشحن عبر الإنترنت؛ واربط بطاقة لإعادة التعبئة التلقائية.",
         "Rapid KL (MRT / LRT)":

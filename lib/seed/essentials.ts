@@ -256,15 +256,8 @@ export const ESSENTIALS: EssentialCategory[] = [
     title: "Transport & travel",
     icon: "train",
     blurb:
-      "The Klang Valley runs on the MRT, LRT, Komuter and a Touch 'n Go card. Set up the card and the My50 pass first, it's the single biggest monthly saving for a student.",
+      "The Klang Valley runs on the MRT, LRT, Komuter and a Touch 'n Go card. Set up the card first, it's the backbone of getting around cheaply.",
     places: [
-      {
-        name: "My50 unlimited pass",
-        what: "RM50 a month for unlimited Rapid KL trains and buses (MRT, LRT, monorail, BRT). The essential commuter buy if you travel daily.",
-        price: "RM50 / month",
-        href: "https://myrapid.com.my/bus-train/how-to-ride-with-us/travel-with-my50/",
-        tag: "Best value",
-      },
       {
         name: "Touch 'n Go eWallet",
         what: "One app for trains, tolls, parking and most cashless payments. Top up online; link a card for auto-reload.",
