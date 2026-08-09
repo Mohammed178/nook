@@ -222,7 +222,7 @@ export function UniversityForm({ mode, initial }: UniversityFormProps) {
               defaultValue={initial?.campusType ?? ""}
             >
               <option value="" disabled>
-                —
+                -
               </option>
               <option value="public">{u.typePublic}</option>
               <option value="private">{u.typePrivate}</option>

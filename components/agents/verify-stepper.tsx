@@ -164,9 +164,9 @@ export function VerifyStepper({
                 onChange={(e) => setLicenceType(e.target.value)}
               >
                 <option value="">{t.licenceTypePlaceholder}</option>
-                <option value="REN">REN — {t.licenceRenSub}</option>
-                <option value="REA">REA — {t.licenceReaSub}</option>
-                <option value="PEA">PEA — {t.licencePeaSub}</option>
+                <option value="REN">REN: {t.licenceRenSub}</option>
+                <option value="REA">REA: {t.licenceReaSub}</option>
+                <option value="PEA">PEA: {t.licencePeaSub}</option>
               </select>
               <div className="help">{t.licenceTypeHelp}</div>
             </div>
