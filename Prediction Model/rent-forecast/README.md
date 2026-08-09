@@ -13,8 +13,8 @@ latest observed month and aggregates the medians by state or district.
 
 ## Data
 
-`data/malaysia_rental_panel.csv` — a monthly panel of 203 facilities across 10
-states / 28 districts, Jan 2019 to Dec 2025 (~17k rows). One target and its
+`data/malaysia_rental_panel.csv` — a monthly panel of 520 facilities across 10
+states / 28 districts, Jan 2019 to Dec 2025 (43,680 rows). One target and its
 lag/rolling features are pre-computed; the rest are property, location, and macro
 attributes. See `src/config.py` for the full column contract.
 
