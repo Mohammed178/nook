@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import type { Area } from "@/lib/types";
@@ -21,7 +22,10 @@ export const getAllAreas = unstable_cache(
   { tags: ["areas"], revalidate: 300 },
 );
 
-export async function getAreaBySlug(slug: string): Promise<Area | null> {
+// cache(): generateMetadata and the page body both fetch the same slug, so the
+// cookie client would run two identical queries per request. Per-request only,
+// same pattern as getLocale / getCurrentUser.
+export const getAreaBySlug = cache(async (slug: string): Promise<Area | null> => {
   const sb = await createClient();
   const { data, error } = await sb
     .from("areas")
@@ -30,7 +34,7 @@ export async function getAreaBySlug(slug: string): Promise<Area | null> {
     .maybeSingle();
   if (error || !data) return null;
   return rowToArea(data as AreaRow);
-}
+});
 
 export async function getAreaByUuid(uuid: string): Promise<Area | null> {
   const sb = await createClient();

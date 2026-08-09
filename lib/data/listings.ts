@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import {
@@ -41,7 +42,10 @@ export const getAllListings = unstable_cache(
   { tags: ["listings"], revalidate: 300 },
 );
 
-export async function getListingBySlug(slug: string): Promise<Listing | null> {
+// cache(): same duplication as getAreaBySlug — generateMetadata and the page
+// body both fetch this slug. Per-request only; the cookie client keeps this out
+// of unstable_cache.
+export const getListingBySlug = cache(async (slug: string): Promise<Listing | null> => {
   const sb = await createClient();
   const { data, error } = await sb
     .from("listings")
@@ -50,7 +54,7 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
     .maybeSingle();
   if (error || !data) return null;
   return rowToListing(data as ListingRow);
-}
+});
 
 // Resolver for favourites / recent_views, which store Listing.id (the UUID).
 // Builds a UUID-keyed map over all listings; returns undefined for an id absent
