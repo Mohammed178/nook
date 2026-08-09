@@ -28,9 +28,9 @@ export const HERO_SEARCH_HINTS = [
 // (parseListingSearchParams). There is deliberately NO gender chip: gender is
 // identity-driven (profile preference), it has no URL param by design.
 export const QUICK_CHIPS: { label: string; href: string }[] = [
-  { label: "Near UM", href: "/listings?universityId=um" },
-  { label: "Near UKM (Bangi)", href: "/listings?universityId=ukm" },
-  { label: "Near Sunway", href: "/listings?universityId=sunway" },
+  { label: "Near UM", href: "/listings?university=um" },
+  { label: "Near UKM (Bangi)", href: "/listings?university=ukm" },
+  { label: "Near Sunway", href: "/listings?university=sunway" },
   { label: "Studios", href: "/listings?type=studio" },
   { label: "Under RM 500", href: "/listings?maxPrice=500" },
   { label: "Furnished", href: "/listings?furnished=1" },
