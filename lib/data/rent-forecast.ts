@@ -5,9 +5,9 @@
 //
 // The snapshot stores ONLY percentage changes per horizon. The panel behind the
 // model is synthetic, so its absolute rents are the wrong scale for Nook's real
-// student rooms; the UI rebases these percentages onto each area's real median
-// listing price (see `projectRent`). Areas with no panel proxy are simply absent
-// from the snapshot, and `getAreaForecast` returns null for them.
+// student rooms; the UI therefore surfaces the % change alone and never a
+// projected RM figure. Areas with no panel proxy are simply absent from the
+// snapshot, and `getAreaForecast` returns null for them.
 
 import snapshot from "@/lib/seed/rent-forecast.json";
 
@@ -37,15 +37,4 @@ const SNAPSHOT = snapshot as ForecastSnapshot;
 /** The forecast for an area slug, or null when the area has no panel proxy. */
 export function getAreaForecast(slug: string): AreaForecast | null {
   return SNAPSHOT.areas[slug] ?? null;
-}
-
-/** Model test R² per horizon + provenance, for honest labelling in the UI. */
-export function getForecastMeta() {
-  const { asOf, modelVersion, testR2, generatedAt } = SNAPSHOT;
-  return { asOf, modelVersion, testR2, generatedAt };
-}
-
-/** Apply a forecast percentage to a real base rent, rounded to whole RM. */
-export function projectRent(baseRent: number, pct: number): number {
-  return Math.round(baseRent * (1 + pct / 100));
 }

@@ -6,8 +6,9 @@ import { getDictionary } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
 
 // Support is email-only for now (decided 2026-06-18). The address lives here as
-// the single source; swap it when the real mailbox is live. No backend, no form:
-// this page is static chrome over the localized FAQ in the dictionary.
+// the single source; swap it when the real mailbox is live. It is displayed as
+// plain text, not a mailto link -- no backend, no form: this page is static
+// chrome over the localized FAQ in the dictionary.
 const SUPPORT_EMAIL = "help@nook.my";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,7 +21,6 @@ const num = (i: number) => String(i + 1).padStart(2, "0");
 export default async function HelpPage() {
   const dict = await getDictionary();
   const t = dict.help;
-  const mailto = `mailto:${SUPPORT_EMAIL}`;
 
   // Pulled from nav labels so they stay in sync with the rest of the site.
   const related = [
@@ -115,23 +115,7 @@ export default async function HelpPage() {
             <p>{t.contactBlurb}</p>
             <p className="help-contact-note">{t.emailNote}</p>
           </div>
-          <a
-            className="help-contact-card"
-            href={mailto}
-            aria-label={format(t.opensEmail, { email: SUPPORT_EMAIL })}
-          >
-            <span className="help-contact-ico" aria-hidden="true">
-              <Icon name="mail" size={20} />
-            </span>
-            <span className="help-contact-meta">
-              <span className="help-contact-label">{t.emailLabel}</span>
-              <span className="help-contact-value">{SUPPORT_EMAIL}</span>
-            </span>
-            <span className="help-contact-cta">
-              {t.emailCta}
-              <Icon name="arrow-right" size={14} className="rtl-flip" />
-            </span>
-          </a>
+          <span className="help-contact-value force-ltr">{SUPPORT_EMAIL}</span>
         </section>
 
         <nav className="help-related" aria-label={t.relatedTitle}>
