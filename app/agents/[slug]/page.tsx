@@ -7,7 +7,7 @@ import { ListingCard } from "@/components/nook/listing-card";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
 import { getAgentProfile } from "@/lib/data/agent-directory";
 import { getAllUniversities } from "@/lib/data/universities";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { format } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/types";
 import { isUniversityLister } from "@/lib/types";
@@ -35,7 +35,11 @@ function initials(name: string) {
 }
 
 export default async function AgentProfilePage({ params }: ProfilePageProps) {
-  const [{ slug }, dict] = await Promise.all([params, getDictionary()]);
+  const [{ slug }, dict, locale] = await Promise.all([
+    params,
+    getDictionary(),
+    getLocale(),
+  ]);
   const profile = await getAgentProfile(slug);
   if (!profile) notFound();
 
@@ -164,6 +168,7 @@ export default async function AgentProfilePage({ params }: ProfilePageProps) {
                       agent={agent}
                       area={areaById.get(listing.areaId) ?? null}
                       card={dict.card}
+                      locale={locale}
                     />
                   ))}
                 </div>

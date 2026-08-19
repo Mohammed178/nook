@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
-import { format } from "@/lib/i18n/config";
+import { format, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import type { ListingWithRelations } from "@/lib/types";
 
@@ -16,9 +16,16 @@ interface RecentListProps {
   savedIds: Set<string>;
   signedIn: boolean;
   dict: Dictionary;
+  locale: Locale;
 }
 
-export function RecentList({ items, savedIds, signedIn, dict }: RecentListProps) {
+export function RecentList({
+  items,
+  savedIds,
+  signedIn,
+  dict,
+  locale,
+}: RecentListProps) {
   const count = items.length;
   const l = dict.accountLists;
 
@@ -58,6 +65,7 @@ export function RecentList({ items, savedIds, signedIn, dict }: RecentListProps)
                 agent={item.agent}
                 area={item.area}
                 card={dict.card}
+                locale={locale}
                 variant="horizontal"
                 initialSaved={savedIds.has(item.listing.id)}
                 signedIn={signedIn}

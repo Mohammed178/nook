@@ -5,7 +5,7 @@ import { Navbar } from "@/components/nook/navbar";
 import { Icon } from "@/components/nook/icon";
 import { ShareButton } from "@/components/nook/share-button";
 import { ListingCard } from "@/components/nook/listing-card";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 import { HeartButton } from "@/components/nook/heart-button";
 import { Gallery } from "@/components/listings/gallery";
 import { PhoneReveal } from "@/components/listings/phone-reveal";
@@ -36,6 +36,7 @@ import { NEARBY_BY_AREA } from "@/lib/seed/nearby";
 import { amenitySpec } from "@/lib/amenities";
 import { format } from "@/lib/i18n/config";
 import { daysSince, relativeDate } from "@/lib/relative-date";
+import { formatDate } from "@/lib/format-date";
 import { formatPrice } from "@/lib/utils";
 import {
   parseListingSearchParams,
@@ -103,10 +104,11 @@ export default async function ListingDetailPage({
   const parsed = parseListingSearchParams(sp);
   const currentQuery = preserveQueryString(sp);
 
-  const [savedIds, user, dict] = await Promise.all([
+  const [savedIds, user, dict, locale] = await Promise.all([
     getFavouriteIds(),
     getCurrentUser(),
     getDictionary(),
+    getLocale(),
   ]);
   const signedIn = user !== null;
   const d = dict.listingDetail;
@@ -124,6 +126,12 @@ export default async function ListingDetailPage({
     monthsAgo: d.postedMonthsAgo,
   });
   const postedToday = daysSince(postedIso) === 0;
+  // Move-in date the agent entered. Once it has passed the exact date stops
+  // being useful, so it collapses to "Available now".
+  const availableLabel =
+    daysSince(listing.availableFrom) >= 0
+      ? d.availableNow
+      : formatDate(listing.availableFrom, locale);
 
   // Post-3b-B-3: Listing.areaId / agentId are UUIDs. Resolve the Agent/Area
   // rows by UUID, then index the slug-keyed seed lookups by their stable slug.
@@ -295,6 +303,11 @@ export default async function ListingDetailPage({
                 {format(d.toCampus, { uni: primaryUni?.shortName ?? d.campus })}
               </div>
             </div>
+            <div className="qf">
+              <div className="qf-icon"><Icon name="calendar" size={20} /></div>
+              <div className="qf-val qf-val-date">{availableLabel}</div>
+              <div className="qf-lab">{d.availableFrom}</div>
+            </div>
           </div>
 
           <div className="section description">
@@ -376,6 +389,7 @@ export default async function ListingDetailPage({
                     agent={item.agent}
                     area={item.area}
                     card={dict.card}
+                    locale={locale}
                     currentQuery={currentQuery}
                   />
                 ))}

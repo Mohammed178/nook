@@ -7,7 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
 import { buildListingsHref } from "@/lib/listings-search";
-import { useDict } from "@/lib/i18n/context";
+import { useDict, useLocale } from "@/lib/i18n/context";
 import { riseIn, spring, staggerDelay } from "@/lib/motion";
 import type { ListingWithRelations } from "@/lib/types";
 import type { ListingsView } from "@/lib/listings-search";
@@ -60,6 +60,7 @@ export function ListingsBody({
   signedIn,
 }: ListingsBodyProps) {
   const dict = useDict();
+  const locale = useLocale();
   const l = dict.listings;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mobileMapOpen, setMobileMapOpen] = useState(false);
@@ -164,6 +165,7 @@ export function ListingsBody({
                   agent={agent}
                   area={area}
                   card={dict.card}
+                  locale={locale}
                   variant="horizontal"
                   currentQuery={currentQuery}
                   isActive={activeId === listing.id}

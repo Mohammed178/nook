@@ -654,6 +654,8 @@ const ar: Dictionary = {
     postedDaysAgo: "نُشر قبل {n} يوم",
     postedAMonthAgo: "نُشر قبل شهر",
     postedMonthsAgo: "نُشر قبل {n} أشهر",
+    availableFrom: "متاح من {date}",
+    availableNow: "متاح الآن",
   },
   accountLists: {
     recentTitle: "الأخيرة",
@@ -816,6 +818,8 @@ const ar: Dictionary = {
     postedDaysAgo: "نُشر قبل {n} يوم",
     postedAMonthAgo: "نُشر قبل شهر",
     postedMonthsAgo: "نُشر قبل {n} أشهر",
+    availableFrom: "متاح من",
+    availableNow: "متاح الآن",
     share: "مشاركة",
     perMonth: "/شهر",
     withinBudget: "ضمن الميزانية · {diff} أقل من حدّك {max}",

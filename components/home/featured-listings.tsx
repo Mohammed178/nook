@@ -2,14 +2,15 @@ import Link from "next/link";
 import { ListingCard } from "@/components/nook/listing-card";
 import { getFeaturedListings } from "@/lib/data/featured";
 import { attachListingRelations } from "@/lib/data/listings-relations";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 
 export async function FeaturedListings() {
   const listings = await getFeaturedListings();
   if (listings.length === 0) return null;
-  const [items, dict] = await Promise.all([
+  const [items, dict, locale] = await Promise.all([
     attachListingRelations(listings),
     getDictionary(),
+    getLocale(),
   ]);
   const h = dict.home;
 
@@ -30,6 +31,7 @@ export async function FeaturedListings() {
             agent={agent}
             area={area}
             card={dict.card}
+            locale={locale}
             variant="homepage"
           />
         ))}

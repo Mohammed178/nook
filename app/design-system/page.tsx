@@ -4,7 +4,7 @@ import { Icon } from "@/components/nook/icon";
 import { Navbar } from "@/components/nook/navbar";
 import { getAllListings } from "@/lib/data/listings";
 import { attachListingRelations } from "@/lib/data/listings-relations";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 
 const COLORS: Record<string, [string, string][]> = {
   Brand: [
@@ -71,7 +71,7 @@ export default async function DesignSystemPage() {
   const sampleH = await attachListingRelations(listings.slice(0, 2));
   const sampleMini = await attachListingRelations(listings.slice(0, 3));
   const [mapSample] = await attachListingRelations([listings[0]]);
-  const dict = await getDictionary();
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const card = dict.card;
   return (
     <div style={{ background: "var(--ink-50)" }}>
@@ -294,6 +294,7 @@ export default async function DesignSystemPage() {
                 agent={agent}
                 area={area}
                 card={card}
+                locale={locale}
               />
             ))}
           </div>
@@ -314,6 +315,7 @@ export default async function DesignSystemPage() {
                 agent={agent}
                 area={area}
                 card={card}
+                locale={locale}
                 variant="horizontal"
               />
             ))}
@@ -330,6 +332,7 @@ export default async function DesignSystemPage() {
                     agent={agent}
                     area={area}
                     card={card}
+                    locale={locale}
                     variant="mini"
                   />
                 ))}
@@ -354,6 +357,7 @@ export default async function DesignSystemPage() {
                   agent={mapSample.agent}
                   area={mapSample.area}
                   card={card}
+                  locale={locale}
                   variant="map"
                 />
               </div>

@@ -667,6 +667,10 @@ const en = {
     postedDaysAgo: "Posted {n} days ago",
     postedAMonthAgo: "Posted a month ago",
     postedMonthsAgo: "Posted {n} months ago",
+    // Move-in date the agent entered (listings.available_from). Reads
+    // "Available now" once that date has passed.
+    availableFrom: "Available from {date}",
+    availableNow: "Available now",
   },
   accountLists: {
     recentTitle: "Recent",
@@ -829,6 +833,8 @@ const en = {
     postedDaysAgo: "Posted {n} days ago",
     postedAMonthAgo: "Posted a month ago",
     postedMonthsAgo: "Posted {n} months ago",
+    availableFrom: "Available from",
+    availableNow: "Available now",
     share: "Share",
     perMonth: "/mo",
     withinBudget: "Within budget · {diff} below your {max} cap",

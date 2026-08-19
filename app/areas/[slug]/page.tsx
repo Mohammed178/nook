@@ -427,6 +427,7 @@ export default async function AreaPage({
                     agent={item.agent}
                     area={item.area}
                     card={dict.card}
+                    locale={locale}
                   />
                 </div>
               ))}

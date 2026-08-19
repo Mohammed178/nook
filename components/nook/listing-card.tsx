@@ -7,8 +7,9 @@ import { formatPrice } from "@/lib/utils";
 import { sizedPhotoUrl } from "@/lib/data/_row-mappers";
 import { nearestCampus } from "@/lib/distance";
 import { UNIVERSITY_BY_ID } from "@/lib/seed/universities";
-import { format } from "@/lib/i18n/config";
+import { format, type Locale } from "@/lib/i18n/config";
 import { daysSince, relativeDate } from "@/lib/relative-date";
+import { formatDate } from "@/lib/format-date";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 export type ListingCardVariant =
@@ -23,6 +24,8 @@ interface ListingCardProps {
   agent: Agent | null;
   area: Area | null;
   card: Dictionary["card"];
+  /** Needed to format the move-in date; ListingCard renders on both sides. */
+  locale: Locale;
   variant?: ListingCardVariant;
   href?: string;
   currentQuery?: string;
@@ -46,6 +49,7 @@ export function ListingCard({
   agent,
   area,
   card: c,
+  locale,
   variant = "vertical",
   href,
   currentQuery,
@@ -99,6 +103,14 @@ export function ListingCard({
     monthsAgo: c.postedMonthsAgo,
   });
   const postedToday = daysSince(postedIso) === 0;
+  // Move-in date the agent entered. Past dates collapse to "Available now" so a
+  // long-listed room does not advertise a date that has already gone by.
+  const availableLabel =
+    daysSince(listing.availableFrom) >= 0
+      ? c.availableNow
+      : format(c.availableFrom, {
+          date: formatDate(listing.availableFrom, locale),
+        });
 
   if (variant === "mini") {
     return (
@@ -294,6 +306,10 @@ export function ListingCard({
               {c.furnished}
             </span>
           )}
+        </div>
+        <div className="card-available">
+          <Icon name="calendar" size={12} />
+          {availableLabel}
         </div>
         <div className="card-posted">{postedLabel}</div>
         {agent && (

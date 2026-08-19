@@ -5,7 +5,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "@/components/nook/icon";
 import { ListingCard } from "@/components/nook/listing-card";
-import { useDict } from "@/lib/i18n/context";
+import { useDict, useLocale } from "@/lib/i18n/context";
 import { format } from "@/lib/i18n/config";
 import type { ListingWithRelations } from "@/lib/types";
 
@@ -19,6 +19,7 @@ interface SavedListProps {
 
 export function SavedList({ initial }: SavedListProps) {
   const dict = useDict();
+  const locale = useLocale();
   const l = dict.accountLists;
   const [items, setItems] = useState<SavedListItem[]>(initial);
   const [optimisticItems, removeOptimistic] = useOptimistic<
@@ -82,6 +83,7 @@ export function SavedList({ initial }: SavedListProps) {
                   agent={item.agent}
                   area={item.area}
                   card={dict.card}
+                  locale={locale}
                   variant="horizontal"
                   initialSaved
                   signedIn

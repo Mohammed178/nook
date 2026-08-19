@@ -9,7 +9,7 @@ import {
   mapsConfigured,
 } from "@/components/maps/google";
 import { ListingCard } from "@/components/nook/listing-card";
-import { useDict } from "@/lib/i18n/context";
+import { useDict, useLocale } from "@/lib/i18n/context";
 import type { ListingWithRelations } from "@/lib/types";
 
 interface ListingsMapProps {
@@ -34,6 +34,7 @@ export function ListingsMap({
   currentQuery,
 }: ListingsMapProps) {
   const dict = useDict();
+  const locale = useLocale();
   const card = dict.card;
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -111,6 +112,7 @@ export function ListingsMap({
                   agent={open.item.agent}
                   area={open.item.area}
                   card={card}
+                  locale={locale}
                   variant="map"
                   currentQuery={currentQuery}
                 />

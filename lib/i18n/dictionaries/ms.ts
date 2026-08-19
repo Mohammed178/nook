@@ -671,6 +671,8 @@ const ms: Dictionary = {
     postedDaysAgo: "Disiarkan {n} hari lalu",
     postedAMonthAgo: "Disiarkan sebulan lalu",
     postedMonthsAgo: "Disiarkan {n} bulan lalu",
+    availableFrom: "Tersedia dari {date}",
+    availableNow: "Tersedia sekarang",
   },
   accountLists: {
     recentTitle: "Terkini",
@@ -834,6 +836,8 @@ const ms: Dictionary = {
     postedDaysAgo: "Disiarkan {n} hari lalu",
     postedAMonthAgo: "Disiarkan sebulan lalu",
     postedMonthsAgo: "Disiarkan {n} bulan lalu",
+    availableFrom: "Tersedia dari",
+    availableNow: "Tersedia sekarang",
     share: "Kongsi",
     perMonth: "/bln",
     withinBudget: "Dalam bajet · {diff} di bawah had {max} anda",

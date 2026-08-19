@@ -564,6 +564,12 @@ img { display: block; max-width: 100%; }
 .card-addr { font-size: var(--t-sm); color: var(--ink-500); display: flex; align-items: center; gap: 4px; }
 .card-facts { display: flex; gap: 12px; font-size: var(--t-sm); color: var(--ink-700); }
 .card-facts span { display: inline-flex; align-items: center; gap: 4px; }
+/* Move-in date, one step louder than the posted line: it is a decision input,
+   not provenance. */
+.card-available {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--t-xs); color: var(--ink-600); font-weight: 500;
+}
 /* "Posted X ago" — quiet, day-granularity line on vertical/horizontal cards. */
 .card-posted { font-size: var(--t-xs); color: var(--ink-400); }
 .card-divider { height: 1px; background: var(--ink-200); margin: 4px 0; }
@@ -1447,7 +1453,7 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 
 /* Quick facts, de-carded: borderless strip, hairline dividers only */
 .quick-facts {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
   padding: 18px 0;
   border-top: 1px solid var(--ink-150);
   border-bottom: 1px solid var(--ink-150);
@@ -1457,6 +1463,9 @@ html[dir="rtl"] body { font-family: var(--font-geist), 'Geist', 'Noto Naskh Arab
 .qf-icon { color: var(--ink-500); margin-bottom: 6px; display: flex; justify-content: center; }
 .qf-val { font-size: var(--t-md); font-weight: 700; color: var(--ink-900); font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .qf-lab { font-size: var(--t-xs); color: var(--ink-500); margin-top: 2px; }
+/* The move-in date is the only word-shaped quick fact; mono at --t-md overflows
+   a sixth of the row, so it drops to the body face one step down. */
+.qf-val-date { font-family: inherit; font-size: var(--t-sm); letter-spacing: 0; }
 
 .section h2 { font-size: var(--t-xl); margin-bottom: 12px; font-weight: 700; }
 .description p { font-size: var(--t-base); color: var(--ink-700); line-height: 1.6; margin-bottom: 12px; }

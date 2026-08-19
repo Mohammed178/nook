@@ -268,6 +268,7 @@ export default async function UniversityPage({
                     agent={item.agent}
                     area={item.area}
                     card={dict.card}
+                    locale={locale}
                   />
                 </div>
               ))}

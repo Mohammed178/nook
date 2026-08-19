@@ -7,7 +7,7 @@ import {
   type RecentListItem,
 } from "@/components/account/recent-list";
 import { attachListingRelations } from "@/lib/data/listings-relations";
-import { getDictionary } from "@/lib/i18n/server";
+import { getDictionary, getLocale } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getDictionary();
@@ -15,11 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RecentPage() {
-  const [recents, savedIds, user, dict] = await Promise.all([
+  const [recents, savedIds, user, dict, locale] = await Promise.all([
     getRecentlyViewed(),
     getFavouriteIds(),
     getCurrentUser(),
     getDictionary(),
+    getLocale(),
   ]);
 
   const resolved = await attachListingRelations(recents.map((r) => r.listing));
@@ -36,6 +37,7 @@ export default async function RecentPage() {
       savedIds={new Set(savedIds)}
       signedIn={user !== null}
       dict={dict}
+      locale={locale}
     />
   );
 }
